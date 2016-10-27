@@ -1,0 +1,4297 @@
+/* simple reset */
+
+*{
+  margin: 0;
+  padding: 0;
+}
+
+/*sent by Amit joshi 23-3-2011*/
+input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
+	background-color:#ffe6b3;
+	}
+
+/* body declarations */
+
+body {
+  color: #062D4D;
+  margin: 0;
+  padding: 0;
+}	
+#more_link { clear:left;}
+#more_link a { text-decoration:underline; font-weight:900; }
+
+
+body p {
+  line-height:1.4;
+  margin:13px 0;
+}
+
+body h3, h4, h5, h6 {
+  color: #062D4D;
+}
+
+body form {
+  font-size: 82%;
+ 
+}
+
+label.printmail-label {
+	float:none;width:auto;
+	}
+body legend {
+  font-size: 110%;
+}
+body legend a {
+  color:#fff;
+  text-decoration:none; 
+  }
+
+#descriptiontext {
+	font-size:140%;
+	}
+
+ol, ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+body .title, body .title a {
+  color: #062D4D;
+  text-decoration: none;
+}
+
+body .title a:hover {
+  text-decoration: underline;
+}
+
+body a span.continue { 
+  background-color: #a30000;
+  color: white;
+  padding: 1px 3px;
+  text-decoration: none;
+}
+
+#ah_custom_banner fieldset {
+ border: 0px dotted #590714;
+ padding: 0px 0px 0px 0px;
+}
+
+/*added ny prachi*/
+#leaderboard fieldset{
+ border: 0px dotted #590714;
+ padding: 0px 0px 0px 0px;
+}
+
+#header {
+padding: 10px 0px 10px 0px;
+}
+
+#header h1 {
+overflow:hidden;
+}
+
+/*Search Box 24 feb*/
+#search-box form#search-theme-form {
+font-size:100%;
+}
+
+#search-box input[type="text"] {
+width:142px;
+}
+
+#wrapper {
+  margin:10px 0px 0px;
+display:inline;
+}
+
+/* left column */
+
+#sidebar-left
+{
+width:180px;
+float:left;
+
+}
+
+#left.magazine {
+  height: 100px;
+}
+
+/* main column */
+
+#main {
+  margin-right: 0px;
+  margin-left: 0px;
+height:inherit;
+float:left; /*18 jan for ".main" alignment :sushil & amit*/
+padding-right:10px;
+}
+
+#main.with-both {
+width:51%;
+} 
+
+#main.no-left {
+width:69%;
+} 
+
+.no-right{
+width:79%;
+} 
+
+#main.historic-sites {
+width:69%;
+}
+.main-cont {
+  text-align:left;
+  padding-top:10px;
+  
+}
+.historic-sites #main.historic-sites-main{
+width:73%;
+padding-right:0px;
+}
+
+#views-exposed-form-Search-landing-page-page-1 fieldset, #views-exposed-form-search-page-1 fieldset, #views-exposed-form-search-national-parks-page-1 fieldset {
+  border: 1px dotted #590714;
+ padding: 10px 10px 10px 10px;
+} 
+
+.clear-block fieldset {
+  border: 1px dotted #590714;
+ padding: 10px 10px 10px 10px;
+}
+
+.clear-block #footer fieldset {
+  border: 1px solid #062D4D;
+  padding: 15px 0px 0px 0px;
+  width:100%;
+}
+
+.clear-block legend {
+  background-color: #590714;
+  padding: 4px;
+  color: white;
+  display:table;
+  margin-bottom:10px;
+}
+
+#magazine .panel {
+  border: 1px dotted #bbb;
+  padding: 8px 5px;
+  margin-bottom: 10px;
+  width:auto;
+  overflow:hidden;
+}
+
+.panel {
+  width:700px;
+}
+
+.taxo-list .item-list {
+  border: 1px dotted #bbb;
+  padding: 8px 5px;
+  margin-bottom: 10px;
+  margin-top: 5px;
+}
+
+.panel a:hover {
+ /* text-decoration: none; changed to underline none to match new wireframe -25-Jan-2011 amit change 2- 4feb*/
+}
+  
+
+/* collections  */
+
+
+.panel-2col-stacked .panel-col-last { 
+/*float: left; to apply inheritance */
+width:375px;
+}
+
+.panel-col-last {
+
+/*width:395px;
+float:right; to apply inheritance */
+
+}
+#search-landing-page .panel-col-top, #search-landing-page .center-wrapper {
+clear:none;
+}
+#search-landing-page .panel-col-first {
+float:none;
+}
+ .panel-2col-stacked .bookdiv {
+width:515px;
+}
+/*all  ".search_result_2" classes are renamed here as ".blog-inline" */
+
+.blog-inline h1 {
+  font-weight: 900;
+  font-family: arial;
+  border: none;
+  font-size: 135%;
+  margin-bottom: 5px;
+  font-weight: 100;
+}
+
+.blog-inline h2 {
+  text-transform: uppercase;
+  margin-bottom: 5px;
+  font-weight: 100;
+  font-size: 110%;
+}
+
+.blog-inline p {
+  margin: 2px 0;
+  line-height: 1.3;
+}
+
+.blog-inline img {
+  float: right;
+  width: 100px;
+  height: 100px;
+  background-color: #ddd;
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+.blog-inline h2 a {
+  text-decoration: none;
+}
+
+.blog-inline h2 a:hover {
+text-decoration: underline;
+}
+
+.blog-inline p span {
+  font-weight: 900;
+line-height:20px;
+}
+/*.blog-inline span.continue a, .blog-inline span.continue a:hover {*/
+.blog-inline .continue a, .blog-inline .continue a:hover {
+  background-color: #a30000;
+  color: white;
+  padding: 1px 3px;
+  text-decoration: none;
+  text-transform: capitalize;
+font-size:110%;
+_font-size:76%;
+*font-size:76%;
+}
+
+.blog-inline .check {
+  position: relative;
+  float: left;
+  margin-left: -20px;
+  top: 4px;
+}
+
+
+.full_record img {
+  width: 300px;
+  float: left;
+  height: 300px;
+  background-color: yellow;
+  margin-right: 10px;
+}
+#collection_banner img {
+    margin-bottom: 10px;
+margin-top: 5px;
+height:auto;/* Added by IMC on 26th May, 2011 for adjusting aspect ration of banner on site landing page */
+}
+
+.pane-3 div#collection_banner {
+/*  display: block;	*/
+}  /* Hide banner on collections landing page - Added by Adam, 10 March 2011 */
+
+#collections_ad_banner {
+  height: 130px;
+  background:none;
+  margin-bottom: 5px;
+}
+
+
+#leftTab_Nav, #block-block-18 {
+border-right:1px solid #DDDDDD;
+}
+.collection_profile h4 {
+	border:none !important;
+}
+#views-exposed-form-search-page-1 input[type="text"] {
+width:200px /*150px*/;
+display:inline;
+margin:0px 260px 5px 0px;
+float:right;
+height:16px;
+}
+
+#views-exposed-form-Search-landing-page-page-1 input#edit-keys {
+  width: 210px;
+  } /* Added by Adam 10 March 2011 to lengthen search field */
+
+#views-exposed-form-Search-landing-page-page-1 input#edit-submit {
+  width: 125px;
+}
+/* Added by Prachi for Browse Collection button */
+
+#views-exposed-form-search-page-1 input[type="checkbox"],
+#views-exposed-form-search-page-1 input[type="submit"] { 
+float:left;
+}
+#views-exposed-form-search-page-1 input[type='checkbox'],
+#views-exposed-form-search-page-1 input[type='submit']
+ {
+width:auto;
+float:left;
+}
+#chk_id {
+/*margin-bottom:5px;*/
+}
+/*#sort_id {
+clear:right;
+margin-bottom:5px;
+}*/
+#sort_id label {
+display:inline;
+
+}
+/*21 Feb By Prachi*/
+.sort_options {
+    float: right;
+    margin-top: -40px;
+}
+/*21 Feb By Prachi END*/
+
+/* magazine  */
+
+#magazine {
+  margin-right: 0px;
+  margin-left: 0px;
+}
+.magazine_tools {text-align:left;}
+#magazine .sidebar-ref{
+display:block;
+}
+.magazine_tools ul {width:100%;}
+.magazine_tools li {
+	margin-right: 2px;
+}
+.magazine_tools .text-size{
+  margin-right:24px;
+}
+
+.fr {float:right;}
+.fl {float:left;}
+
+.magazine_tools img {
+  margin: 0;
+  margin-right: 4px;
+  padding: 0;  
+  width: 24px;
+  text-decoration: none;
+}
+.magazine_tools .service-links img {
+  margin-right: 0px;
+}
+.magazine_tools ul.links li{
+padding-left:0px;
+padding-right:0px;
+}
+
+.magazine .drop_letter h3 {
+  color: #072d4d;
+  background-color:#fff;
+  border:none;
+  font-weight: 900;
+  font-size: 110%;
+  padding: 2px 0;
+  margin: 0;
+  margin-bottom: 10px;
+  text-align: left;
+	}
+.drop_letter .img-block {
+   display:none;
+}	
+.magazine .drop_letter .pager, .contributor .drop_letter .pager, .contributor .pager  {
+    text-align: center !important;
+}
+.magazine p.author a {text-transform: capitalize;}
+
+.article .insertable {
+display:block
+}
+.article .insertable .pullquote.even {
+float:left; /* change this to float:right and adjust padding accordingly for left and right once the functionality for generating the odd and even classes is completed. - 24-Jan-11 Amit */
+}
+
+.article img.left {
+  float: left;
+  margin-right: 18px;
+  margin-bottom: 5px;
+} /* Added to help content editors position images in magazine articles. FCKeditor -> 'Advanced' tab -> 'Stylesheet Classes' field, content editor can enter 'left' or 'right' and image will format accordingly -Adam 3 March 2011  */
+
+.article img.right {
+  float: right;
+  margin-left: 18px;
+  margin-bottom: 5px;
+}
+
+.article .insertable .pullquote.odd {
+float:left;
+}
+.article .insertable img{
+display:none 
+}
+.article .pager{
+text-align:center;
+}
+
+.article .left-corner img {
+    width: auto !important;
+}
+
+
+.magazine h2.byline, .contributor h2.byline {
+  margin: 0;
+  padding: 0;
+  color: #333;
+  font-weight: 100;
+  font-style: oblique;  
+}
+
+.contributor .doProperCase {
+  text-transform: capitalize;
+} /* Adam 18 Feb 2010 : Capitalize user profile names in breadcrumb, h1 title */
+
+.contributor h2.byline {
+  font-style: normal; /* Adam 18 Feb 2010 : Ed's orders */
+}
+
+.contributor .profile dl h2.byline .i {
+  font-style: oblique;
+}
+
+.contributor .full-name {font-weight:bold }
+
+.contributor .item-list {border:1px dotted #bbbbbb} 
+
+#issue.panel-col-last {
+    width: 54%;
+}
+#issue .panel-col-first {
+    width: 46%;
+}
+#issue .center-wrapper {width:100%;} /*Amit: 10-Dec-2010 : To make the center coloumn and its content wide*/
+#issue .panel-2col-bricks {width:718px;} /*Amit: 10-Dec-2010 : To make the center coloumn and its content wide*/
+
+#issue .node {  padding-top:0px;} /*Amit: 10-Dec-2010 : Article Page: to remove space below the deck content */
+.node {border-bottom: none; }
+
+#issue .views-field-name a {
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+	font-size:100%;
+	text-transform: capitalize; /* Adam 18-Feb-2011 */
+}
+#issue .eagle img {
+    left: -15px;
+    position: relative;
+    top: -55px;
+    width: 100%;
+}
+#issue #panels-ipe-paneid-53 {
+margin-top:15px;
+}
+
+#issue .view-id-department_stories .view-content{
+margin-top:-35px;
+}
+#issue .view-id-feature_stories .view-content {
+margin-top:-30px;
+}
+#issue .panel-panel.panel-col-last .field.field-type-filefield.field-field-cover{
+text-align:center;
+}
+#issue .panel-panel.panel-col-last   .field.field-type-filefield.field-field-cover img{
+width: 255px;
+height: 328px;
+margin-bottom: 10px;
+border: 1px solid #aaa;
+padding: 2px;
+}/* Adam 18-Feb-2011 : issue cover image was carrying into right gutter; pushed department head down; added border and padding to set white covers against bg */
+#issue.panel-2col-bricks .panel-col-last .inside {
+	margin-left:0px;}
+#issue.panel-2col-bricks .panel-col-last {float:right;}
+.magazine .related {
+	display:none;
+  border: 1px solid #ccc;
+  margin: 0px 0 5px 5px;
+  padding: 0px 0 5px 5px;
+	width:240px;
+	float:right;
+}
+.drop_letter{
+}
+
+/*
+.magazine .drop_letter:first-letter {
+  font-size: 350%;
+  font-weight: 900;
+  float: left;
+  padding: 0;
+  padding-right: 1px;
+}
+*/
+
+#issue .views-row-odd,  #issue .views-row-even{
+border-bottom:solid 1px #ddd ;
+margin-bottom:10px;
+padding-bottom:10px;
+} 
+
+#issue .views-field-name a:hover {
+  text-decoration: underline;
+}
+
+#issue {
+    float: left;
+}
+.issue-wrapper a {
+display:block;
+}
+/*sushil: for content align center*/
+.view-id-volume {
+overflow:hidden;
+}
+.volume .views-view-grid{
+text-align:center;
+}
+.volume .views-field-title a:hover{
+  color: #A30000;
+	text-decoration: none!important;
+	font-size:100% !important;
+}
+
+.volume .views-field-title a{
+    color: black;
+    text-decoration: none!important;
+		font-size:100% !important;
+}
+.volume table{
+width:auto 
+}
+.volume .views-view-grid td {
+    border-bottom:none;
+    width: 30.9%;
+/*    padding-bottom: 6px;
+    padding-left: 6px;
+    padding-right: 4px;
+    padding-top: 4px;
+		margin-bottom: 20px;*/
+}
+.volume .views-view-grid td:hover{
+	    border-bottom:none;
+    width: 30.9%;
+		margin-bottom: 20px;
+}
+.volume .views-view-grid td .issue-wrapper-all{
+    border-bottom:none;
+    padding-bottom: 6px;
+    padding-left: 6px;
+    padding-right: 4px;
+    padding-top: 4px;
+
+		margin-bottom: 20px;
+		overflow:hidden:
+}
+
+.volume .views-view-grid td:hover .issue-wrapper-all{
+    padding-bottom: 6px;
+    padding-left: 6px;
+    padding-right: 4px;
+    padding-top: 4px;
+    background-color: #FFD892;
+}
+
+.volume .issue-wrapper {
+    margin:auto;
+}
+.volume .views-view-grid td:hover a {
+color:#A30000;
+}
+.volume .issue-no a {
+font-weight:900;
+}
+
+.volume #volume {
+    color: #555555;
+    font-style: oblique;
+    margin-bottom: 15px;
+    margin-left: 0;
+    margin-right: 0;
+    margin-top: 2px;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+}
+/* article  */
+
+.article .left-corner img {
+    width: auto; /*24-Jan-2011 amit*/
+}
+
+.views-row-even {
+display:block;
+}
+#pull_1 {
+  float: right;
+  width: 45%;
+  margin-left: 10px;
+  position: relative;
+}
+
+#pull_1 img {
+  width: 100%;
+}
+
+.related {
+  border: 1px solid #ccc;
+  margin: 0;
+  padding: 5px 0 5px 5px;
+}
+
+.related h6 {
+  font-size: 100%;
+  color: #555;
+}
+
+.related p {
+  line-height: 1.2;
+}
+
+.related .title a {
+  font-weight: 900;
+  color: #a30000;
+}
+
+.related .byline a {
+  font-weight: 100;
+  color: #555;
+  
+}
+
+.related a {
+  text-decoration: none;
+}
+
+.related a:hover {
+  text-decoration: underline;
+}
+
+.article .pager{
+text-align:center;
+}
+
+/* contributor  */
+
+.contributor h4 ,  .profile-category h3{
+  margin: 0;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  padding: 0;
+  clear: left;
+  border-bottom: 1px solid gray;
+  font-weight: 900;
+  font-size: 120%;
+}
+
+
+.contributor .bundle h5, 
+.contributor .views-row h5, .contributor-list h5 {
+  margin: 0px 0px 5px 0px;
+  padding: 0;
+  font-size: 190%;
+  font-weight: 100;
+  letter-spacing: .01em;
+}
+.contributor .bundle h5 a:hover, 
+.contributor .views-row h5 a:hover {
+text-decoration:underline;}
+
+.profile-category {
+clear:left;
+}
+
+.profile-category .views-field-title {
+ /*   border-bottom: solid 1px #062D4D ;*/ /*removed to match wireframe css - 20- jan-2011 Amit*/
+}
+.profile-category .view-display-id-profile_1 .views-row {
+    margin-bottom: 25px;
+}
+.article-author {
+
+}
+.contributor .views-field-comment-count a, .contributor .views-field-comment-count a:visited { 
+  text-decoration: none;
+}
+.contributor .views-field-comment-count a:hover { 
+  text-decoration: underline;
+}
+
+.contributor .bundle .tag, .contributor .bundle .tag a,
+.contributor .views-row .tag, .contributor .views-row .tag a{
+  margin: 0;
+  padding: 0;
+  color: #555;
+}
+
+.contributor .bundle .byline,
+.contributor .views-row .byline 
+{
+  font-size: 100%;
+  margin: 0;
+  padding: 0;
+  margin-bottom: 3px;
+}
+
+.profile .picture {
+ float:left;
+}
+
+.profile h3 {
+overflow:hidden;
+}
+
+.profile {
+clear:none;
+}
+
+
+/* issue  */
+	/*as per style.css all ".issue" are changed to "#issue"	   */
+.issue h1, #issue h1 {
+  margin-bottom: 0;
+}
+
+.issue h5, #issue h2 {  margin: 0;
+  margin-bottom: 10px;  
+  padding: 2px 0 0 0;
+  background-color: #590714;
+/*  width: 46%;*/
+  color: white;
+  font-size: 135%;
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: 900;
+  letter-spacing: .11em;
+  font-family: palatino;
+}
+
+#issue ul {
+  float: right;
+}
+  
+#issue ul li {
+  margin: 0;
+  border: 0;
+  padding: 0;
+  display: inline;
+  margin: 0;
+  margin-left: 1px;
+  padding: 4px;
+  border: 1px solid #062D4D;
+  position: relative;
+  top: 4px;
+  list-style: none;
+  background-color: #062D4D;
+  color: white;
+}
+
+#issue ul li a {
+  text-decoration: none;
+  color: white;
+}
+
+#issue .bundle {
+  width: 46%;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+}
+
+#issue .title, #issue .title a {
+  text-decoration: none;
+  font-size: 130%;
+  margin: 0;
+  margin-bottom: 5px;
+  padding: 0;
+  border: 0;
+  line-height: 1.1;
+  letter-spacing: .01em;
+}
+
+#issue .view-feature-stories .views-field-title a, #issue .view-department-stories h3 {
+  text-decoration: none;
+  font-size: 20px;
+  margin: 0;
+  margin-bottom: 5px;
+  padding: 0;
+  border: 0;
+  line-height: 1.1;
+	color: #062D4D;
+}
+
+#issue .pane-feature-stories, #issue  .pane-department-stories {
+padding:10px 0px;
+}
+
+#issue .view-department-stories h3 {
+font-weight:normal;
+}
+#issue .view-department-stories .views-row {
+border-bottom:none;
+margin-bottom:0px;
+padding-bottom:0px;
+}
+
+#issue .view-department-stories .views-row-last{
+border-bottom:solid 1px #ddd ;
+margin-bottom:10px;
+padding-bottom:10px;
+}
+
+ #issue .view-department-stories .views-field-title a {
+  text-decoration: none;
+/*  font-size: 20px; for grouped list of departments*/
+  margin: 0;
+  margin-top:8px;
+  margin-bottom: 5px;
+  padding: 0;
+  border: 0;
+  line-height: 1.1;
+	color: #062D4D;
+	display:inline-block;
+}
+
+#issue .views-field-title a:hover, #issue  .views-field-field-department-slug-value a:hover {
+    text-decoration: underline;
+}
+
+#issue .byline {
+  margin: 5px 0;
+  padding: 0;
+
+}
+
+#issue  .panel-col-top /*replacement for ".issue #volume" */
+{
+  padding: 0;
+  margin: 0;
+  margin-bottom: 10px;
+  margin-top: -5px;
+  font-style: oblique;
+  color: #555;
+	overflow:hidden;
+}
+.fl {
+float:left}
+
+#issue .author, #issue .author p, #issue .author a {
+  margin: 0;
+  padding: 0;
+  
+}
+
+#issue #right_column {
+  float: right;
+}
+
+#issue #cover {
+  width: 100%;
+  border: none;
+  margin-bottom: 10px;
+}
+
+#issue #right_column h5 {
+  width: 100%;
+}
+
+#issue #right_column .bundle {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #ddd;
+}
+.eagle img {
+  margin-bottom:-1px;
+}
+
+#left {
+  visibility: hidden;
+}
+
+* footer  */
+
+
+
+#footer {
+  clear: both;
+  border: 0px solid #062D4D;
+  padding: 20px 0;
+	color:#555555;
+	text-align:center;
+}
+
+
+/*Sushil: for footer links color and center allign*/
+
+#footer ul li {
+  display: inline;
+	border-right: solid 1px #555555;
+	padding-top: 0px;
+}
+
+#footer ul li.last {
+	border-right: none;
+}
+
+#footer a {
+	text-decoration:none;
+	color:#555555;
+}
+
+#footer {
+  clear: both;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #062D4D;
+  padding: 20px 0;
+}
+
+#footer ul li {
+  display: inline;
+}
+
+#footer a:hover {
+text-decoration:underline;
+}
+
+#footer ul.menu {
+text-align:center;
+margin:0px;
+padding:0px;
+line-height:1;
+}
+/*end*/
+
+body #index {
+  text-align: center;
+}
+
+boex ul {
+  position: relative;
+  border: 1px solid maroon;
+  width: 25%;
+  margin: 100px auto;
+  padding: 20px;
+  font-size: 130%;
+  line-height: 1.3;
+  text-align: left;
+}
+
+.imagefield
+	{
+/*	width:400px;
+	height:300px;*/
+	}
+
+.views-label-field-image-fid
+{
+display:none;
+}
+.views-field-field-image-fid
+{
+width:100px;
+float:right;
+}
+.views-field-title
+{
+/*float:left;
+width:400px;*/
+}
+.views-field-title {
+vertical-align: top;}
+
+th.views-field-title a {color:#FFFFFF;text-decoration:underline;/*changed text-decoration underline from none so the lable TITLE can have underline to sort the view by TITLE */}
+
+.views-field-teaser {
+vertical-align: top;}
+
+.views-field-teaser p {
+padding:0px; margin:0px;}
+
+.views-field-field-image-site-img-fid {
+vertical-align: top;}
+
+.views-table th {
+background-color:#590714;
+color:#FFFFFF;
+padding:4px 2px;
+}
+
+.views-table th.active img {float:right;}
+
+.views-table td {
+padding:2px 2px 10px 2px;
+}
+
+.views-table td.active { 
+background:none;
+}
+
+.views-field-body {
+font-weight:900;
+/*float:left;
+width:400px;*/
+}
+#additional_search
+{
+float:right;
+/* margin-top:-30px;*/
+/* margin-top:77px;*/
+ margin-right:20px;
+}
+lable
+{
+float:left;
+margin:0px 5px 0px 0px;
+line-height:16px;
+_position:absolute;
+}
+
+
+input {
+margin:0px;
+margin-right:5px;
+_v-align:top;
+padding:2px;
+}
+
+#edit-preview
+{
+	display : none;
+}
+
+.pane-node-title h2.pane-title, .pane-node-body h2.pane-title, .pane-field-description-physical h2.pane-title, .panel-pane.pane-content-field.pane-field-site-id h2{
+font-size:100%;
+color:#062d4d;
+font-weight:bold;
+float:left;
+}
+
+#museumDescription img {
+float:right;
+padding:0px 3px 10px 15px;
+}
+.travel
+{
+padding:10px;
+}
+
+.travel .colorado #map {
+padding-right:0px;
+}
+.travel img {
+/*padding-right:10px; travel page issue :sushil 31 mar 11*/
+}
+
+#edit-field-institution-value
+{
+display : none;
+}
+
+#sidebar-left {
+	float: left;
+	width: 176px;
+	background-color:white;
+	margin-right:10px;
+
+}
+#Left_Tabs {
+	list-style: none outside;
+	float: right;
+	margin:0px;
+	padding:0px;
+	left:0px;
+	text-align:center;
+}
+#Left_Tabs li {
+	list-style: none outside;
+	float: left;
+	background-color:#580913;
+	margin:0px 0px 0px 2px;
+	display:inline;
+	position:relative;
+	padding:0px;
+}
+#Left_Tabs li a{
+	padding:0px 3px;
+	line-height:20px;
+	text-decoration:none;
+	font-size:10px;
+	font-weight:bold;
+	color:#FFF;
+	display:block;
+}
+#left_Artical_Container {
+	float: left;
+	width: 96%;
+	border-bottom: 1px solid #dddddd;
+	border-top-width: 0px;
+	border-right-width: 0px;
+	border-left-width: 0px;
+	border-top-style: none;
+	border-right-style: none;
+	border-left-style: none;
+	font-size: 12px;
+	padding: 4px 2px;
+	margin: 2px;
+}
+#sidebar-left #quicktabs-2 .record img {
+float: right;
+    margin-left: 2px;
+    width: 70px;
+}
+#sidebar-left #quicktabs-2 .record
+/*#left.collections.trending .record */{
+    border-bottom: 1px solid #DDDDDD;
+    float: left;
+    font-size: 90%;
+    padding: 5px 0px;
+    width: 176px;
+}
+
+#sidebar-left #quicktabs-2 .record ul {
+    border-top: medium none;
+    padding-bottom: 10px;
+    text-align: right;
+}
+#sidebar-left #quicktabs-2 .record li {
+    text-align: left;
+}
+#sidebar-left #block-block-18 .content {
+	border:0px;
+	}
+#sidebar-left p {
+width : 150px ;
+}
+.left_Artical_Text {
+	float: left;
+	width: 170px;
+} 
+
+.left_Artical_Text a {
+	color:#a30c00;
+	text-decoration:underline;
+	float:left;
+	}
+.left_Artical_Text a:hover {
+	color:#a30c00;
+	text-decoration:underline;
+	}
+
+
+#tab_container {
+	border-bottom: 1px solid #580913;
+	border-top-width: 0px;
+	border-right-width: 0px;
+	border-left-width: 0px;
+	border-top-style: none;
+	border-right-style: none;
+	border-left-style: none;
+	float:right;
+	width:100%;
+	}
+#itemDisplay_right{
+float : right;
+width : 380px;
+
+}
+
+
+#itemdisplay-img-left
+{
+float : left;
+}
+
+.views-field-field-site-id-nid-1, .views-field-field-location-value, .views-label-title, .views-field-field-site-id-nid
+{
+font-weight :900;
+}
+/*Added on 29-Nov-2010*/
+.collection_profile img 
+{
+width:156px;
+padding:0 2px;
+}
+.collection_profile .leftblock td {
+font-size:10px;
+}
+.collection_profile table 
+{
+border:none !important;
+border-collapse:separate!important;
+}
+
+.collection_profile
+{
+width:176px;
+padding-bottom:10px;
+margin-top:0px;
+overflow:hidden;
+}
+
+.collection_profile div.featured_record_title {
+  text-align: left;
+}
+
+
+.views-field-field-site-url .field-content a, .views-field-field-site-url .field-content a:active, .views-field-field-site-url .field-content a:visited{color:#062D4D; text-decoration:none; font-size:135%;} 
+.views-field-field-site-url .field-content a:hover{color:#062D4D; text-decoration:underline;} 
+.view-content input {margin-top:6px;}
+.pane-field-keywords a, .field-item.odd a{ text-decoration:underline;font-size:12px;padding:0px 2px; font-weight:400;} 
+
+.views-field-field-site-id-nid-1 .field-content a, .views-field-field-site-id-nid-1 .field-content a:visited, .views-field-field-site-id-nid-1 .field-content a:active, { text-decoration:underline; /*font-size:135% !important;*/ } 
+
+.views-field-field-site-id-nid-1 .field-content a:hover {text-decoration:underline; font-size:100%}
+
+.views-field-field-site-id-nid-1 span a, .views-field-field-site-id-nid span a {font-size: 100%;}
+.views-field-field-site-id-nid-1 span a:hover, .views-field-field-site-id-nid span a:hover {font-size: 100%;}
+
+form#views-exposed-form-asdsadsadsad-page-1 select {
+	width:154px;
+        /*margin-bottom:10px*/
+	}
+form#views-exposed-form-asdsadsadsad-page-1 label {font-size:12px; margin-bottom:10px;}
+
+#views-exposed-form-asdsadsadsad-page-1 .views-widget select, #views-exposed-form-asdsadsadsad-page-1 .views-widget input
+{margin:0px 0px 10px 0px;}
+
+#views-exposed-form-asdsadsadsad-page-1 .views-widget label {
+color:#590714 }
+
+#views-exposed-form-asdsadsadsad-page-1 .views-widget select {font-size:12px;}
+
+
+.panel-2col-stacked.clear-block.panel-display p {
+  margin: 8px 0;
+  /*margin:0px;
+  margin-bottom: 0px; 1st apr 11: Sushil */
+ /*10px*/ /*-----------removed by Amit 28-mar-2011-----------*/
+  padding:0px;
+}/* Added margin_bottom so paragraphs show formatting -Adam 23 Feb  */
+
+
+
+.field.field-label-inline, .field.field-field-keywords .field-label-inline-first {
+    display: inline;
+    float: left;
+}
+
+.field-item.odd p {/*float:left*/ /*------removed to get the LOCATION field in next line reference http://50.56.66.97/content/calf-weaner-------*/}
+
+#views-exposed-form-search-national-parks-page-1 .views-exposed-widget .form-checkboxes.bef-select-as-checkboxes.bef-select-all-none {display:none;}
+
+/*bottom*/
+#full-record-display .pane-node-terms{
+clear:left;
+}
+.view-display-id-page_1.view-dom-id-1 .views-field-title a{ text-decoration:underline;
+font-size:135%; }
+
+/* BEGIN Added by Adam 10 March 2011 to reformat collections search results links */
+
+.view-content .views-view-grid .views-field-title .field-content a {
+  text-decoration: none;
+}
+
+.view-content .views-view-grid .views-field-title .field-content a:hover {
+  text-decoration: underline;
+}
+
+.views-field-field-site-id-nid span a {
+  text-decoration: none;
+}
+
+.views-field-field-site-id-nid span a:hover {
+  text-decoration: underline;
+}
+
+.views-field-field-image-fid {
+  margin-left: 10px;
+}
+
+/* END Added by Adam 10 March 2011 to reformat collections search results links */
+
+#views-exposed-form-Search-landing-page-page-1 .form-checkboxes.bef-select-as-checkboxes.bef-select-all-none, #views-exposed-form-sites-data-page-1 .form-checkboxes.bef-select-as-checkboxes.bef-select-all-none {
+display:none;
+}
+
+.view-display-id-page_1.view-dom-id-1 .odd .views-field-title a, .view-display-id-page_1.view-dom-id-1 .even .views-field-title a {font-size:100% !important }
+.view-display-id-page_1.view-dom-id-1 .views-field-title a.active {font-size:100% !important }
+.view-empty p {
+color:red;
+font-weight:bold;
+}
+
+/*
+Added by akshar
+*/
+.item-list .pager {
+  clear: left;
+  text-align: right;
+  margin-bottom:0px;
+	
+}
+
+
+/*
+Added by akshar on 11_jan 2011
+*/
+
+#views-exposed-form-search-navy-museums-page-1 .views-exposed-widget .form-checkboxes.bef-select-as-checkboxes.bef-select-all-none {display:none;}
+
+/* Left mag */
+.left_mag dl { width: 170px; /* 130px changed to 170px to fit left column's width*/ }
+.left_mag dl,dd { margin: 0; }
+.left_mag dt { background: #062d4d; font-size: 14px; padding: 5px; margin: 2px; }
+.left_mag dt a { color: #FFF; text-decoration: none; text-align:center; display:block;}
+.left_mag dd a { color: #000; text-decoration: underline; line-height: 1.5; text-align:center; display:block;padding: 4px 0; }
+.left_mag dd a:hover { color: #FFFFFF; text-decoration: underline;background-color:#57859F; }
+.left_mag ul { list-style: none; padding: 5px; }
+.left_mag dl dd { text-align: left; }
+.left_mag ul { padding: 5px;}
+.left_mag li{ padding-bottom:2px}
+.left_mag dl {
+/*    margin:0 auto;*/
+}
+.left_mag li.active a {
+background-color:#57859F;
+padding: 4px 0;
+display:block;
+color:#FFF;
+}
+/*.left_mag ul {
+    list-style-image: none;
+    list-style-position: outside;
+    list-style-type: none;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 5px;
+}*/
+ /*added by sushil left mag*/
+ 
+ /* nice menu */
+ #prim_nav ul#nice-menu-0 li {
+  margin:0px 2px 0px 2px; 
+	padding:0;
+  position: relative;
+  display: inline;
+	background-color:none;
+  border: 1px solid #062d4d;  
+/* line-height:8px; */
+}
+ #prim_nav ul#nice-menu-0 li  a{
+		line-height: 27px;
+		padding:0px 15px;
+    background-color: #FFFFFF;
+}
+ #prim_nav ul#nice-menu-0 li  a:hover
+{
+	 background-color:#778FA8 !important;
+	 color:#FFF !important;
+	 }
+#prim_nav ul#nice-menu-0 li  a.active{
+	 background-color: #062D4D;
+	 color:white;
+}
+
+#prim_nav  ul#nice-menu-0 li.menuparent a
+{
+	background-image:url("/ah-dev/sites/all/modules/nice_menus/arrow-down.png");
+	background-position:right;
+	background-repeat:no-repeat;
+	padding-right:18px;
+}
+#prim_nav  ul#nice-menu-0 li.menuparent li a {
+	padding-right:8px;
+	background-image:none;
+	text-align:left;
+	}
+#prim_nav  ul#nice-menu-0 li.menuparent li.menuparent a {
+ 	background: no-repeat right url("/ah-dev/sites/all/modules/nice_menus/arrow-right.png") white;
+}
+#prim_nav  ul#nice-menu-0 li.menuparent.last li.menuparent a {
+ 	background: no-repeat left url("/ah-dev/sites/all/modules/nice_menus/arrow-left.png") white;
+	padding-left:18px;
+}
+#prim_nav  ul#nice-menu-0 li.menuparent.last li.menuparent ul li a {
+ 	background-image:none;
+	padding:0px 10px;
+}
+#prim_nav  ul#nice-menu-0 li.menuparent li a {
+	font-size:110%;
+ 
+	}
+#prim_nav  ul#nice-menu-0 li.menuparent li.menuparent li a { 
+	padding-right:8px;
+	background-image:none;
+	text-align:left;
+
+}
+#prim_nav ul#nice-menu-0 li.menuparent  a.active{
+ 	background: no-repeat right url("/ah-dev/sites/all/modules/nice_menus/arrow-down.png") #062D4D;
+	}
+
+#prim_nav ul#nice-menu-0 ul {
+    margin-left: -5px;
+    margin-top: 8px;
+}
+#prim_nav ul#nice-menu-0 ul ul {
+    margin-left: 0px;
+    margin-top: 0px;
+}
+
+#prim_nav  ul.nice-menu-down li.menuparent {
+    background-attachment: scroll;
+    background-color: #FFFFFF;
+}
+
+#prim_nav  ul.nice-menu-down {
+float:none;
+}
+
+#prim_nav ul#nice-menu-0 li li {
+border-top:none;
+}
+#prim_nav ul#nice-menu-0 li.last ul {
+float:left;
+left:-4.6em;
+}
+#prim_nav ul#nice-menu-0 li.last ul ul {
+width:12.5em;
+left:-13em;
+}
+
+#prim_nav ul#nice-menu-0 li li.first {
+    border-top: #062D4D solid 1px;
+}
+
+#prim_nav ul#nice-menu-0 li.menuparent ul li a {
+	padding:0px 8px; 
+}
+
+/* akshar & sushil:Portal ad */
+#portal {
+    border-bottom-color: #CCCCCC;
+    border-bottom-style: dotted;
+    border-bottom-width: 1px;
+    border-top-color: #CCCCCC;
+    border-top-style: dotted;
+    border-top-width: 1px;
+}
+
+/* right column */
+.home-wrapper #right, .home-wrapper #leftHome1 {
+/*margin-top:30px;*/
+}
+.home-wrapper #right, .panels-flexible-region-homepage_layout-current_issue_cover {
+	/* margin-top: 44px; */
+	margin-top: 40px;
+	*margin-top: 60px; 
+}
+
+#right.sidebar #group-id-0 {
+margin-bottom:10px;
+}
+
+margin: 10px 0pt;
+
+#wrapper.home-wrapper {
+/*
+  margin-top:30px;
+  float:left;
+*/
+}
+#wrapper .home-wrapper #main {
+  margin-top:-30px;
+}
+
+/* BEGIN Adam modifications to right in-house advertisement styling 16 March 2011 */
+
+div.banner_right {
+  width: 280px;
+  float: none;
+  font-size: 12px;
+  margin-bottom: 10px;
+	background:#FFFFFF;
+  border: 1px dotted #ccc;	
+  border-right: none;
+  height: auto;
+  padding: 10px;
+  /* margin-top: 5px; */
+  margin-top: 3px;
+}
+
+div.banner_right h3 {
+  margin-bottom: 5px;
+}
+
+div.banner_right ul {
+  list-style: circle;
+}
+
+div.banner_right p span {
+  font-size: 20px;
+  font-family: 'big caslon';
+  font-weight: 900;
+}
+
+div.banner_right #eagle {
+  text-align: center;
+  margin: 0;
+  margin-bottom: -5px;
+  padding: 0;
+}
+
+div.banner_right #eagle img {
+  width: 70px;
+}
+
+.main-cont #block-block-25 #right {
+  margin-top: 0;
+}
+
+/* END Adam modifications to right in-house advertisement styling 16 March 2011 */
+
+.panel-pane.pane-content-field.pane-field-site-id {
+	margin-bottom:0px !important;
+	}
+.panel-panel a {font-weight:normal;}
+
+
+/* ---- CSS added by akshay for Static Pages added for About TABs ---- */
+ul.numberList li{
+	list-style: decimal outside none;
+	margin:0 0 0 30px;	
+}
+ul.dotList li{
+	list-style: disc outside none;
+	margin:0 0 0 30px;	
+}
+div.divBorderPadding{
+	padding:10px 0;
+	border-bottom:1px dotted #062D4D;
+}
+/* ----  END CSS added by akshay for Static Pages added for About TABs ---- */
+
+/*
+Added by akshar
+*/
+
+#views-exposed-form-search-page-1 .field-suffix
+{
+font-weight:bold;
+}
+
+
+/*
+Added by akshar for the styling of Viewd, rated , Commented tab
+*/
+
+#quicktabs-2 .quicktabs_tabs.quicktabs-style-nostyle{
+    float: right;
+    left: 0;
+    list-style: none outside none;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+	width:100%;
+	border-bottom: 1px solid #580913;
+}
+#quicktabs_container_1 {
+/*padding-top: 26px; 14 feb sushil*/
+width:540px;
+*width:535px;
+}
+
+#quicktabs-2 .quicktabs_tabs.quicktabs-style-nostyle li{
+    background-color: #DDDDDD/*062D4D*//*580913*/;
+    display: inline;
+    float: right;
+    list-style: none outside none;
+    margin: 0 0 0 2px;
+    padding: 0;
+    position: relative;
+	
+}
+#quicktabs-2 .quicktabs_tabs.quicktabs-style-nostyle li a{
+    color: #000/*580913*/;
+    display: block;
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 20px;
+    padding: 0 4px;
+    text-decoration: none;
+}
+#quicktabs-2 .quicktabs_tabs.quicktabs-style-nostyle li a:hover {
+	background-color:#580913;
+	color:#FFF;
+	}
+#quicktabs-2 .quicktabs_tabs.quicktabs-style-nostyle li.active {
+	background-color:#580913;
+	}
+#quicktabs-2 .quicktabs_tabs.quicktabs-style-nostyle li.active a.active {
+	color:#FFF;
+	}
+/*
+Added by akshar for the styling of Viewd, rated , Commented tab
+*/
+/*
+Added by Akshay on 25 jan 2011 for Blogs
+*/
+
+.view-blog-list table.views-view-grid .views-field-field-blogs-image-fid .field-content .imagecache-blog_small_image{
+	float:left;
+	padding-right:10px;
+
+}
+.view-blog-list table.views-view-grid .views-field-name{	
+	float:left;
+	padding-right:10px !important;
+}
+
+/*for blogs by Prachi*/
+.view-blog-list table.views-view-grid .views-field-name .field-content a {
+   /* border-right: 1px solid #000000;*/
+    font-size: 100% !important;
+/*    padding-right: 10px;*/
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+
+.view.view-blog-list.view-id-blog_list.view-display-id-page_1.view-dom-id-1 .views-view-grid td {
+border-bottom: 1px dotted #CCCCCC;
+ padding-top: 10px;
+}
+/*for blogs by Prachi*/
+	
+.view-blog-list table.views-view-grid .views-field-name .field-content a:hover{
+	text-decoration:underline;
+}
+
+.view-blog-list table.views-view-grid .views-field-changed{
+	color:#777;
+}
+
+.view-blog-list table.views-view-grid .views-field-title{
+	margin-top:2px;
+}
+.view-blog-list table.views-view-grid .views-field-title .field-content a{
+	color: #062D4D;
+	font-size: 20px;
+	text-decoration: none;
+}
+.view-blog-list table.views-view-grid .views-field-title .field-content a:hover{
+	text-decoration:underline;
+}
+.view-blog-list table.views-view-grid .views-field-field-blog-intro-text-value .field-content p{
+	margin:0px !important;
+}
+
+.view-blog-list table.views-view-grid .views-field-view-node .read-more {
+	color: #A30000;
+	font-weight: 900;
+	margin-top: 7px;
+}
+.view-blog-list table.views-view-grid .views-field-view-node .read-more a {
+	color: #A30000;
+	font-weight: 900;
+	font-size:100% !important;	
+}
+.read-more a {
+	text-decoration:none;
+}
+.read-more a:hover {
+	text-decoration:underline;
+}
+
+
+/* Added by akshar for integrating according to wireframes of heritage site provided */
+
+.view.view-type-display.view-id-type_display.view-display-id-page_1.view-dom-id-2 .view-header p {
+    background-color: #062D4D;
+    color: white;
+    /*float: left;*/
+    margin-bottom: 10px;
+    padding: 4px;
+    width: 98%;
+	font-weight:bold;
+	font-size:13px;
+}
+
+.view.view-type-display.view-id-type_display.view-display-id-page_1.view-dom-id-2 .view-content .views-view-grid .views-field-title  .field-content a{
+    font-size: 115%;
+	text-decoration:none;
+}
+
+
+
+#views-exposed-form-New-heritage-sites-page-1 .views-widget select {
+    font-size: 12px;
+}
+
+#views-exposed-form-New-heritage-sites-page-1 .views-widget select, #views-exposed-form-New-heritage-sites-page-1 .views-widget input {
+    margin: 0 0 10px;
+	margin-bottom:9px;
+}
+
+#views-exposed-form-New-heritage-sites-page-1 select {
+    width: 154px;
+}
+
+
+#left.sites .box {
+    background-color: #D1DAE0;
+    margin-bottom: 10px;
+    padding: 10px 0 10px 10px;
+    text-align: left;
+}
+
+
+#views-exposed-form-New-heritage-sites-page-1 div
+{
+    background-color: #D1DAE0;
+}
+
+#views-exposed-form-New-heritage-sites-page-1 div fieldset
+{
+    margin-top: 7px;
+
+}
+
+
+#views-exposed-form-New-heritage-sites-page-1 label {
+    color: #062D4D;
+    display: block;
+    font-weight: 900;
+	font-size:13px;/* confirm with amit */
+}
+
+.view.view-type-display.view-id-type_display.view-display-id-page_1.view-dom-id-2 .views-field-field-image-type-fid
+{
+margin:0 12px -9px;
+}
+
+.view.view-type-display.view-id-type_display.view-display-id-page_1.view-dom-id-2 .views-field-title
+{
+text-align:center;
+}
+
+.view.view-type-display.view-id-type_display.view-display-id-attachment_1.view-dom-id-1 .views-field-title
+{
+text-align:left;
+}
+
+.view.view-type-display.view-id-type_display.view-display-id-attachment_1.view-dom-id-1 .views-view-grid td
+{
+border-bottom: 0px solid #424542;
+}
+
+.view.view-type-display.view-id-type_display.view-display-id-page_1.view-dom-id-2 .views-view-grid td
+{
+border-bottom: 0px solid #424542;
+}
+
+.view.view-type-display.view-id-type_display.view-display-id-attachment_1.view-dom-id-1 .field-content,
+.view.view-type-display.view-id-type_display.view-display-id-page_1.view-dom-id-2 .field-content
+{
+    font-size: 86%;
+    font-weight: 100;
+    margin-bottom: 5px;
+}
+
+/*
+
+#block-block-28
+{
+    background-color: #D1DAE0;
+    margin-bottom: 10px;
+    padding: 10px 0 10px 10px;
+    text-align: left;
+	  margin-top:70px;
+}
+#block-block-28 p
+{
+   color: #062D4D;
+    display: block;
+    font-weight: 900;
+}	
+
+#block-block-28 .content ul li.selected
+{
+ background-color: #062D4D;
+}	
+
+
+#block-block-28 .content ul li a
+{
+   color: white;
+   text-decoration: none;
+}	
+ 
+ 
+#block-block-28 .content ul li
+{
+    margin-top: 3px;
+    padding: 10px 0;
+} 
+
+Adam overwrites 3 April 2011 - cannot figure out where this applies - need to change left sidebar format - if block 28 is applying somewhere and I was unaware we will comment out my overwrites and re-enable the above
+
+*/
+
+/* begin Adam block-28 overwrites 13 April 2011 */
+
+div.state-topic-wrapper-0 div.state-topic-wrapper-1 {
+  clear:both;
+  margin-bottom:25px;
+}
+
+div.state-topic-wrapper-0 div.state-topic-wrapper-1 h2 {
+  background-color: #590714;
+  color:white;
+  font-size:30px;
+  font-family:'big caslon', georgia, serif;
+  text-align:center;
+  padding:3px 0;
+}
+
+div.state-topic-wrapper-0 div.state-topic-wrapper-2 {
+  position:relative;
+  float:left;
+  width:163px;
+  margin-right:9px;
+}
+
+div.state-topic-wrapper-0 div.state-topic-wrapper-2:last-child {
+  margin-right:0px;
+}
+
+div.state-topic-wrapper-0 div.state-topic-wrapper-2 h3 {
+  font-size: 10px;
+  text-transform:uppercase;
+  font-weight:100;
+  text-align:center;
+  margin:7px 0;
+
+}
+
+div.state-topic-wrapper-0 div.state-topic-wrapper-2 img {
+
+}
+
+div.state-topic-wrapper-0 div.state-topic-wrapper-2 p.teaser {
+  margin-bottom:3px;
+}
+
+div.state-topic-wrapper-0 div.state-topic-wrapper-2 p.continue {
+  margin-top:0;
+}
+
+div.state-topic-wrapper-0 div.state-topic-wrapper-2 p.continue a {
+  text-decoration:none;
+}
+
+div.state-topic-wrapper-0 div.state-topic-wrapper-2 p.continue a:hover {
+  text-decoration:underline;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#block-block-28 {
+  padding-right:3px;
+}
+
+
+#block-block-28 div.left-sidebar-boundary {
+border-right: 1px dotted #ccc;
+border-bottom: 1px dotted #ccc;
+margin-bottom:25px;
+}
+
+#block-block-28 div.left-sidebar-boundary h4 {
+  text-align:center;
+  font-size:15px;
+}
+
+#block-block-28 div.left-sidebar-boundary a {
+  text-decoration:none;
+}
+
+#block-block-28 div.left-sidebar-boundary a:hover {
+  text-decoration:underline;
+}
+
+
+#block-block-28 div.left-sidebar-boundary:first-child {
+ border:none; 
+}
+
+/* end Adam block-28 overwrites 13 April 2011 */
+
+
+
+
+
+#block-menu-menu-heritage-side-bar-menu
+{
+    background-color: #D1DAE0;
+    margin-bottom: 10px;
+    padding: 10px 0 10px 10px;
+    text-align: left;
+}
+
+#block-menu-menu-heritage-side-bar-menu ul, #block-menu-menu-heritage-side-bar-menu ul li 
+
+{
+margin:0px;
+padding:0px;
+}
+#block-menu-menu-heritage-side-bar-menu ul li {
+margin-top:3px;
+}
+
+#block-menu-menu-heritage-side-bar-menu ul li.leaf {
+background-image:none;
+list-style:none outside none;
+padding:0px;
+margin:0px;
+}
+
+#block-menu-menu-heritage-side-bar-menu ul li a
+{
+   color: #062D4D;
+   text-decoration: none;
+   display:block;
+   margin-top:3px;
+   padding:10px 0px 10px 20px;
+}
+
+#block-menu-menu-heritage-side-bar-menu ul li a:hover {
+background-color:#A8AFB5;
+}
+#block-menu-menu-heritage-side-bar-menu h2{
+
+color: #062D4D;
+    display: block;
+    font-weight: 900;
+}
+
+#block-menu-menu-heritage-side-bar-menu ul li a.active
+{
+   color: white;
+   text-decoration: none;
+   display:block;
+   background-color:#062D4D;
+   margin-top:3px;
+   padding:10px 0px 10px 20px;
+}	
+
+
+#block-menu-menu-heritage-side-bar-menu h2
+{
+    color: #062D4D;
+    display: block;
+    font-weight: 900;
+	font-size:100%;
+}
+
+#block-menu-menu-about-media-kit ul.menu li,
+#block-menu-menu-about-menu ul.menu li, #block-menu-menu-about-magazine-menu ul.menu li, #block-menu-menu-about-company-menu ul.menu li {
+  margin-bottom: 5px;
+} /* Left sidebar menus for about sections -Adam 4 March 2011 */
+
+#block-menu-menu-about-media-kit ul.menu li a,
+#block-menu-menu-about-menu ul.menu li a, #block-menu-menu-about-magazine-menu ul.menu li a, #block-menu-menu-about-company-menu ul.menu li a {
+  text-decoration: none;
+} /* Left sidebar menus for about sections -Adam 4 March 2011 */
+
+#block-menu-menu-about-media-kit ul.menu li a:hover,
+#block-menu-menu-about-menu ul.menu li a:hover, #block-menu-menu-about-magazine-menu ul.menu li a:hover, #block-menu-menu-about-company-menu ul.menu li a:hover {
+  text-decoration: underline;
+} /* Left sidebar menus for about sections -Adam 4 March 2011 */
+
+#block-menu-menu-about-media-kit ul.menu li a.active,
+#block-menu-menu-about-menu ul.menu li a.active, #block-menu-menu-about-magazine-menu ul.menu li a.active, #block-menu-menu-about-company-menu ul.menu li a.active {
+  color: #062D4D;
+  font-style: oblique;
+} /* Left sidebar menus for about sections -Adam 4 March 2011 */
+
+
+
+
+
+
+
+
+
+
+
+.view.view-group-by.view-id-group_by.view-display-id-page_1.view-dom-id-2 .views-field-field-image-type-fid
+{
+margin:0 12px -9px;
+}
+.view.view-group-by.view-id-group_by.view-display-id-page_1.view-dom-id-2 .views-field-title
+{
+text-align:center;
+}
+
+.view.view-group-by.view-id-group_by.view-display-id-attachment_1.view-dom-id-1 .views-field-title
+{
+text-align:left;
+}
+
+.view.view-group-by.view-id-group_by.view-display-id-attachment_1.view-dom-id-1 .views-view-grid td
+{
+border-bottom: 0px solid #424542;
+}
+
+.view.view-group-by.view-id-group_by.view-display-id-page_1.view-dom-id-2 .views-view-grid td
+{
+border-bottom: 0px solid #424542;
+text-align:center;
+}
+
+.view.view-group-by.view-id-group_by.view-display-id-attachment_1.view-dom-id-1 .field-content,
+.view.view-group-by.view-id-group_by.view-display-id-page_1.view-dom-id-2 .field-content
+{
+    font-size: 86%;
+    font-weight: 100;
+    margin-bottom: 5px;
+}
+
+
+.view.view-group-by.view-id-group_by.view-display-id-page_1.view-dom-id-2 .view-header p {
+    background-color: #062D4D;
+    color: white;
+    /*float: left;*/
+    margin-bottom: 10px;
+    padding: 4px;
+    width: 98%;
+	font-weight:bold;
+	font-size:13px;
+}
+
+.view.view-group-by.view-id-group_by.view-display-id-page_1.view-dom-id-2 .view-content .views-view-grid .views-field-title  .field-content a{
+    font-size: 115%;
+	text-decoration:none;
+}
+
+.view.view-New-heritage-sites.view-id-New_heritage_sites.view-display-id-page_1.view-dom-id-1 .views-field.views-field-body p,
+.view.view-New-heritage-sites.view-id-New_heritage_sites.view-display-id-page_1.view-dom-id-1 .views-field.views-field-title
+{
+ color: #777777;
+ font-size:11px;
+}
+
+
+.view.view-New-heritage-sites.view-id-New_heritage_sites.view-display-id-page_1.view-dom-id-1 .views-field.views-field-title
+{
+width:33%;
+}
+
+
+.view.view-New-heritage-sites.view-id-New_heritage_sites.view-display-id-page_1.view-dom-id-1 .views-field.views-field-body p
+{
+/*vertical-align:top;*/ /*not working*/
+/*margin-top:-30px;*/
+font-family: lucida sans unicode,lucida grande,sans-serif;
+font-weight:normal;
+
+}
+
+.view.view-New-heritage-sites.view-id-New_heritage_sites.view-display-id-page_1.view-dom-id-1 .views-field.views-field-title #state_city
+{
+margin-top:0px;
+color: #777777;
+}
+
+/* added by prachi */
+
+#home2 {
+  margin: 0;
+  margin-right: 310px;
+  padding: 0;
+  height: 300px;
+  clear: left;
+}
+
+#leftHome2, .leftHome_3 {
+  position: relative;
+  float: left;
+  margin: 0;
+  padding: 0;
+  width: 160px;
+  text-align: left;
+}
+
+#leftHome2 h2.home, .leftHome_3 h2.home {
+  text-align: center;
+  margin-bottom: 8px;
+  margin-top: 4px;
+ }
+
+
+#leftHome2 ol, .leftHome_3 ol {
+  list-style-type: decimal;
+/*  margin-left: 19px;  Added By sushil*/
+  margin-left: 30px;
+  font-size: 12px;
+}
+
+#leftHome2 ol li, .leftHome_3 ol li {
+  margin-bottom: 5px;
+}
+
+
+
+#leftHome2 li .title, .leftHome_3 li .title {
+  font-weight: 100;
+}
+
+#leftHome2 li .nodeType, .leftHome_3  li .nodeType {
+  color: #777;
+}
+.leftHome_3 .contrib a, #rightCol p.more a {
+  text-decoration: none;
+  color: #062d4d;
+}
+.leftHome_3 .contrib p.more{
+clear:left;
+}
+.leftHome_3 .contrib a:hover, #rightCol p.more a:hover {
+  text-decoration: underline;
+}
+
+
+.leftHome_3 .contrib a span {
+  font-weight: 900;
+}
+
+
+.leftHome_3 .contrib img {
+  width:150px;
+  margin-bottom: 1px;
+  clear:left;
+}
+
+/* blog page */
+
+
+
+.blogEntry  .blog_body{
+	
+}
+.blogEntry p {
+/*	font-size: 12px;	*/
+	font-weight: 100;
+	line-height: 1.3;
+}
+.blogEntry  .blog_body img {
+	padding:0 10px;
+}
+.blogEntry h2, .teaser h2 {
+	color: #062D4D;
+	font-size: 200%;
+	font-weight: 900;
+	letter-spacing: 0.01em;
+}
+.blogEntry h2 a, .teaser h2 a {
+	color: #062D4D;
+	text-decoration:none;
+}
+.blogEntry .blog_body .blogEntryImage {
+	float: left;
+	margin-right: 15px;
+}
+.blogEntry .blogTimeStamp, .blogEntry .blogTimeStamp a {
+	color:#000000;
+	text-decoration:none;
+}
+
+#full-record-display .inside label {
+margin:5px 0px;
+font-size:120%;
+}
+
+#full-record-display .inside form {
+margin-bottom:10px;
+}
+
+.historic-sites #sidebar-left
+{
+width:180px;
+}
+
+#views-exposed-form-New-heritage-sites-page-1 input[type="text"] {
+width:147px;
+}
+
+/* ---  Added by akshay  09 March 2011--- */
+.view-New-heritage-sites .attachment{
+margin-bottom:10px;
+}
+/* --- END  ---*/
+
+.view-New-heritage-sites table td
+{
+padding:0px 4px 10px 4px;
+vertical-align:top;
+}
+
+.view-New-heritage-sites table td p
+{
+margin:0px;
+}
+
+.view-New-heritage-sites table td img
+{
+padding: 0px 5px 5px 0px;
+}
+/* --- added by akshays ---*/
+
+#primary-navigation{
+    width: 100%;
+    overflow:hidden;
+}
+#primary-navigation .sf-menu {
+  width: 100%;
+	/*margin-bottom:10px; For Taxonomy Page Add sticking to prim nav*/
+	display:block;
+}
+/*  END  */
+
+
+/*by Akshar : Historic Sites 11 Feb: */
+#views-exposed-form-New-heritage-sites-page-1 fieldset {
+border : none;
+}
+
+/*14 feb*/
+/** comments **/
+#comments , #collection_comment_id_form, #comment_wrapper {
+  color: #555555;
+  margin: 20px 0;
+  padding: 20px;
+  border: 1px solid #DDDDDD;
+  background-color: #F4F4F4;
+}
+
+#comments h2, #collection_comment_id_form h2, #comment_wrapper h2 {
+  padding: 10px 0;
+  margin-bottom: 20px;
+  font-size: 200%;
+  border-bottom: 1px dashed #C8C8C8;
+}
+#collection_comment_id_form h3.title, #comment_wrapper h3.title,
+#comments h3.title, .comment h3.title a{
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 100%;
+  font-weight: bold;
+  text-align: left;
+  color: #CCCCCC;
+  padding:2px 4px;
+}
+#collection_comment_id_form h3.title a, #comment_wrapper h3.title a,
+#comments h3.title a {
+  color: #CCCCCC;
+  padding:0px;
+}
+.comment {
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.comment .picture {
+
+}
+
+.comment .comment_arrow {
+    left: 127px;
+    position: absolute;
+    top: 25px;
+}
+.comment .picture img {
+  width: 80px;	
+  height: 80px;
+  padding: 3px;
+  background: #fff;
+  border: 1px solid #dddddd;
+}
+
+.comment .content {
+  margin-left: 143px;
+  padding: 5px 5px 0 5px;
+  border: 1px solid #DDDDDD;
+  min-height: 90px;
+  background-color: #fff;
+}
+.comment .content p { 
+  padding:0px 2px
+}
+
+.comment .submitted {
+  /*position:absolute;*/ /*commented on 2-Mar-2011 - bug ID : 286 */
+  float:left;
+  /*top: 15px; 95px*/
+  left: 0;
+
+  width: 118px;
+  color: #A0A0A0;
+  text-align: center;
+  line-height: 1.5;
+  font-size:85%;
+}
+.comment h3 {
+   background-color: #072D4D;
+   margin-bottom: 10px;
+   
+}
+.comment .author {
+  display: block;
+  font-weight: normal;
+
+  font-size:115%;
+}
+
+.comment div.links {
+  float: right;
+  text-align: right;
+    border:1px solid #DDDDDD;
+    border-top:none;
+    margin-top:-1px;
+    background-color:#ffffff;
+}
+
+.comment div.links a {
+  font-size: 90%;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+.comment div.links a:hover {
+text-decoration:underline;
+}
+.indented {
+  margin-left: 0px;
+  /*background-color:#e1e1e1;*/
+
+  padding:10px 4px;
+  margin-bottom:10px;
+  background: url("./images/arrow_up_reply.gif") no-repeat 0px 0px;
+  border-top:0px solid #999;
+}
+.indented .comment h3 {background-color:#999;}
+
+.box .form-text { 
+  width: 100%;
+  height: 20px;
+  border: 1px solid #DDDDDD;
+}
+
+.box .resizable-textarea {
+  width: 100%;
+}
+
+#comments .form-item {
+  margin-top: 0;
+}
+
+#comments .tips {
+  padding-top: 20px;
+}
+
+#comments .form-textarea {
+  overflow: hidden;
+  border: 1px solid #DDDDDD;
+}
+
+.comment li {
+    float: left;
+    padding:2px 5px;
+}
+
+/* added by akshar on 14th feb for resolving bug on theme and type display */
+
+
+.view.view-group-by.view-id-group_by.view-display-id-page_1.view-dom-id-2 .field-content #group-by-count {
+color: #777777;
+font-size: 110%;
+}
+
+.view.view-group-by.view-id-group_by.view-display-id-page_1.view-dom-id-2 .view-content .views-view-grid .views-field-title  .field-content a:hover{
+
+	text-decoration:underline;
+}
+
+
+.view.view-type-display.view-id-type_display.view-display-id-page_1.view-dom-id-2 .views-view-grid .views-field-title {
+padding-top:10px; 
+}
+
+.view.view-type-display.view-id-type_display.view-display-id-attachment_1.view-dom-id-1 .views-view-grid .views-field-title {
+padding-top:0px; 
+}
+
+.view.view-type-display.view-id-type_display.view-display-id-page_1.view-dom-id-2 .field-content #group-by-count {
+color: #777777;
+font-size: 110%;
+}
+
+.view.view-type-display.view-id-type_display.view-display-id-page_1.view-dom-id-2 .view-content .views-view-grid .views-field-title  .field-content a:hover{
+	text-decoration:underline;
+}
+
+/* END added by akshar on 14th feb for resolving bug on theme and type display */
+
+
+/* added by akshar on 14th feb for resolving bug on theme and type display  for Result 1 of 1-34 display*/
+
+#result-set {
+float:left;
+}
+
+#pager-item-list .item-list {
+overflow:hidden;
+}
+
+/* END added by akshar on 14th feb for resolving bug on theme and type display  for Result 1 of 1-34 display*/
+
+/* added by akshar on 14th feb for resolving bug on making the links to next prev diabled*/
+
+#full-record-display .panel a:hover {
+text-decoration:underline;
+}
+
+/* BEGIN added by Adam 10 March 2011 for reformatting 'More from this collection' button on full record display */
+
+#full-record-display div#more_link {
+  margin-top: 20px;
+  -webkit-border-radius: 1px;
+  -moz-border-radius: 1px;
+}
+
+#full-record-display div#more_link a {
+  padding: 5px 10px;
+  text-decoration: none;
+  background-color: #A30000;
+  color: white;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;  
+}
+
+#full-record-display div#more_link a:hover {
+  background-color: red;
+}
+
+/* END added by Adam 10 March 2011 for reformatting 'More from this collection' button on full record display */  
+
+/*Sushil Homepage css*/
+
+/*home center*/
+.panels-flexible-region.panels-flexible-region-homepage_layout-center_ .views-row{
+margin-bottom: 20px;
+}
+.panels-flexible-region.panels-flexible-region-homepage_layout-center_ h3.title a{
+    
+    font-weight: 100;
+    text-transform: uppercase;
+}
+.searchBoxPanel {
+    margin-left: 0px; 
+    }
+#searchBoxMenu #eagle {
+    margin-top: -14px;
+}
+#searchBoxMenu #eagle2 {
+    margin-top: -14px;
+    text-align: center;
+}
+#searchBoxMenu #eagle2 img {
+    width: 50%;
+}
+#homepage .panels-flexible-region-homepage_layout-center {
+/*    margin-top:-44px;*/
+    *margin-top:20px;
+    _margin-top:20px;
+
+}
+#homepage .panels-flexible-region-homepage_layout-center, .panels-flexible-region-homepage_layout-searchboxpanel {
+  width: 76%;
+  padding-left:6px;
+}
+.panels-flexible-region-homepage_layout-current_issue_cover, .panels-flexible-region-homepage_layout-searchboxmenu {
+  width:160px;
+}
+.panels-flexible-row-homepage_layout-1 {
+    background: url("./images/gradient3.jpg") repeat-x;
+  border-bottom: 2px solid #aaa;
+  border-top: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  border-left: 1px solid #ccc;
+  position: relative;
+  height: 160px;
+  width: 725px;
+  margin:0;
+  margin-left: -13px;
+  padding: 0;
+  text-align: left;
+  -webkit-border-radius: 6px;    /* Safari */
+  -moz-border-radius: 6px;       /* Firefox */  
+  border-left: none;
+}
+.panels-flexible-region-homepage_layout-center, .panels-flexible-region-homepage_layout-searchboxpanel,
+.panels-flexible-region-homepage_layout-current_issue_cover, .panels-flexible-region-homepage_layout-searchboxmenu {
+   }
+ #leftBuffer {
+    float: left;
+    margin-left: -13px;
+    margin-top: -21px;/*-36px;*/
+    position: relative;
+    z-index: 1;
+}
+}
+.panels-flexible-row-inside.panels-flexible-row-homepage_layout-1-inside {
+
+}
+.panels-flexible-row-homepage_layout-1 h2 {
+  font-family: 'big caslon';
+  font-size: 22px;
+  text-align: center;
+  font-weight: 100;
+  margin: 15px 0 3px;
+  margin-bottom: -10px;
+  padding: 0;
+  position: relative;
+  top: -10px;
+  color:#062D4D;
+}
+.panels-flexible-region-inside.panels-flexible-region-homepage_layout-center-inside.panels-flexible-region-inside-last h2 {
+    float: left;
+    padding-top: 5px;
+    margin: 0;
+    margin-top: 3px;
+    padding: 0;
+    position: relative;
+    font-size: 18px;
+    font-family:'big caslon','trebuchet ms',arial;
+    text-transform: uppercase;
+    font-weight:900;
+}
+#homepage h2:first-letter
+{
+font-size: 115%;
+
+}
+
+#homepage ul.quicktabs_tabs.quicktabs-style-accordion {
+    float: right;
+    font-size: 12px;
+    list-style-image: none;
+    list-style-position: outside;
+    list-style-type: none;
+    margin-bottom: 2px;
+    margin-left: 0;                                                         
+    margin-right: 0;
+    margin-top: 0;
+    padding-bottom: 2px;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 3px;
+    width: 539px; /* Adam 14 March 2010 correct for fifth tab */
+    background-color: #fff;
+    position: relative;
+    left: 9px;  /* Adam 14 March 2010 correct for fifth tab */
+}
+#accordion-1 h2.home {
+    float: left;
+    font-size: 18px;
+    margin-bottom: 0;
+    margin-left: -7px;
+    margin-right: 0;
+    margin-top: 3px;
+    padding-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 0;
+    position: relative;
+}
+
+.panels-flexible-row-homepage_layout-1 #edit-keys {
+    font-size: 13px;
+    height: 18px;
+    margin-bottom: 20px;
+    margin-top: 10px;
+    margin-right:0;
+    width: 430px;
+    padding:0;
+}
+.home-wrapper #views-exposed-form-home-page-search-page-1 {
+margin-top:20px;
+}
+.panels-flexible-row-homepage_layout-1 #edit-submit-home-page-search {
+    margin-bottom: 20px;
+    margin-top: 10px;
+    
+}
+.panels-flexible-row-homepage_layout-1 label.option {
+  border: 1px solid #888;
+  padding:3px 5px 0px 5px;
+  *padding:3px 5px 3px 5px;
+  background-color: white;
+}
+
+#views-exposed-form-home-page-search-page-1 #edit-submit-home-page-search{
+  background-color: white;
+  border: 1px solid #888;
+  font-size: 14px;
+  position: relative;
+  padding: 3px 5px;
+  margin-left: 2px;
+  color: #590714;
+}
+#views-exposed-form-home-page-search-page-1 label {
+    font-family: 'trebuchet ms',lucida sans unicode,lucida grande,sans-serif;
+    font-size: 12px;
+    font-weight: normal;
+    float: left;
+    line-height:22px;
+}
+.bef-checkboxes label {
+    line-height: 1.3;
+}
+
+/*home center*/
+.panels-flexible-region-homepage_layout-center_ {
+    width: 360px;
+}
+#homepage .views-row{
+margin-bottom: 20px;
+border-bottom-width: none;
+
+}
+.centerHome h3.title a {
+  text-transform: uppercase;
+  font-size: 16px;
+  font-weight: 100;
+}
+
+.home2 h2.home, .home2 h2.pane-title {
+  font-family: 'big caslon', 'trebuchet ms', arial;
+  font-weight: 900;
+  font-size: 16px;
+  margin: 0;
+  margin-top: 2px;
+  margin-bottom: 10px;
+  padding: 0;
+  text-transform: uppercase;
+  text-align: center;
+}
+.leftHome2 {
+width:23%;
+}
+
+#leftHome2, #rightCol, #centerCol {
+ padding: 0px;
+ border:none;
+}
+
+#leftHome2 .contrib span a, .leftHome_3 .contrib span a {
+    font-weight: 900;
+    text-transform: capitalize;
+}
+
+.home2 hr {
+  border: none;
+  border-top: 1px dotted #ccc;
+  margin: 0;
+  margin-bottom: 12px;
+  padding: 0;
+}
+
+.centerHome, .leftHome2 {
+  padding-right: 5px;
+}
+#centerHome {
+    margin-left: 0px;
+    padding-left: 0px;
+}
+.centerHome {
+	text-align: left;
+  border-right: 1px dotted #ccc;
+  border-left: 1px dotted #ccc;
+  padding:0px 6px;
+}
+.centerHome #centerCol {
+margin-bottom:12px;
+border-bottom: 1px dotted #ccc;
+
+}
+.centerHome .topic, .centerHome .date, .centerHome .blogName {
+  margin: 0;
+  padding: 0;
+  font-size: 11px;
+}
+.centerHome .topic a, .centerHome .date a, .centerHome .blogName a {
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.centerHome .topic a:hover, .centerHome .date a:hover, .centerHome .blogName a:hover {
+  text-decoration: underline;
+}
+
+.centerHome #centerCol {
+    float: left;
+    width: 355px;
+}
+ #rightCol .story h3.title a,  #rightCol .story h3.title  {
+    text-transform: capitalize;
+    font-size: 16px;
+    font-weight: 100;
+}
+.centerHome .topic a:hover, .centerHome .date a:hover, .centerHome .blogName a:hover {
+    text-decoration: underline;
+}
+.centerHome p {
+    margin: 0px;
+    padding:0px;
+}
+.centerHome p.byline, .centerHome p.author {
+  margin: 0;
+  margin-top: -1px;
+  padding: 0;
+  color: #555;   
+}
+
+.centerHome p.byline a, #article .field-type-userreference a {
+  color: #555555; /*inherit;*/
+  text-decoration: none;
+  text-transform: capitalize;
+}
+
+.centerHome p.byline a:hover, #article .field-type-userreference a:hover  {
+  text-decoration: underline;
+}
+
+.centerHome #dailyDiscoveryImage {
+  margin: 8px 0;
+  padding: 0;
+}
+
+
+.centerHome #dailyDiscoveryImage img {
+  width: 100%;
+}
+
+/*Home Right Col*/
+.panels-flexible-region-homepage_layout-right {
+    float: left;
+    width: 160px;
+}
+.centerHome .panels-flexible-region-inside {
+padding:0
+}
+.rightHome #dailyDiscoveryImage img {
+    width: 100%;
+}
+.rightHome .panels-flexible-region-inside-last {
+    padding-right: 0;
+}
+
+.rightHome .panels-flexible-region-inside {
+padding-left:5px;
+}/*HOME
+ CENTER END*/
+/*  END  */
+
+/* 22 feb Prachi*/
+
+.view-New-heritage-sites.view-display-id-page_1 .sort_options {
+    float: right;
+    margin-top: 1px;
+    color: #FFFFFF;
+
+    /* font-weight: 900;*/
+   font-size:134%;
+
+}
+
+.sort_options {
+    float: right;
+    margin-top: -40px;
+}
+/* Historic Sites -Themes & Types Map*/
+.maps{
+  text-align: left;
+  width:100%
+}
+
+table.maps td{
+
+
+       padding:0px !important;    
+}
+
+.maps h2 {
+  color: white;
+  background-color: #062d4d;
+  padding: 4px;
+  float: left;
+  width: 98%;
+  margin-bottom: 10px;
+}
+
+.maps #map {
+  margin-bottom: 15px;
+}
+
+.maps #map p {
+  margin: 0;
+  margin-bottom: 3px;
+  padding: 0;
+  
+}
+
+.maps #map a {
+  text-decoration: none;  
+}
+
+.maps #map a:hover {
+  text-decoration: underline;
+}
+/* Historic Sites -Themes & Types Map*/
+
+
+
+/* Added By Akshar */
+
+#collection_share_id_form h2 {
+padding-bottom:8px;
+}
+
+/* Added By Akshar */
+/*Added by Amit on 24-feb-2011*/
+ul.primary {
+	overflow:hidden;
+	}
+ul.primary li, ul.primary li.active {
+	line-height:26px;
+	}
+ul.primary li a {
+    background-color: #ddd/*062D4D*//*580913*/;
+	border:1px solid #BBBBBB;
+	color:#000;
+	height: auto;
+    margin-right: 0.5em;
+    padding:3px 1em;
+    text-decoration: none;
+	-moz-border-radius:3px 3px 0px 0px;
+  -webkit-border-radius:3px 3px 0px 0px;
+  -khtml-border-radius:3px 3px 0px 0px;
+  border-radius: 3px 3px 0px 0px;
+  border-bottom:0px;
+}
+ul.primary li a:hover {
+	background-color:#580913;
+	color:#FFF;
+	text-decoration:none;
+	}
+ul.primary li.active a {
+	background-color: #580913;
+	border:1px solid #BBBBBB;
+	color:#FFF;
+	height: auto;
+    margin-right: 0.5em;
+    padding:3px 1em;
+    text-decoration: none;
+	font-weight:900;
+	border-bottom:0;
+	}
+.contributor-list .contributor-pic {
+	width:120px;
+	height:120px;
+	border:5px solid #dedfde;
+	text-align:center;
+	overflow:hidden;
+	padding:2px;
+	}
+.contributor-list h5 a{
+	text-transform: capitalize;
+	color:#062D4D;
+	text-decoration:none;
+}
+.contributor-list h5 a:hover {
+	text-decoration:underline;
+	}
+.contributor-list th {
+	padding:0px;
+}
+.contributor-list img {
+	width:100%;
+}
+
+.contributor-list .views-table td {
+padding:5px 2px;
+border-bottom:1px dotted #062D4D;
+vertical-align:top;
+}
+
+.contributor-list .views-row-last td {
+border-bottom:none;
+}
+.contributor-list .item-list .pager {
+    text-align: center;
+}
+.contributor-list .item-list .pager a:hover,
+.contributor-list .item-list .pager a:active {
+    text-decoration: underline;
+}
+.box .search-results dd {
+	border-bottom:1px solid #062D4D;
+    margin-bottom: 1em;
+}
+.box .search-results dt.title a {
+	color:#A30000;
+	font-size:120%;
+	}
+.box h2 {
+	font-size:140%;
+	margin-bottom:10px;
+	}
+/*18 Feb 2011 - Amit*/
+#views-exposed-form-home-page-search-page-1 .form-item, #views-exposed-form-Search-landing-page-page-1 .form-item, #views-exposed-form-search-page-1  .form-item, #views-exposed-form-search-national-parks-page-1  .form-item, #views-exposed-form-search-navy-museums-page-1 .form-item, #views-exposed-form-search-smithsonian-museums-page-1 .form-item, #views-exposed-form-search-civilwar-museums-page-1 .form-item{
+	display:inline;
+	}
+	
+
+th {
+border-bottom:0px solid #CCCCCC;
+border:none !important;
+}
+.historic-sites-main tr.even, .historic-sites-main tr.odd {
+	background-color:#FFF;
+	}
+	
+#user-login .description, #user-register .description
+{
+font-size:115%;
+}	
+
+.view.view-search.view-id-search.view-display-id-page_1.view-dom-id-1 ul.pager li, 
+.view.view-search-national-parks.view-id-search_national_parks.view-display-id-page_1.view-dom-id-1 ul.pager li,
+.view.view-search-navy-museums.view-id-search_navy_museums.view-display-id-page_1.view-dom-id-1 ul.pager li,
+.panel ul.pager li, .alphabetical_user_list .panel ul.pager li,
+.contributor ul.pager li, .view-New-heritage-sites .item-list .pager li {
+	padding:0px;
+	margin-bottom:0.25em;
+	margin-left:0.6em;
+	}
+.row-last td {
+	border:none;
+	}
+#views-exposed-form-search-page-1 .views-exposed-form label {
+
+}
+
+
+/* Display for historic sites */
+.view-New-heritage-sites th {
+background-color:#062D4D;/*#590714;*/
+color:#FFFFFF;
+padding:4px 2px;
+}
+.view-New-heritage-sites th p {
+color:#FFFFFF;
+margin-left: 10px;
+margin-right: 10px;
+}
+
+
+/* Display for historic sites */
+
+/* Added By Akshar on 2nd march for hidding text box on landing page of sites */
+
+#views-exposed-form-Search-landing-page-page-1 #edit-nid-wrapper {
+display:none;
+}
+/* End By Akshar on 2nd march for hidding text box on landing page of sites */
+
+
+
+/* Added By Akshar on 8th march refer mail dated 7th march by amit joshi point number 3 */
+#views-exposed-form-home-page-search-page-1 .form-checkboxes.bef-select-as-checkboxes {
+margin-top:0px;
+}
+#views-exposed-form-home-page-search-page-1 .bef-checkboxes {
+	width:auto;
+	*margin-top:-5px;
+	}
+/* End By Akshar on 8th march refer mail dated 7th march by amit joshi point number 3 */
+
+/* Added By Akshar on 8th March*/
+.view.view-search.view-id-search.view-display-id-page_1.view-dom-id-1 .panel .item-list,
+.view.view-search-civilwar-museums.view-id-search_civilwar_museums.view-display-id-page_1.view-dom-id-1 .panel .item-list,
+.view.view-search-national-parks.view-id-search_national_parks.view-display-id-page_1.view-dom-id-1 .panel .item-list,
+.view.view-search-navy-museums.view-id-search_navy_museums.view-display-id-page_1.view-dom-id-1 .panel .item-list,
+.view.view-search-smithsonian-museums.view-id-search_smithsonian_museums.view-display-id-page_1.view-dom-id-1 .panel .item-list,
+.view.view-Search-landing-page.view-id-Search_landing_page.view-display-id-page_1.view-dom-id-1 .panel .item-list{
+overflow:hidden;
+}
+
+/* End By Akshar on 8th March*/
+
+/* Added by akshar on 8th march to hide warnings on live site */
+
+.error
+{
+/*	display:none;*/
+}
+div.status, div.message {
+  border: none;
+}
+div.status, tr.status {
+  background: #D4EFCC;
+  color: #200;
+  padding: 2px;
+}
+
+
+#no_record {
+    background: none repeat scroll 0 0 #FFCCCC;
+    color: #220000;
+    padding: 2px;
+	border: 1px solid #DD7777;
+}
+
+/* Added by akshar on 8th march to hide warnings on live site */
+/* --- Added aby akshay for Gmap --- */
+.whatever-hide {
+  position: absolute;
+  left: -10000px;
+  top: -10000px;
+  display:block !important;
+}
+/* --- END --- */
+
+
+/* added for editor picks testing */
+#sidebar-left #righthome-2
+{
+padding-right:34px;
+}
+#sidebar-left #righthome-2 h2
+{
+text-align: center;
+background-color: #580913;
+color: white;
+margin-right: -29px;
+}
+#sidebar-left #righthome-2 .record img {
+float: right;
+    margin-left: 2px;
+    width: 70px;
+}
+#sidebar-left #righthome-2 .record
+/*#left.collections.trending .record */{
+    border-bottom: 1px solid #DDDDDD;
+    float: left;
+    font-size: 90%;
+    padding: 5px 0px;
+    margin-left: -9px;
+    width: 180px;
+}
+
+#sidebar-left #righthome-2 .record ul {
+    border-top: medium none;
+    padding-bottom: 10px;
+    text-align: right;
+}
+#sidebar-left #righthome-2 .record li {
+    text-align: left;
+}
+#sidebar-left #righthome-2 .content {
+	border:0px;
+	}
+#sidebar-left #righthome-2 p {
+width : 150px ;
+}
+/* added for editor picks testing */
+
+
+/* Added by akshar to temporarily solve the footer issues */
+
+#footer .tag {
+text-align:center;
+}
+/* Added by akshar to temporarily solve the footer issues */
+
+.view-homepage-articles p.date {
+text-transform: uppercase;
+} /* Added by Adam to temporarily reformat taxonomy terms after unlinking them, 16 March 2011 */
+
+
+/* Added by akshar on 17th march 2011 to make changes to colelction-search display */
+
+
+#views-exposed-form-search-page-1 .views-exposed-widget {
+width:46%;
+float:left;
+*margin-top:5px;
+padding-left:20px;
+}
+
+#views-exposed-form-search-page-1 input[type="text"] {
+float:left;
+}
+#views-exposed-form-search-page-1 #edit-keys-wrapper,
+.view-id-search_navy_museums #edit-keys-wrapper,
+.view-id-search_national_parks #edit-keys-wrapper,
+.view-id-search_civilwar_museums #edit-keys-wrapper,
+.view-id-search_smithsonian_museums #edit-keys-wrapper{
+  display:none;
+}
+.view-id-search_navy_museums #edit-title-wrapper,
+.view-id-search_national_parks #edit-title-wrapper,
+.view-id-search_civilwar_museums #edit-title-wrapper,
+.view-id-search_smithsonian_museums #edit-title-wrapper {
+  float:left;
+}
+#sort_id {
+width:46%;	
+float:left;
+margin-bottom:5px;
+*margin-top:5px;
+padding-left:20px;
+}
+
+#chk_id {
+width:33%;	
+float:left;
+*margin-top:5px;
+margin-bottom:5px;
+line-height: 23px;
+   padding-top: 3px;
+	padding-left:20px;
+}
+#chk_id label.option input {
+	margin-top:5px;
+	*margin-top:0px;
+	margin-right:10px;
+	}
+#chk_id label.option, #sort_id label {
+	line-height:20px;
+	*line-height:20px;
+	}
+	
+/* END by akshar on 17th march 2011 to make changes to colelction-search display */
+
+/*refer Bug of all issues in safari*/	
+.travel .kentucky #legend ul {
+	width:100%;
+	}
+
+#node-58845 .travel .colorado {
+	width:100%;
+	}	
+#block-block-26 #widget {
+margin:0px 0px 10px 0px; 
+}
+	
+/* END refer Bug of all issues in safari*/	
+
+/*sushil 18 march 2011*/
+/* .form-item .description {
+ position:absolute;
+  right:-15px;
+  bottom:5px;
+  width:240px;
+
+  display:none;
+
+  padding:9px 10px 20px;
+  border: 1px dashed #000;
+  background:#dddddd;
+  
+}
+ .form-item:hover > .description {
+    display: block;
+}
+.form-item {
+    position: relative;
+}
+*/
+#article .panel, #blog .panel {
+    width: 100%;
+}
+#article .teaser, #node-collection .teaser {
+margin-bottom: 10px; 
+}
+#full-record-display div#more_link, #article .teaser span.read-more {
+    -moz-border-radius-bottomleft: 1px;
+    -moz-border-radius-bottomright: 1px;
+    -moz-border-radius-topleft: 1px;
+    -moz-border-radius-topright: 1px;
+    margin-top: 20px;
+}
+#article .teaser .read-more, #node-collection .teaser .read-more {
+    clear: left;
+	display:block;
+}
+#article .teaser h2, #node-collection .teaser h2 {
+	border-bottom:1px solid #062D4D;
+	 margin-bottom: 5px;
+    padding-bottom: 2px;
+}
+#node-collection .teaser h2 {
+  margin-bottom:10px;
+}
+#full-record-display div#more_link a, #article .teaser .read-more a, #node-collection .teaser .read-more a {
+    -moz-border-radius-bottomleft: 3px;
+    -moz-border-radius-bottomright: 3px;
+    -moz-border-radius-topleft: 3px;
+    -moz-border-radius-topright: 3px;
+    background-color: #A30000;
+    color: white;
+    padding: 5px 10px 5px 10px;
+    text-decoration: none;
+}
+#more_link a, #article .teaser .read-more a, #node-collection .teaser .read-more a {
+    font-weight: 900;
+    text-decoration: underline;
+}
+#article .teaser .read-more, #node-collection .teaser .read-more {
+	margin-top:10px;
+	margin-bottom:10px;
+}
+#node-collection .teaser .meta, #node-collection .teaser .clear-block {
+    clear: left;
+}
+.terms ul.links li, #full-record-display .pane-node-terms li{
+    -moz-border-radius-bottomleft: 5px;
+    -moz-border-radius-bottomright: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
+line-height:2.8em;
+/*    display: inline-block;*/
+    padding-bottom: 3px;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 3px;
+
+    margin: 2px 1px 5px;
+    color: #FFFFFF;
+  	background-color: #999999;
+	}
+.terms ul.links li a, #full-record-display .pane-node-terms li a {
+  color: #FFFFFF;
+	line-height:2.15;
+	padding:3px;
+	text-decoration:none;
+}	
+.terms ul.links li:hover, #full-record-display .pane-node-terms li:hover {
+  background:#A30000;
+}
+#full-record-display .pane-node-terms li {
+display:inline
+}
+#node-collection .field-field-image {
+float:left;
+margin:10px;
+}
+
+#node-collection .teaser .field-field-image {
+float:left;
+margin-top:0px;
+}
+
+#article .fullpage {
+  float:left;
+}
+#article .item-list {
+  float:right;
+}
+
+#article .field-field-exportlist
+{
+display:none;}
+/*--END--*/
+
+
+/* Added By akshar on 22nd march refer bug id 231 */
+
+#user-profile-form .description {
+font-size:115%;
+}
+
+/* END Added By akshar on 22nd march refer bug id 231 */
+
+/*---------------Style for pager with no Panel div wrapped around ---28-Mar-2011--Amit-Akshay-------------------*/
+.view-New-heritage-sites .item-list .pager {
+	border:1px dotted #bbbbbb;
+	padding:8px 5px;
+	}
+	
+#edit-sort-by {width:123px; margin-top:5px;} /*----------collection page - select box width adjustment----------*/
+
+#views-exposed-form-search-page-1 #edit-submit-search{
+	margin-right:0px;
+    margin-top: 3px;
+}
+#views-exposed-form-search-page-1 legend {
+margin:0px;
+}
+#block-block-25 .content #right .banner_right ul {
+ list-style: none !important;
+}
+
+
+/* changes in default.css dated 29th march 2011 */
+table {
+ /* border-collapse: collapse;*/
+  width:100%;
+}
+
+.clear-block {
+ display: block; /*changed value to "block" from "table"*/
+}
+/* changes in default.css dated 29th march 2011 */
+
+/*To hide Web Departments block-Homepage  | Apr 1 :Sushil*/
+.tempDisabled {
+display:none;
+}
+
+
+/* ---- START - 01 April 2011 ---- */
+
+#main.single_col{
+width:100%;
+}
+.single_col h1{
+	border:0px;
+}
+#getdirections-direction-form .description , #getdirections-direction-form #edit-country-from-wrapper {
+display:none;
+}
+#getdirections-direction-form  #edit-from-wrapper label{
+float:left;
+font-weight:bold;
+line-height:26px;
+color:#515756;
+font-size:120%;
+}
+#getdirections_start #edit-from-wrapper #edit-from {
+	float:left;
+	padding-right:5px; 
+	margin-top:2px;
+}
+#getdirections_start , #getdirections_btn {
+	background-color:#eeeeee;
+	padding:5px;
+	overflow: hidden;
+}
+
+#getdirections-direction-form .getdirections_display{
+	margin-bottom:0px;
+}
+#getdirections_btn #edit-submit{
+float:left;
+}
+#getdirections-direction-form #getdirections_show_distance{
+font-size:120%;
+}
+.single_col .getdirections table{
+border-collapse:separate;
+width:auto;
+}
+#container.gmap_container
+{
+	padding-bottom:10px;
+	border-bottom: 1px dotted #CCCCCC;
+	width:auto !important;
+ }
+.single_col #adp-placemark{
+margin-top:0px;
+}
+.single_col #getdirections_directions{
+padding-top:0px;
+}
+#th1_gmap , #th2_gmap
+{
+	background-color: #EEEEEE;	
+    border: 1px solid silver;
+    display: none;
+    font-size: 100%;
+    font-weight: bold;
+    margin-bottom: 5px;
+    padding: 6px;
+	text-align: center;
+}
+/* ---- END ---- */
+
+/* Added by akshar on 5th april to solve the bug of global serach pager UI being inconsistent with rest of pager styles */
+
+.box .item-list .pager {
+border:1px dotted #BBBBBB;
+padding:8px 5px; 
+}
+
+.box .item-list .pager li{
+padding:0.1em;
+}
+/* ENDAdded by akshar on 5th april to solve the bug of global serach pager UI being inconsistent with rest of pager styles */
+
+
+/* Added by akshar to solve bug of paging issue obn taxonomy page */
+/*
+.right-corner .left-corner .clear-block .item-list .pager {
+border:1px dotted #BBBBBB;
+padding:8px 5px; 
+}
+
+.right-corner .left-corner .clear-block .item-list .pager li{
+padding:0.1em;
+}
+*/
+/* Added by akshar to solve bug of paging issue obn taxonomy page */
+
+
+#print-mail-form .description {
+font-size:1.0em;
+}
+
+/* Added By akshar refer bug ID - 433 */
+
+.view.view-New-heritage-sites.view-id-New_heritage_sites.view-display-id-page_1.view-dom-id-1 .views-field.views-field-body,
+.view.view-New-heritage-sites.view-id-New_heritage_sites.view-display-id-page_1.view-dom-id-2 .views-field.views-field-body {
+font-family: lucida sans unicode,lucida grande,sans-serif;
+font-weight: normal;
+color: #777777;
+font-size:11px;
+
+}
+
+/* End Added By akshar refer bug ID - 433 */
+
+
+
+/* Added By Akshar 0n 15th april bug id 399 */
+
+#full-record-display .pane-content p {
+margin:0px;
+}
+
+/* Added By Akshar 0n 15th april bug id 399 */
+
+
+/* Added by akshay for adding record only with images on all collection menus and landing pages */
+#views-exposed-form-search-navy-museums-page-1 #edit-keys-wrapper , #views-exposed-form-search-national-parks-page-1 #edit-keys-wrapper , #views-exposed-form-search-civilwar-museums-page-1 #edit-keys-wrapper , #views-exposed-form-Search-landing-page-page-1 #edit-keys-wrapper,
+#views-exposed-form-search-smithsonian-museums-page-1  #edit-keys-wrapper {
+float:left;
+}
+
+#views-exposed-form-search-navy-museums-page-1 label , #views-exposed-form-search-national-parks-page-1 label , #views-exposed-form-search-civilwar-museums-page-1 label ,  #views-exposed-form-Search-landing-page-page-1 label,#views-exposed-form-search-smithsonian-museums-page-1 label {
+line-height:24px;
+float:left;
+}
+#views-exposed-form-search-navy-museums-page-1 #chk_id , #views-exposed-form-search-national-parks-page-1 #chk_id , #views-exposed-form-search-civilwar-museums-page-1 #chk_id {
+width:25%;
+}
+#views-exposed-form-search-navy-museums-page-1 #chk_id label , #views-exposed-form-search-national-parks-page-1 #chk_id label , #views-exposed-form-search-civilwar-museums-page-1 #chk_id label ,  #views-exposed-form-Search-landing-page-page-1 #chk_id label {
+	position: relative;
+}
+#views-exposed-form-search-navy-museums-page-1  #chk_id label span, #views-exposed-form-search-national-parks-page-1  #chk_id label span , #views-exposed-form-search-civilwar-museums-page-1  #chk_id label span , #views-exposed-form-Search-landing-page-page-1 #chk_id label span  {
+	position: inherit;
+	top:-2px;
+}
+#views-exposed-form-Search-landing-page-page-1 #chk_id{
+padding-left:5px;
+width:32%;
+}
+#views-exposed-form-Search-landing-page-page-1 #chk_id label.option input {
+ margin-right:5px;
+ }
+#views-exposed-form-Search-landing-page-page-1 #chk_id label.option{
+margin-right:0px;
+}
+
+#views-exposed-form-search-page-1 #chk_id label {
+position:relative;
+}
+#views-exposed-form-search-page-1 #chk_id label span {
+    position:inherit;
+    top: 0px;
+}
+/*  END Added by akshay for adding record only with images on all collection menus and landing pages */
+
+/* BEGIN Added by Adam 25 April 2011 for Civil War Chronicles sidebar  */
+
+div#cwc-sidebar {
+  width:154px;
+}
+
+div#cwc-sidebar h3 {
+border:1px solid #062d4d;
+text-align:center;
+margin:0;
+margin-bottom:5px;
+padding:3px 0;
+text-align:center;
+}
+div#cwc-sidebar p a {
+  text-decoration:none;
+}
+div#cwc-sidebar p a:hover {
+  text-decoration:underline;
+}
+div#cwc-logo{
+  margin-bottom:14px;
+  text-align:center;
+}
+div#cwc-logo img{
+  width:70%;
+}
+
+/* END Added by Adam 25 April 2011 for Civil War Chronicles sidebar  */
+
+/* BEGIN Added by Adam 5 May 2011 for setting images, captions in magazine articles  */
+
+div.imgWrapperRight {
+		float:right;
+		margin:0;
+		margin-left:10px;
+		margin-bottom:10px;
+		border:1px dotted #ccc;
+		padding:1px;
+		width:250px;
+}
+div.imgWrapperLeft {
+		float:left;
+		margin:0;
+		margin-right:10px;
+		margin-bottom:10px;
+		border:1px dotted #ccc;
+		padding:1px;
+}
+
+div.imgWrapperRight p, div.imgWrapperLeft p {
+  margin: 0;
+  padding: 0;
+}
+
+div.imgWrapperRight img, div.imgWrapperLeft img {
+		width:100%;
+ 		position:relative;
+		margin:0;
+		padding:0;
+}
+div.imgWrapperRight p.caption, div.imgWrapperLeft p.caption {
+		margin:0;
+		padding:4px 8px 8px 8px;
+		font-style:oblique;
+		font-family:arial;
+		font-size:90%;
+		color:#555;
+}
+
+
+div.imgWrapperRight p, div.imgWrapperLeft p {
+  margin: 0;
+  padding: 0;
+}
+
+
+/* END Added by Adam 5 May 2011 for setting images, captions in magazine articles  */
+
+/* BEGIN Added by Adam 11 May 2011 to disable third-level flyout in superfish navigation menu */
+
+#primary-navigation ul ul ul li {
+  display:none;
+}
+
+table#attachments {
+  margin-bottom: 15px;
+}
+
+/* END Added by Adam 11 May 2011 to disable third-level flyout in superfish navigation menu */
+
+
+/*Added on 11/05/2011*/
+
+.block-apachesolr_search ul {
+padding:0
+}
+
+.block-apachesolr_search, #block-apachesolr-sort {margin-bottom:8px}
+
+.block-apachesolr_search h2, #block-apachesolr-sort h2 {
+/*background:#57859F; 
+padding:5px;
+color:#FFFFFF;
+font-size:14px;
+margin-bottom:8px;*/
+font-family: 'big caslon','trebuchet ms',arial;
+    font-size: 16px;
+    font-weight: 900;
+    margin: 2px 0 10px;
+    padding: 0;
+    text-transform: uppercase;
+	border-bottom:1px solid #062D4D;
+	padding-bottom:5px;
+	color:#062D4D
+}
+
+.block-apachesolr_search ul li {
+list-style-type:none; 
+margin:0 0 5px;
+}
+
+#block-apachesolr-sort ul {
+padding:0;
+}
+
+#block-apachesolr-sort ul li {
+margin:0; 
+list-style-type:none;
+margin-bottom:5px;
+}
+
+
+.block-apachesolr_search ul li a, #block-apachesolr-sort ul li a {color:#444}
+
+
+
+
+
+/* BEGIN Added by Adam 13 July 2011 to add 'Today in History' to front page */
+
+div.pane-today-in-history h2.pane-title {
+  margin-bottom:0;
+}
+
+.today-in-history-block ul li, .today-in-history-block ul li span  {
+  display: inline;
+}
+
+
+div.views-field-field-today-in-history-year-value, div.views-field-field-today-in-history-year-value span.field-content {
+  font-weight: 900;
+  font-size: 120%;
+  margin-bottom:0;
+}
+
+div.views-field-field-today-in-history-teaser-value div.field-content {
+  margin:0;
+  padding:0;
+}
+
+div.views-field-field-today-in-history-teaser-value div.field-content p {
+  margin-top:2px;
+}
+
+div.views-field-field-today-in-history-teaser-value div.field-content p {
+  font-weight:normal;  
+}
+
+div.views-field-field-today-in-history-teaser-value div.field-content p a {
+  text-decoration:none;
+}
+
+div.views-field-field-today-in-history-teaser-value div.field-content p a:hover {
+  text-decoration:underline;
+}
+
+
+
+/* Pollfield module - used for Compromise Poll */
+
+
+
+
+div#node-109368 {
+  padding-top: 0;
+}
+
+div#pollfield-109368-0, div#pollfield-109368-1, div#node-109368 div.field-field-invitation-to-comment  {
+  margin: 0 290px;
+  font-size: 18px;
+  margin-top: 8px;
+}
+
+
+div#pollfield-109368-0 div.pollfield-title, div#pollfield-109368-1 div.pollfield-title {
+  font-size: 14px;
+}
+
+div#pollfield-109368-0 div#pollfield, div#pollfield-109368-1 div#pollfield {
+  width: 444px;
+  margin: 0;
+  margin-top: 30px;
+  padding: 0;
+}
+
+div#pollfield-109368-0 div#pollfield div.pollfield-row div, div#pollfield-109368-1 div#pollfield div.pollfield-row div {
+  width: 100%;
+  float: left;
+  clear: left;
+  font-size: 12px;
+}
+
+div#pollfield-109368-0 div#pollfield div.text, div#pollfield-109368-1 div#pollfield div.text {
+  text-align: left;
+  
+}
+
+div#pollfield-109368-0 div#pollfield div.pollfield-percent, div#pollfield-109368-1 div#pollfield div.pollfield-percent {
+  margin-bottom: 35px;
+  text-align: right;
+  color: #888;
+}
+
+
+div#node-109368 div.links ul li.first {
+  margin: 0 290px;
+}
+
+
+
+
+
+
+
+/* BEGIN styling the press-release content type
+** added by Adam 26 July 2011
+**/
+
+/*  press release index page */
+
+
+div.view-press-releases div.views-row {
+  margin-bottom: 20px;  
+}
+
+div.view-press-releases div.views-row div.views-field-field-press-release-date-value {
+  color: #777;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+div.view-press-releases div.views-row div.views-field-title a {
+  text-decoration: none;
+}
+
+div.view-press-releases div.views-row div.views-field-title a:hover {
+  text-decoration: underline;
+}
+
+/*  press release full node view */
+
+div.press_release div.field-field-press-release-deck {
+  color: #555;
+  font-family: georgia, times, serif;
+  font-size: 15px;
+  margin-top: -5px;
+  font-style: italic;
+  margin-bottom: 15px;
+}
+
+div.pr-right-col-wrapper {
+  float: right;
+  margin-left: 17px;
+  margin-bottom: 7px;
+}
+
+div.press_release div.field-field-press-release-date {
+  float: left;
+}
+
+div.press_release div.print-email-icons {
+  float: right;
+}
+
+div.press_release div.print-email-icons a {
+  text-decoration: none;
+}
+
+div.press_release div.print-email-icons a:hover {
+  background-color: red;
+}
+
+div.press_release div.field-field-press-release-contact {
+  background-color: #062d4d;
+  padding: 7px;
+  clear: right;
+  margin-top: 15px;
+}
+
+div.press_release div.field-field-press-release-contact h3, div.press_release div.field-field-press-release-contact p {
+  color: white;
+}
+
+div.press_release div.field-field-press-release-contact h3 {
+  border-bottom: 1px solid white;
+}
+
+/* END styling the press-release content type */
+
+
+
+
+/*  Taxonomy terms */
+
+
+div#article div.teaser {
+  margin: 0;
+  padding: 0;
+}
+
+div#article div.teaser h2 {
+  font-family: 'big caslon', georgia, times, serif;
+  border-bottom: none;
+  margin-bottom: 1px;
+  padding-bottom: 1px;
+  border-top: 1px solid #aaa;
+  padding-top: 8px;
+}
+
+div#article div.teaser div.field-field-deck {
+  margin: 0;
+  font-style: italic;
+}
+
+div#article div.teaser div.read-more, div#article div.teaser div.read-more a {
+  margin: 0;
+  padding: 0;
+  background-color: white;
+  color: #A30000;
+  text-decoration: none;
+}
+
+div#article div.teaser div.read-more a:hover {
+  text-decoration: underline;
+}
+
+div.article div.teaser div.terms ul.inline li, div.article div.teaser div.terms ul.links li {
+  display: block;
+}
+
+
+
+
+/*  Civil War Chronicles Ticker  */
+
+div#block-views-CWC_ticker-block_1 div.view-CWC_ticker ul li span div.views-field-field-date-of-event-value {
+  font-family: arial;
+  font-size: 12px;
+  color: #666;
+  text-transform: uppercase;
+  margin-top:10px;
+}
+
+
+div#block-views-CWC_ticker-block_1 div.view-CWC_ticker ul li span div.views-field-body {
+  font-family: 'big caslon', georgia, times, serif;
+  font-size: 15px;
+  margin-top:0;
+}
+
+div#block-views-CWC_ticker-block_1 div.view-CWC_ticker ul li span div.views-field-body p {
+  margin: 0;
+}
+
+
+
+div#views-ticker-vTicker-CWC_ticker div.views-field-title span a:hover {
+  text-decoration: underline;
+}
+
+div.views-field-field-date-civil-war-chronicles-value span {
+  font-size: 11px;
+  font-weight: 100;
+  color: #666;
+  font-family:arial;
+  text-transform:uppercase;
+}
+
+div#block-views-CWC_ticker-block_1 {
+  margin-bottom:10px;
+}
+
+div#block-views-CWC_ticker-block_1 h2 {
+  font-family: 'big caslon', georgia, times, serif;
+  font-size: 16px;
+  font-weight: 900;
+  margin: 2px 0 10px;
+  padding: 0;
+  text-align: center;
+  text-transform: uppercase;
+  color: #590714;
+}
+
+div#block-views-CWC_ticker-block_1 {
+  border: 1px dotted #ccc;
+  border-right: none;
+}
+
+
+div#block-views-CWC_ticker-block_1 div.field-content {
+  margin: 0;
+}
+
+div#block-views-CWC_ticker-block_1 div.views-field-field-cwc-dispatch-read-m-url {
+  margin-top: 2px;
+}
+
+div#block-views-CWC_ticker-block_1 div.views-field-field-cwc-dispatch-read-m-url span.field-content a {
+  text-decoration:none;
+  font-family: arial;
+  font-size: 12px;
+}
+
+div#block-views-CWC_ticker-block_1 div.views-field-field-cwc-dispatch-read-m-url span.field-content a:hover {
+  text-decoration:underline;
+}
+
+
+/*  Web-only Articles Homepage pane */
+
+
+div.pane-homepage-web-only-articles {
+  border-bottom: 1px dotted #ccc;
+  margin-bottom: 10px;
+}
+
+div.pane-homepage-web-only-articles div.views-field-created {
+  font-style:italic;
+  margin-top:-3px;
+  font-family: arial;
+}
+
+div.panels-flexible-region-homepage_layout-right div#rightCol {
+  border-bottom: 1px dotted #ccc;
+  margin-bottom: 10px;
+}
+
+/*  Site-wide contact form */
+
+form#contact-mail-page {
+  font-size:14px;
+}
+
+form#contact-mail-page .contact-form-alert {
+  color:red;
+}
+
+form#contact-mail-page ul {
+  list-style: disc inside none;
+}
+
+form#contact-mail-page ul li {
+  padding-left: 20px;
+}
+
+
+
+
+/* Web Exclusives */
+
+div.web_only_article div.field_art_contributor a {
+  text-decoration: none;
+}
+
+div.web_only_article div.field_art_contributor a:hover {
+  text-decoration: underline;
+}
+
+/*  CWC view in issue panel */
+
+#issue div.pane-cwc-stories div.views-field-title span a {
+  color: #062d4d;
+  text-decoration: none;
+  font-size:20px;
+  line-height:1.1;
+  margin: 0 0 5px;
+  padding:0;
+}
+
+#issue div.pane-cwc-stories div.views-field-title span a:hover {
+  text-decoration:underline;
+}
+
+div.web_only_article div.posted-date p {
+  text-transform: uppercase;
+  font-family:arial;
+  color:#777;
+}
+
+div.web_only_article blockquote {
+  padding: 20px 35px;
+  background: url(http://www.americanheritage.com/sites/all/themes/hs/images/quote-1.jpg) left top no-repeat;
+  
+}
+
+div.web_only_article blockquote div.close-blockquote {
+  background: url(http://www.americanheritage.com/sites/all/themes/hs/images/quote-2.jpg) right bottom no-repeat;
+  height: 58px;
+  width:82px;
+  float:right;
+  z-index:-9;
+  margin:0;
+  padding:0;
+  margin-top:-20px;
+  margin-right:-34px;
+}
+
+
+
+
+div.pane-homepage-articles {
+  border-bottom: 1px dotted #ccc;
+  margin-bottom:10px;
+}
+
+div.cwcArticle blockquote {
+  padding: 20px 35px;
+  background: url(http://www.americanheritage.com/sites/all/themes/hs/images/quote-1.jpg) left top no-repeat;  
+}
+
+div.cwcArticle blockquote div.close-blockquote {
+  background: url(http://www.americanheritage.com/sites/all/themes/hs/images/quote-2.jpg) right bottom no-repeat;
+  height: 58px;
+  width:82px;
+  float:right;
+  z-index:-9;
+  margin:0;
+  padding:0;
+  margin-top:-20px;
+  margin-right:-34px;
+}
+
+
+
+
+
+/* Civil War Chronicles */
+
+div.cwcArticle h2 {
+font-family:'big caslon', georgia, times, serif;
+color:white;
+text-align:center;
+padding:5px 0;
+font-size:25px;
+margin-bottom:5px;
+clear:left;
+}
+div.cwcArticle h2 span.source {
+font-size: 10px;
+font-family:arial;
+text-transform:uppercase;
+float:left;
+font-weight:100;
+text-align:left;
+margin-right: -56px;
+position:relative;
+left:8px;
+}
+div.cwcArticle h2 img {
+float:right;
+position:relative;
+left:-10px;
+}
+div.cwcArticle h2.north {
+background-color:#2e2285;
+}
+div.cwcArticle h2.south {
+background-color:#463f3f;
+}
+div.cwcArticle h2.neutral {
+background-color:#356a2a;
+}
+div.cwcArticle p span {
+text-transform:uppercase;
+font-family:georgia, times, serif;
+font-size:120%;
+font-weight:900;
+}
+div.cwcArticle p.citation {
+font-style:oblique;
+font-family:arial;
+padding:10px 0;
+border-top:1px dotted #ccc;
+border-bottom:1px dotted #ccc;
+font-size:95%;
+}
+div.cwcArticle div.imgWrapperRight {
+float:right;
+width:250px;
+margin:0;
+margin-left:10px;
+margin-bottom:10px;
+border:1px dotted #ccc;
+padding:1px;
+}
+div.cwcArticle div.imgWrapperLeft {
+float:left;
+margin:0;
+margin-right:10px;
+margin-bottom:10px;
+border:1px dotted #ccc;
+padding:1px;
+}
+div.cwcArticle div.imgWrapperRight img, div.cwcArticle div.imgWrapperLeft img {
+width:100%;
+position:relative;
+margin:0;
+padding:0;
+}
+div.cwcArticle p.caption {
+margin:0;
+padding:8px;
+font-style:oblique;
+font-family:arial;
+font-size:90%;
+color:#555;
+}
+
+
+/* IMC - Block for American History */
+
+div#block-views-american_history-block_1 div.view-american-history ul li span div.views-field-body {
+  font-family: 'big caslon', georgia, times, serif;
+  font-size: 15px;
+  margin-top:0;
+}
+
+div#block-views-american_history-block_1 div.view-american-history ul li span div.views-field-body p {
+  margin: 0;
+}
+
+
+
+div#views-ticker-vTicker-american_history div.views-field-title span a:hover {
+  text-decoration: underline;
+}
+
+div#block-views-american_history-block_1 {
+  margin-bottom:10px;
+}
+
+div#block-views-american_history-block_1 h2 {
+  font-family: 'big caslon', georgia, times, serif;
+  font-size: 16px;
+  font-weight: 900;
+  margin: 2px 0 10px;
+  padding: 0;
+  text-align: center;
+  text-transform: uppercase;
+  color: #590714;
+}
+
+div#block-views-american_history-block_1 {
+  border: 1px dotted #ccc;
+  border-right: none;
+}
+
+
+div#block-views-american_history-block_1 div.field-content {
+  margin: 0;
+}
+/* IMC - Block for American History */
+.typestyle
+{
+font-style:italic;
+}
+
+/* article first letter  */
+#magazine #article .drop_letter p:first-of-type:first-letter{
+font-size: 350%;
+line-height: 40px;
+}
+
+/* article first letter  */
+
+
+.view-updatearticle .views-table th
+{
+background-color:#062D4D;
+padding:4px;
+}
+
+.view-updatearticle .views-table tr{
+background-color:#FFF;
+}
+
+.view-updatearticle .views-field-changed a{
+color:WHITE;
+text-decoration:none;
+}
+
+.view-updatearticle .views-field-title a.active{
+text-decoration:none;
+}
+.view-updatearticle .views-table td{
+padding:2px 12px 2px 3px;
+}
+
+.byarticles h2{
+color:#062D4D;
+font-weight:bold;
+}
+
+.articletable .tblheader{
+background-color:#062D4D;
+color:white;
+height:25px;
+margin-bottom:5px;
+}
+.byarticles .authorname{
+font-size:13px;
+margin-top:-18px;
+margin-left:155px;
+}
+.articletable tr td a,.view-updatearticle .views-table .views-field-title a,.view-updatearticle .views-field a{
+text-decoration:none;!important
+}
+.articletable tr td a:hover, .view-updatearticle .views-table .views-field-title a:hover,.view-updatearticle .views-field a:hover{
+text-decoration:underline;
+}
+.view-updatearticle .views-table thead{
+background-color:#062D4D;
+}

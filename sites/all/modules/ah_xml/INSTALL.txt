@@ -1,0 +1,15 @@
+/**
+  *  Some customization before installation
+  *
+  *
+  */
+
+1. Create Content Types
+	1. Article - article
+	2. Issue - issue
+
+Create Taxonomy Vocabulary
+
+1." Article Keywords " (for internal Article Keywords)
+2." Issue Keywords " (Summer, Winter, Fall etc.)
+mention thier id to variables defimed  on the top of the file

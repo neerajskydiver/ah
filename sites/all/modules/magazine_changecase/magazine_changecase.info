@@ -1,0 +1,6 @@
+; $id$
+
+name = Magazine Changecase
+description =  One time module to change capitalized titles of issues to titlecase for Magazines
+package = "American Heritage"
+core =  6.x

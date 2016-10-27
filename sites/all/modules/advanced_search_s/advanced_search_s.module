@@ -1,0 +1,259 @@
+<?php
+// $Id$
+function advanced_search_s_form_alter(&$form, &$form_state, $form_id) {
+
+	if ($form['#id'] == 'views-exposed-form-search-page-1') 
+	{
+		$form['term1'] = array(
+			  '#type' => 'checkbox',
+			  '#title' => '<span>Only With Images</span>',
+			  '#return_value' => 1,
+			  '#weight' => -1,
+			  '#prefix' =>	'<div id = "chk_id">',
+			  '#suffix' =>	'</div>',
+			);
+		$options = array("Select","Title A-Z","Title Z-A");
+		$form['sort_by'] = array(
+			  '#type' => 'select',
+			  '#title' => t('Sort Result By'),
+			  '#options' => $options,	
+			  '#return_value' => 1,
+			  '#weight' => -2,
+			  '#prefix' =>	'<div id = "sort_id">',
+			  '#suffix' =>	'</div>',
+			);
+		$form['submit']['#weight'] = 2;
+	}
+	
+
+
+/* -----------------------------------Civil  War-------------------------------------------------*/
+	if ($form['#id'] == 'views-exposed-form-search-civilwar-museums-page-1') 
+	{
+		$form['term1'] = array(
+			  '#type' => 'checkbox',
+			  '#title' => '<span>Only With Images</span>',
+			  '#return_value' => 1,
+			  '#weight' => -1,
+			  '#prefix' =>	'<div id = "chk_id">',
+			  '#suffix' =>	'</div>',
+			);
+	}
+/*-------------------------------------------------------------------------------------*/
+
+/* -----------------------------------National Parks-------------------------------------------------*/
+	if ($form['#id'] == 'views-exposed-form-search-national-parks-page-1') 
+	{
+		$form['term1'] = array(
+			  '#type' => 'checkbox',
+			  '#title' => '<span>Only With Images</span>',
+			  '#return_value' => 1,
+			  '#weight' => -1,
+			  '#prefix' =>	'<div id = "chk_id">',
+			  '#suffix' =>	'</div>',
+			);
+	}
+/*-------------------------------------------------------------------------------------*/
+
+
+
+/* ----------------------------------- Navy museums-------------------------------------------------*/
+	if ($form['#id'] == 'views-exposed-form-search-navy-museums-page-1') 
+	{
+		$form['term1'] = array(
+			  '#type' => 'checkbox',
+			  '#title' => '<span>Only With Images</span>',
+			  '#return_value' => 1,
+			  '#weight' => -1,
+			  '#prefix' =>	'<div id = "chk_id">',
+			  '#suffix' =>	'</div>',
+			);
+	}
+/*-------------------------------------------------------------------------------------*/
+
+/* ----------------------------------- landing Pages-------------------------------------------------*/
+	if ($form['#id'] == 'views-exposed-form-Search-landing-page-page-1') 
+	{
+		$form['term1'] = array(
+			  '#type' => 'checkbox',
+			  '#title' => '<span>Only With Images</span>',
+			  '#return_value' => 1,
+			  '#weight' => -1,
+			  '#prefix' =>	'<div id = "chk_id">',
+			  '#suffix' =>	'</div>',
+			);
+	}
+/*-------------------------------------------------------------------------------------*/
+
+
+
+/* ----------------------------------- Smithsonian-------------------------------------------------*/
+	if ($form['#id'] == 'views-exposed-form-search-smithsonian-museums-page-1') 
+	{
+		$form['term1'] = array(
+			  '#type' => 'checkbox',
+			  '#title' => '<span>Only With Images</span>',
+			  '#return_value' => 1,
+			  '#weight' => -1,
+			  '#prefix' =>	'<div id = "chk_id">',
+			  '#suffix' =>	'</div>',
+			);
+	}
+/*-------------------------------------------------------------------------------------*/
+
+
+
+	 if ($form['#id'] == "views-exposed-form-search-page-1") 
+	 {
+		$form['#validate'][] = 'search_validate';
+     }
+
+
+
+}
+
+function advanced_search_s_views_query_alter(&$view, &$query)
+{
+	if($view->name == "search")
+	{
+		if(($_GET['term1'] == 1))
+		{
+		}
+		else
+		{
+		 $cnt_where = count($query->where[0][clauses]);
+		 $args_where = count($query->where[0][args]);
+		 $clause_whr = $cnt_where-1;
+	 	 $args = $args_where -1;
+	     unset($query->where[0][clauses][$clause_whr]);
+		 unset($query->where[0][args][$args]);
+		}
+		
+		
+		if(($_GET['sort_by'] == 2))
+		{
+		 	$query->add_orderby('node','title', "DESC", "node_title");	
+		}
+
+
+		if(($_GET['sort_by'] == 1))
+		{
+		 	$query->add_orderby('node','title', "ASC", "node_title");	
+		}
+	}
+
+
+/*------------------------------------- Civil War ----------------------------*/
+	if($view->name == "search_civilwar_museums")
+	{
+		if(($_GET['term1'] == 1))
+		{
+		}
+		else
+		{
+		 $cnt_where = count($query->where[0][clauses]);
+		 $args_where = count($query->where[0][args]);
+		 $clause_whr = $cnt_where-1;
+	 	 $args = $args_where -1;
+	     unset($query->where[0][clauses][$clause_whr]);
+		 unset($query->where[0][args][$args]);
+		}
+	}
+/*-------------------------------------End Civil War ----------------------------*/
+
+
+/*------------------------------------- Natioonal park ----------------------------*/
+	if($view->name == "search_national_parks")
+	{
+		if(($_GET['term1'] == 1))
+		{
+		}
+		else
+		{
+		 $cnt_where = count($query->where[0][clauses]);
+		 $args_where = count($query->where[0][args]);
+		 $clause_whr = $cnt_where-1;
+	 	 $args = $args_where -1;
+	     unset($query->where[0][clauses][$clause_whr]);
+		 unset($query->where[0][args][$args]);
+		}
+	}
+/*-------------------------------------End Natioonal park ----------------------------*/
+
+
+/*------------------------------------- Navy Museums ----------------------------*/
+	if($view->name == "search_navy_museums")
+	{
+		if(($_GET['term1'] == 1))
+		{
+		}
+		else
+		{
+		 $cnt_where = count($query->where[0][clauses]);
+		 $args_where = count($query->where[0][args]);
+		 $clause_whr = $cnt_where-1;
+	 	 $args = $args_where -1;
+	     unset($query->where[0][clauses][$clause_whr]);
+		 unset($query->where[0][args][$args]);
+		}
+	}
+/*-------------------------------------End Navy Museums ----------------------------*/
+
+
+
+/*------------------------------------- Smithsonina ----------------------------*/
+	if($view->name == "search_smithsonian_museums")
+	{
+/*	echo "<pre>";
+	print_r($query);
+*/		if(($_GET['term1'] == 1))
+		{
+		}
+		else
+		{
+		 $cnt_where = count($query->where[0][clauses]);
+		 $args_where = count($query->where[0][args]);
+		 $clause_whr = $cnt_where-1;
+	 	 $args = $args_where -1;
+	     unset($query->where[0][clauses][$clause_whr]);
+		 unset($query->where[0][args][$args]);
+		}
+	}
+/*-------------------------------------End Navy Museums ----------------------------*/
+
+
+
+}
+
+	function search_validate($form,&$form_state) {
+
+
+	$form_state['values']['keys'] = trim($form_state['values']['keys']);
+	$form_state['values']['title'] = trim($form_state['values']['title']);
+	$form_state['values']['body'] = trim($form_state['values']['body']);
+	$form_state['values']['creator'] = trim($form_state['values']['creator']);
+	if(!empty($form_state['values']['keys']))
+	{
+/*		if(!preg_match("/^[a-zA-Z0-9.]+(([a-zA-Z0-9]*)[^a-zA-Z0-9])*$/",$form_state['values']['keys']))
+		{
+			if(strpos($_SERVER['REQUEST_URI'],"?"))
+			{
+				form_set_error("edit-keys","Inavlid Search Keyword");
+				//drupal_goto("search");
+			}
+		}
+*/	
+		if(strlen($form_state['values']['keys']) > 9)
+		{
+			if(is_numeric($form_state['values']['keys']))
+			{
+				if(strpos($_SERVER['REQUEST_URI'],"?"))
+				{
+					form_set_error("edit-keys","Inavlid Search Keyword");
+					//drupal_goto("search");
+				}
+			}
+		}
+	}
+}
+

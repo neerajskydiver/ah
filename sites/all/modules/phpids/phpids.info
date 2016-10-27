@@ -1,0 +1,12 @@
+; $Id: phpids.info,v 1.1.4.2.2.8 2009/09/21 17:36:10 gos77 Exp $
+name = "phpids"
+description = "Creates a wrapper to include PHPIDS (PHP-Intrusion Detection System) as a security layer for Drupal."
+core = 6.x
+package = Security
+php = 5.1.6
+; Information added by drupal.org packaging script on 2010-08-09
+version = "6.x-1.11"
+core = "6.x"
+project = "phpids"
+datestamp = "1281386174"
+

@@ -1,0 +1,2446 @@
+<?php
+
+/**
+ * @file
+ * Main module file for Hose XML module.
+ */
+
+/**
+ * @defgroup hose_xml_core XML output for nodes
+ * @{
+ * Hose XML suite of modules for XML export of CCK nodes
+ * 
+ * Allows import and export of spreadsheet files to any number of defined XML schema.
+ */
+
+//----------------------------------------------------------------------------
+// Defining variables.
+
+/**
+ * Defines a path to the working directory for Hose XML exports.
+ */
+define('HOSE_XML_FILE_FILES_DIR', sprintf('%s/hose_xml', file_directory_path()));
+
+/**
+ * Defines an OPTIONAL state for export profile fields.
+ */
+define('HOSE_XML_OPTIONAL', 0);
+
+/**
+ * Defines a REQUIRED state for export profile fields.
+ */
+define('HOSE_XML_REQUIRED', 1);
+
+/**
+ * Defines a RELIES ON (another field) state for export profile fields.
+ */
+define('HOSE_XML_RELIES_ON', 2);
+
+//----------------------------------------------------------------------------
+// Integrating other functionality.
+
+if (module_exists('launch_pad')) {
+  module_load_include('inc', 'hose_xml', 'includes/launch_pad');
+}
+if (module_exists('views')) {
+  module_load_include('inc', 'hose_xml', 'includes/views/views');
+}
+module_load_include('inc', 'hose_xml', 'includes/actions');
+// presents profiles as xsd schemas
+module_load_include('inc', 'hose_xml', 'includes/schema');
+
+//----------------------------------------------------------------------------
+// Drupal core hooks.
+
+/**
+ * Implementation of hook_block().
+ */
+function hose_xml_block($op = 'list', $delta = 0) {
+  switch ($op) {
+    case 'list':
+      $blocks[0]['info'] = t('Hose XML Helper form');
+      // Not worth caching.
+      $blocks[0]['cache'] = BLOCK_NO_CACHE;
+      return $blocks;
+    case 'view':
+      drupal_add_js(drupal_get_path('module', 'hose_xml') .'/misc/dontpanic.js');
+      drupal_add_css(drupal_get_path('module', 'hose_xml') .'/misc/shared.css');
+      $type = NULL;
+      if (arg(0) == 'node' && is_numeric(arg(1))) {
+        $type = db_result(db_query("SELECT nt.name FROM {node_type} nt INNER JOIN {node} n ON n.type = nt.type WHERE n.nid = %d", arg(1)));
+      }
+      $block['subject'] = t('Hose XML Helper form');
+      $block['content'] = drupal_get_form('hose_xml_popup_form', $type);
+      return $block;
+  }
+} // hose_xml_block
+
+/**
+ * Implementation of hook_cron().
+ */
+function hose_xml_cron() {
+  foreach (variable_get('hose_xml_clean_vocabs', array(30)) as $vid) {
+    $query = db_query("SELECT td.tid, td.name, v.name AS vocab FROM {term_data} td LEFT JOIN {vocabulary} v ON v.vid = td.vid WHERE td.vid = %d ORDER BY td.tid ASC", $vid);
+    while ($fetch = db_fetch_object($query)) {
+      if (taxonomy_term_count_nodes($fetch->tid) == 0) {
+        if (taxonomy_del_term($fetch->tid)) {
+          watchdog('hose_xml', "Removed orphaned term '@term' from vocab '@vocab'.", array('@term' => $fetch->name, '@vocab' => $fetch->vocab));
+        }
+        else {
+          watchdog('hose_xml', "Error deleting orphaned term '@term' from vocab '@vocab'.", array('@term' => $fetch->name, '@vocab' => $fetch->vocab), WATCHDOG_ERROR);
+        }
+      }
+    }
+  }
+} // hose_xml_cron
+
+/**
+ * Implementation of hook_help().
+ */
+function hose_xml_help($path, $arg) {
+  switch ($path) {
+    case "admin/settings/hose_xml":
+      return t('Some help will go here eventually...');
+  }
+} //hose_xml_help
+
+/**
+ * Implementation of hook_menu().
+ * 
+ * @see hose_xml_profile_load(), _hose_xml_export_access()
+ */
+function hose_xml_menu() {
+  // Admin Tabs
+  $items['admin/settings/hose_xml'] = array(
+    'title' => 'Hose XML',
+    'description' => 'Administration settings for the Hose XML module.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('hose_xml_settings'),
+    'access arguments' => array('administrate hose_xml module'),
+    'file' => 'includes/settings.inc',
+  );
+  $items['admin/settings/hose_xml/settings'] = array(
+    'title' => 'Settings',
+    'weight' => 0,
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+  // Exporting
+  $items['hose_xml/view_xml/%hose_xml_profile/%node'] = array(
+    'title' => 'Hose XML View XML',
+    'page callback' => 'hose_xml_view_XML',
+    'page arguments' => array(2, 3),
+    'access callback' => '_hose_xml_export_access',
+    'access arguments' => array(2),
+    'type' => MENU_CALLBACK,
+  );
+  $items['hose_xml/export_XML/%hose_xml_profile/%node'] = array(
+    'title' => 'Hose XML Export XML',
+    'page callback' => 'hose_xml_export_XML_file',
+    'page arguments' => array(2, 3, "", TRUE),
+    'access callback' => '_hose_xml_export_access',
+    'access arguments' => array(2),
+    'type' => MENU_CALLBACK,
+  );
+  
+  // Handbook Pages
+  if (variable_get('hose_xml_handbook', FALSE)) {
+    // autocomplete helper for handbook page
+    $items['hose_xml/handbooks/autocomplete/%hose_xml_profile'] = array(
+      'page callback' => 'hose_xml_export_handbooks_autocomplete',
+      'page arguments' => array(3),
+      'access arguments' => array('access hose_xml module'),
+      'type' => MENU_CALLBACK,
+      'file' => 'includes/handbooks.inc',
+    );
+    $items['hose_xml/handbooks'] = array(
+      'title' => 'Hose XML Handbooks',
+      'page callback' => 'hose_xml_handbooks',
+      'access arguments' => array('access hose_xml module'),
+      'file' => 'includes/handbooks.inc',
+    );
+    $items['hose_xml/handbooks/%hose_xml_profile'] = array(
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('hose_xml_handbook', 2),
+      'access arguments' => array('access hose_xml module'),
+      'type' => MENU_CALLBACK,
+      'file' => 'includes/handbooks.inc',
+    );
+  }
+
+  // Launch-Pad ajax pages
+  if (module_exists('launch_pad')) {
+    $items['launch-pad-ajax'] = array(
+      'page callback' => 'hose_xml_launch_pad_ajax',
+      'access arguments' => array('access content'),
+      'type' => MENU_CALLBACK,
+    );
+  }
+  $items['hose_xml/cleanup_vocabs'] = array(
+    'title' => 'Hose XML Clean up vocabs',
+    'page callback' => 'hose_xml_taxman',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('administer hose_xml module'),
+  );
+  $items['hose_xml/schema/%'] = array(
+    'title' => 'Hose XML Profile Schema',
+    'page callback' => 'hose_xml_schema_output',
+  	'page arguments' => array(2),
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'), 
+  );
+  return $items;
+} // hose_xml_menu
+
+/**
+ * Implementation of hook_nodeapi().
+ * 
+ * @see _hose_xml_export_access()
+ */
+function hose_xml_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
+  switch ($op) {
+    case 'view':
+      if (!$node->printing && in_array($node->type, variable_get('hose_xml_content_types', array())) && !$teaser && _hose_xml_export_access()) {
+        switch (variable_get('hose_xml_export_bars', 'bottom')) {
+          case 'top':
+            $node->content['hose_xml_top'] = array(
+              '#value' => drupal_get_form('hose_xml_export_links', $node),
+              '#weight' => -999,
+            );
+            break;
+          case 'bottom':
+            $node->content['hose_xml_bottom'] = array(
+              '#value' => drupal_get_form('hose_xml_export_links', $node),
+              '#weight' => 999,
+            );
+          break;
+          case 'both':
+            $node->content['hose_xml_top'] = array(
+              '#value' => drupal_get_form('hose_xml_export_links', $node),
+              '#weight' => -999,
+            );
+            $node->content['hose_xml_bottom'] = array(
+              '#value' => drupal_get_form('hose_xml_export_links', $node),
+              '#weight' => 999,
+            );
+            break;
+        }
+      }
+      break;
+  }
+} // hose_xml_nodeapi
+
+/**
+ * Implementation of hook_perm().
+ */
+function hose_xml_perm() {
+  $extras = array();
+  if (variable_get('hose_xml_use_permissions', FALSE)) {
+    $extras = array_merge($extras, array_map('_hose_xml_perm_import_profiles', hose_xml_fetch_import_profiles()));
+  }
+  if (variable_get('hose_xml_use_permissions', FALSE)) {
+    $extras = array_merge($extras, array_map('_hose_xml_perm_export_profiles', hose_xml_fetch_export_profiles()));
+  }
+  return array_merge(
+    array(
+      'administrate hose_xml module',
+      'access hose_xml module',
+      'access exports',
+//      'allow csv exports',  moved to pimport
+//      'allow xls exports',  moved to pimport
+    ),
+    $extras
+  );
+} // hose_xml_perm
+
+/**
+ * Implementation of hook_popups().
+ */
+function hose_xml_popups() {
+  return array(
+	  'user/*/tracker' => array(
+//      '#edit-objects-wrapper td a:contains('. t('edit') .')',
+      '#edit-objects-wrapper td a:contains('. t('delete') .')',
+    ),
+  );
+} // hose_xml_popups
+
+/**
+ * Implementation of hook_theme().
+ */
+function hose_xml_theme() {
+  return array(
+    'hose_xml_import' => array(
+      'arguments' => array('form'),
+      'file' => 'includes/main.inc',
+    ),
+    'hose_xml_handbook_tag' => array(
+      'arguments' => array('pid', 'tag'),
+      'file' => 'includes/handbooks.inc',
+    ),
+    'launch_pad_view' => array(
+      'arguments' => array('delta', 'letter' => NULL),
+    ),
+    'hose_xml_launch_pad_view_nodes' => array(
+      'arguments' => array('form'),
+    ),
+    'hose_xml_launch_pad_view_vocabs' => array(
+      'arguments' => array('form'),
+    ),
+    'hose_xml_popup_form' => array(
+      'arguments' => array('form'),
+    ),
+  );
+} // hose_xml_theme
+
+/**
+ * Implementation of hook_theme_registry_alter().
+ */
+function hose_xml_theme_registry_alter(&$theme_registry) {
+  $theme_registry['launch_pad_view']['theme paths'][] = drupal_get_path('module', 'hose_xml');
+  $theme_registry['launch_pad_view']['file'] = drupal_get_path('module', 'hose_xml') .'/includes/launch_pad.inc';
+  $theme_registry['launch_pad_view']['function'] = 'theme_hose_xml_launch_pad_view';
+} // hose_xml_theme_registry_alter
+
+//----------------------------------------------------------------------------
+// Menu loader functions.
+
+/**
+ * Loads an individually specified (by profile id) profile from the db.
+ *
+ * @param $pid
+ *   Numeric identifier representing profile in table {hose_xml_profiles}.
+ * 
+ * @return
+ *   Object containing all profile information from the {hose_xml_profiles} table
+ *   
+ * @see hose_xml_menu()
+ */
+function hose_xml_profile_load($pid) {
+  if (preg_match("/^bucket-(.*)/", $pid, $match)) {
+    $bid = $match[1];
+    $output = db_fetch_object(db_query("SELECT * FROM {hose_xml_buckets} WHERE bid = %d", $bid));
+    $query = db_query("SELECT mep.* FROM {hose_xml_bucket_profiles} bp INNER JOIN {hose_xml_profiles} mep ON bp.pid = mep.pid WHERE bp.bid = %d ORDER BY bp.weight ASC", $bid);
+    while ($fetch = db_fetch_object($query)) {
+      $output->profiles[$fetch->pid] = $fetch;
+    }
+    if (!empty($output) && db_table_exists('hose_xml_delivery')) {
+      $output->delivery = db_fetch_array(db_query("SELECT * FROM {hose_xml_delivery} WHERE bid = %d", $bid));
+    }
+    return $output;
+  }
+  $output = db_fetch_object(db_query("SELECT * FROM {hose_xml_profiles} WHERE pid = %d", $pid));
+  if (!empty($output) && db_table_exists('hose_xml_delivery')) {
+    $output->delivery = db_fetch_array(db_query("SELECT * FROM {hose_xml_delivery} WHERE pid = %d", $pid));
+  }
+  $output->settings = empty($output->settings) ? $output->settings : unserialize($output->settings);
+  return $output;
+} // hose_xml_profile_load
+
+//----------------------------------------------------------------------------
+// Batch processing.
+
+/**
+ * Hose XML export batch handling.
+ * 
+ * @see hose_xml_export_batch_finished()
+ */
+function hose_xml_export_batch_process($pid, $nodes, $force, $delivery, $delivery_settings, &$context) {
+  $profile = is_object($pid) ? $pid : hose_xml_profile_load($pid);
+  if (!isset($context['sandbox']['progress'])) {
+    $context['sandbox']['progress'] = 0;
+    $context['sandbox']['max'] = count($nodes);
+    // count total rows (this only happens once)
+    
+    $context['sandbox']['error'] = array();
+    $context['results']['filename'] = hose_xml_filename_safe($profile->name .'_'. date(variable_get('hose_xml_import_date_output', 'c')));
+    $context['results']['force'] = $force;
+  }
+  
+  $count = $context['sandbox']['progress'];
+  $node_seq_array = array_values($nodes);
+  $node = node_load($node_seq_array[$count], NULL, TRUE);
+  
+  $export_results = hose_xml_export_XML($profile, $node); 
+  $context['sandbox']['progress']++;
+
+  if (empty($export_results['error'])) {
+    if (module_exists('hose_xml_delivery') && $delivery) {
+      hose_xml_delivery_go_deliver_action($export_results['file_processed'], $delivery, $delivery_settings);
+    }
+    $context['results'][] = $export_results['file_processed'];
+  }
+  else {
+    foreach ($export_results['error'] as $error) {
+      $context['results']['error'][] = t("Error processing @file - !error.", array('@file' => basename($export_results['file_processed']), '!error' => $error));
+    }
+  }
+  $context['message'] = t("Now processing %title", array('%title' => $node->title));
+
+  // Inform the batch engine that we are not finished,
+  // and provide an estimation of the completion level we reached.
+  
+  if ($context['sandbox']['progress'] != $context['sandbox']['max']) {
+    $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['max'];
+  }
+} // hose_xml_export_batch_process
+
+/**
+ * Batch 'finished' callback.
+ * 
+ * @param $success
+ *   Boolean flag representing if the batch operation was successful or not.
+ * @param $results
+ *   Contains information about successfully processed operations.
+ * @param $operations
+ *   Contains any operations which remain unprocessed.
+ * 
+ * @see hose_xml_export_batch_process()
+ */
+function hose_xml_export_batch_finished($success, $results, $operations) {
+  if ($success && empty($results['error'])) {
+    // Here we do something meaningful with the results.
+    unset($results['error']);
+    //got rid of these because they don't make sense with folders in the zip
+    //$message = format_plural(count($results), '1 XML file successfully procesed.', '@count files succesfully processed.');
+    //$message .= theme('item_list', $results);
+    if (hose_xml_zip_up($results['filename'])) {
+      //drupal_set_message($message);
+      //watchdog('hose_xml', $message, NULL, WATCHDOG_INFO);      
+    }
+    else {
+      drupal_set_message(t("Can't create zip file"), "warning");
+      watchdog('hose_xml', "Can't create zip file.<br />", array(), WATCHDOG_CRITICAL);      
+    }
+  }
+  else if ($success && $results['force']) {
+    drupal_set_message(t("Nodes processed with errors, <strong>INVALID</strong> XML files produced..."), 'warning');
+    foreach ($results['error'] as $error_text) { 
+      drupal_set_message($error_text, 'error');
+    }
+    if (!hose_xml_zip_up($results['filename'])) {
+      drupal_set_message(t("Can't create zip file"), "warning");
+      watchdog('hose_xml', "Can't create zip file.<br />", array(), WATCHDOG_CRITICAL);
+    }
+  }
+  else if (!$success) {
+    // An error occurred.
+    // $operations contains the operations that remained unprocessed.
+    $error_operation = reset($operations);
+    $message = t('A serious error occurred while processing @op with arguments : !args', array('@op' => $error_operation[0], '!args' => print_r($error_operation[0], TRUE)));
+    $message .= '<p>'. t('Please report this to your system administator.') .'</p>';
+    drupal_set_message($message, 'error');
+    watchdog('hose_xml',  $message, NULL, WATCHDOG_CRITICAL);       
+  }
+  else {
+    drupal_set_message(t("Nodes processed with errors, no XML files produced..."), 'warning');
+    foreach ($results['error'] as $error_text) { 
+      drupal_set_message($error_text, 'error');
+    }
+    watchdog('hose_xml', "Configuration error creating XML", array(), WATCHDOG_WARNING);
+  }
+  drupal_goto('/');
+} // hose_xml_export_batch_finished
+
+
+//----------------------------------------------------------------------------
+// Private functions.
+
+/**
+ * Parses user reference functionality and returns correct uid for node insert/ update.
+ */
+/* moved to pimport
+function _hose_xml_import_user_reference_process($op, $user_ref, $cell, $import_user) {  
+  switch ($user_ref->type) {
+    case 'uid':
+      if ($account = user_load($cell)) {
+        return $op == 'uid' ? $account->uid : $account->name;
+      }
+      break;
+    case 'username':
+      if ($account = user_load(array('name' => $cell))) {
+        return $op == 'uid' ? $account->uid : $account->name;
+      }
+      break;
+    case 'email':
+      if ($account = user_load(array('mail' => $cell))) {
+        return $op == 'uid' ? $account->uid : $account->name;
+      }
+      break;
+  }
+  if ($user_ref->type && !empty($user_ref->fallback)) {
+    return $op == 'uid' ? $user_ref->fallback : user_load($user_ref->fallback)->name;
+  }
+  return $op == 'uid' ? $import_user : user_load($import_user)->name;
+} // _hose_xml_import_user_reference_process
+*/
+/**
+ * Replacement for php empty() function which assumes zero to be empty.
+ */
+function _hose_xml_empty($value) {
+  return (empty($value) && $value !== '0' && $value !== 0) ? TRUE : FALSE;
+} // _hose_xml_empty
+
+/**
+ * Returns content types associated with a given profile.
+ * 
+ * @param $pid
+ *   Numeric import profile id.
+ * 
+ * @return
+ *   Array containing the node type associations for the selected profile.
+ */
+/*
+function hose_xml_import_fetch_types($pid) {
+  $types = array();
+  $query = db_query("SELECT * FROM {hose_xml_import_profile_association} WHERE pid = %d", $pid);
+  while ($fetch = db_fetch_object($query)) {
+    $types[] = $fetch->type;
+  }
+  return $types;
+} // hose_xml_import_fetch_types
+*/
+/**
+ * Returns content types associated with a given profile.
+ * 
+ * @param $pid
+ *   Numeric export profile id.
+ * 
+ * @return
+ *   Array containing the node type associations for the selected profile.
+ */
+function hose_xml_export_fetch_types($pid) {
+  $types = array();
+  $query = db_query("SELECT * FROM {hose_xml_profile_association} WHERE pid = %d", $pid);
+  while ($fetch = db_fetch_object($query)) {
+    $types[] = $fetch->type;
+  }
+  return $types;
+} // hose_xml_export_fetch_types
+
+/**
+ * Complex access callback.
+ * 
+ *  - If user is super-user return TRUE
+ *  - If 'Use Permissions' settings in ON and user has permissions for the given export profile
+ *  - If 'Use Permissions' settings in OFF and user has 'access hose_xml module' OR 'access exports' permissions
+ * 
+ * @param $profile
+ *   Hose XML export profile object.
+ * 
+ * @return
+ *   Boolean TRUE on success, FALSE on failure.
+ * 
+ * @see hose_xml_menu()
+ * @see hose_xml_nodeapi()
+ */
+function _hose_xml_export_access($profile = NULL) {
+  global $user;
+  if ($user->uid == 1 || (variable_get('hose_xml_use_permissions', FALSE) && !empty($profile) ? user_access(_hose_xml_perm_export_profiles($profile->name)) : user_access('access hose_xml module')) || user_access('access exports')) {
+    return TRUE;
+  }
+  return FALSE;
+} // _hose_xml_export_access
+
+/**
+ * Produces a form containing the Export options, rendered on the Launch Pad pages.
+ * 
+ * @param $types
+ *   Array containing node types.
+ * 
+ * @return
+ *   Drupal form array for rendering.
+ * 
+ * @see hose_xml_export_multiple_submit()
+ */
+function _hose_xml_form_ending($types = array()) {
+  global $user;
+  $form['#submit'][] = 'hose_xml_export_multiple_submit';
+  if (module_exists('translation')) {
+    $langs = language_list();
+    foreach ($langs as $lang_code => $lang) {
+      $lang_options[$lang_code] = t('@lang', array('@lang' => $lang->name));
+    }
+    $form['language'] = array(
+      '#type' => 'select',
+      '#options' => $lang_options,
+      '#default_value' => 'en',
+      '#multiple' => TRUE,
+      '#description' => t('Choose languages to export - Ctrl-Click to select multiple languages.'),
+    );
+  }
+  $form['hose_xml_export_xml'] = array(
+    '#prefix' => '<div id="hose_xml-export-container" class="container-inline">',
+    '#suffix' => '</div>',
+  );
+  if ($options = hose_xml_fetch_export_profiles($types) + hose_xml_fetch_buckets($types)) {
+    $form['hose_xml_export_xml']['hose_xml_profiles'] = array(
+      '#type' => 'select',
+      '#options' => $options,
+      '#default_value' => !empty($user->hose_xml_export_default_profile) ? $user->hose_xml_export_default_profile : variable_get('hose_xml_export_default_profile', NULL),
+    );
+    if (variable_get('hose_xml_force_download', FALSE)) {
+      $form['hose_xml_export_xml']['hose_xml_export_force'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Force download'),
+      );
+    }
+    $form['hose_xml_export_xml']['hose_xml_export_xml_save'] = array(
+      '#type' => 'submit',
+      '#value' => t('Export XML'),
+    );
+  }
+  $form['hose_xml_export_csv'] = array(
+    '#prefix' => '<div id="hose_xml-export-csv-container" class="container-inline">',
+    '#suffix' => '</div>',
+  );
+  
+  if (module_exists('pimport')) {
+    if ((user_access('administrate hose_xml module') || user_access('access pimport module')) && $options = pimport_fetch_profiles($types, 'names')) {
+      $form['hose_xml_export_csv']['hose_xml_import_profiles'] = array(
+        '#type' => 'select',
+        '#options' => $options,
+        '#default_value' => !empty($user->hose_xml_import_default_profile) ? $user->hose_xml_import_default_profile : variable_get('hose_xml_import_default_profile', NULL),
+      );
+      $form['hose_xml_export_csv']['hose_xml_export_csv_save'] = array(
+        '#type' => 'submit',
+        '#value' => t('Export CSV'),
+      );
+    }
+  }
+  
+  return $form;
+} // _hose_xml_form_ending
+
+/**
+ * Returns a list of all cck fields for selection on forms.
+ */
+function hose_xml_cck_options($pid = 0, $type) {
+  $output = array();
+  $fields = array();
+  // Sanity check...
+  if ($type != 'export') {
+    $type = 'import';
+  }
+  $function = "hose_xml_". $type ."_fetch_types";
+  $array = $function($pid);
+  foreach ($array as $machine_name ) {    
+    $fields = array_merge($fields, hose_xml_content_fields(NULL, $machine_name));
+  }
+  ksort($fields);
+  while (list($key, $field) = each($fields)) {
+    $output[$key] = $field['field_name'];
+  }
+  // add in Drupal title and body and System ID if it's in use for this profile
+  $add_options = array('title' => t('title'), 'body' => t('body'));
+  if ($pid) {
+    $add_options['system_id'] = t('System generated ID');
+  }
+  $output = array_merge($add_options, $output);
+  $output += hose_xml_taxonomy_options();
+
+  $output += module_invoke_all('hose_xml_custom_cck_options', $type);
+
+  return $output;
+} // hose_xml_cck_options
+
+function hose_xml_content_fields($field_name = NULL, $type_name = NULL) {
+  $output = array();
+  if (!isset($field_name) && !isset($type_name) || !module_exists('content')) {
+    return array();
+  }
+  elseif (isset($field_name) && isset($type_name)) {
+    $query = db_query("SELECT field_name, type_name, label, widget_type FROM {content_node_field_instance} WHERE type_name = '%s' && field_name = '%s'", $type_name, $field_name);
+  }
+  elseif (isset($field_name)) {
+    $query = db_query("SELECT field_name, type_name, label, widget_type FROM {content_node_field_instance} WHERE field_name = '%s'", $field_name);
+  }
+  elseif (isset($type_name)) {
+    $query = db_query("SELECT field_name, type_name, label, widget_type FROM {content_node_field_instance} WHERE type_name = '%s'", $type_name);
+  }
+    while ($fetch = db_fetch_object($query)) {
+      $output[$fetch->field_name] = array(
+        'field_name' => $fetch->field_name,
+        'type_name' => $fetch->type_name,
+        'label' => $fetch->label,
+        'widget_type' => $fetch->widget_type,
+      );
+    }
+  return $output;
+} // hose_xml_content_fields
+
+function hose_xml_taxonomy_options() {
+  $build = array();
+  foreach (taxonomy_get_vocabularies() as $vid => $vocab) {
+    $build["vocab_$vocab->vid"] = "vocab_$vocab->name";
+  }
+  asort($build);
+  return $build;
+} // hose_xml_taxonomy_options
+
+/**
+ * Exports the $node according to export $profile 
+ * By default creates a filename from profile name and node title
+ * To display in a Drupal page pass $as_file = FALSE
+ * returns array( 'file_processed' => 'the file name', 'error' => array( of error messages ) )
+ * The calling function can determine whether there is an error if 'error' has contents
+ */
+function hose_xml_export_XML(&$profile, &$node, $filename = NULL, $as_file = TRUE, $suppress_errors = FALSE, $indent = '  ') {
+  if (is_array($profile->profiles)) {
+    return t('Error: You cannot currently validate against Buckets.');
+  }
+  global $user;
+  $error = array();
+  $xml_dir = variable_get('hose_xml_file_path', HOSE_XML_FILE_FILES_DIR);
+  $user_xml_dir = "$xml_dir/$user->uid";
+  file_check_directory($user_xml_dir, TRUE);
+  // make a directory for the profile
+  $profile_dir = $user_xml_dir .'/'. hose_xml_filename_safe($profile->name);
+  file_check_directory($profile_dir, TRUE);
+  
+  // if no filename is provided we make a name from the profile and the node.
+  if (empty($filename)) {
+    if (module_exists('token')) {
+      $filename = hose_xml_filename_safe(token_replace($profile->filename_tokens, 'node', $node));
+      $file_info = pathinfo($filename);
+      if (isset($file_info['extension'])) {
+        $filename = $profile_dir . '/'. $filename;
+      }
+      else {
+        $filename = $profile_dir . '/'. $filename .'.xml';
+      }
+    }
+    else {
+      $filename = $profile_dir .'/'. hose_xml_filename_safe($profile->name .'-'. $node->title .'-'. $node->nid .'-'. $node->vid ).'.xml';
+    }
+  }
+
+  if (module_exists('hose_xml_cache') && ($cache = cache_get("{$node->nid}:{$node->vid}:{$profile->pid}", 'hose_xml_cache'))) {
+    if (!$as_file) {
+      module_invoke_all('hose_xml_export_log', 'validate', $profile, $node);
+      drupal_set_message(t("Valid XML retrieved from cache using profile '@name'.", array('@name' => $profile->name)));
+      return '<code>'. nl2br(htmlspecialchars($cache->data, ENT_QUOTES, 'UTF-8', FALSE )) .'</code>';
+    }
+    file_put_contents($filename, $cache->data);
+    return array('file_processed' => $filename, 'error' => $error);
+  }
+
+  $writer = new XMLWriter();
+
+  if (!$as_file) {
+    $test = $writer->openMemory();
+  }
+  else {
+    $test = $writer->openURI($filename);
+  }
+
+  $test = $writer->setIndent(TRUE);
+
+  if (!$as_file) {
+    $writer->setIndentString($indent);  // set the indentation for validate
+  }
+  
+  $profile_tree = hose_xml_get_export_config_tree($profile->pid);
+  // set up the xml doc
+  $xml_settings = array('version' => '1.0', 'encoding' => 'UTF-8'); // Default values
+  $first_element = array_shift($profile_tree);
+  if ($first_element->tag != 'xml') {
+    $writer->flush();
+    if (!$as_file) {
+      drupal_set_message(t('No XML Tag in profile. Giving up....'), 'error');
+      return '';
+    }
+    return array('file_processed' => 'none', 'error' => array(t('No XML Tag in profile. Giving up....')));
+  }
+  $attrs = unserialize($first_element->attributes);
+  if (is_array($attrs)) {
+    foreach ($attrs as $attr) {
+      if (!empty($attr['attribute-value'])) $xml_settings[$attr['attribute-attribute']] = $attr['attribute-value'];
+    }
+  }
+
+  $test = $writer->startDocument($xml_settings['version'], $xml_settings['encoding']);
+  
+  //do the XML export
+  $fids = array();
+  hose_xml_export_create_xml($profile_tree, $writer, $node, $fids, $error, $as_file);
+  if (!empty($error)) {
+    watchdog(
+      'hose_xml', 
+      "Configuration or content error creating XML for profile '@profile' using node '@nid'.<br />", 
+      array('@profile' => $profile->name, '@nid' => $node->nid), 
+      WATCHDOG_NOTICE);
+      
+  }
+  $success = $writer->endDocument();
+
+  if (!$as_file) {
+    $output = $writer->outputMemory();
+  }
+  else {
+    $output = file_get_contents($filename);
+  }
+
+  if ($success && empty($error)) {
+    module_invoke_all('hose_xml_export_success', $output, $profile, $node);
+  }
+  elseif (!$success) {
+    $fail_msg = t("XMLWriter : Error creating XML for profile '@profile' using node '@nid'.", 
+      array('@profile' => $profile->name, '@nid' => $node->nid));
+    watchdog(
+      'hose_xml', 
+      "XMLWriter: Error creating XML for profile '@profile' using node '@nid'.", 
+      array('@profile' => $profile->name, '@nid' => $node->nid), 
+      WATCHDOG_CRITICAL);
+    $error[] = $fail_msg;
+  }
+  elseif ($as_file) {
+    module_invoke_all('hose_xml_export_log', 'export', $profile, $node);
+  }
+
+  if (!$as_file) {
+    // this is the validate function so output the XML to screen and any errors
+    if (empty($error)) {
+    	module_invoke_all('hose_xml_export_log', 'validate', $profile, $node);
+      drupal_set_message(t("Valid XML created using profile '@name'.", array('@name' => $profile->name)));
+    }
+    elseif (!$suppress_errors) {
+      if (is_array($error)) { 
+        foreach ($error as $error_str) {
+          drupal_set_message($error_str, 'error');
+        }
+      }
+      else {
+        drupal_set_message(t("Unknown Error processing node @nid. Contact your systems administrator.", 
+          array('@nid' => $node->nid)), 'error');  
+      }
+    }
+    if ($suppress_errors) {
+      $writer->flush();
+      return array('output' => $output, 'error' => $error);
+    }
+    $writer->flush();
+    // changed to output raw XML if $as_file = FALSE
+    return $output;
+  }
+  else {
+    //hose_xml_fill_boots($fids);
+  }
+  $writer->flush();
+  return array('file_processed' => $filename, 'error' => $error);
+} // hose_xml_export_XML
+
+
+
+function hose_xml_view_XML(&$profile, &$node) {
+  $xml = hose_xml_export_XML($profile, $node, NULL, FALSE, FALSE, "&nbsp;&nbsp;");
+  return '<code>'. nl2br(htmlspecialchars($xml, ENT_QUOTES, 'UTF-8', FALSE )) .'</code>';
+}
+/**
+ * Note this function is currently not being called anywhere.  It used to be called from 7 lines up and was used to transfer attached files into the export directory for zipping.
+ * @TODO Look into if this even happens any more???
+ */
+function hose_xml_fill_boots($fids) {
+  // Only proceed if we've been passed an array
+  if (!is_array($fids)) {
+    return;
+  }
+  // Fathom out destination directory
+  global $user;
+  $xml_dir = variable_get('hose_xml_file_path', HOSE_XML_FILE_FILES_DIR);
+  $user_xml_dir = "$xml_dir/$user->uid/";
+  // Loop through fids and copy them into output directory
+  foreach ($fids as $fid => $file) {
+    if (isset($file['filepath'])) {
+      if (!file_copy($file['filepath'], $user_xml_dir . $file['filename'], FILE_EXISTS_REPLACE)) {
+        watchdog('hose_xml', 'Error copying @name to output directory.', array('@name' => $file['filename']), WATCHDOG_ERROR);
+      }
+    }
+  }
+} // hose_xml_fill_boots
+
+/**
+ * Export a single file.
+ */
+function hose_xml_export_XML_file(&$profile, &$node, $filename = "", $as_file = TRUE, $force = FALSE) {
+  $ret = array();
+  // Check for buckets
+  if (is_array($profile->profiles)) {
+    $collect = array();
+    foreach ($profile->profiles as $pid => $temp) {
+      $collect[$pid] = hose_xml_export_XML($temp, $node, $filename, $as_file);
+      if (!empty($collect[$pid]['error'])) {
+        $ret['error'][] = t("Profile '@name' failed validation.", array('@name' => $temp->name));
+      }
+    }
+    if (module_exists('token')) {
+      $filename = hose_xml_filename_safe(token_replace($profile->filename_tokens, 'node', $node));
+    }
+    else {
+      $filename = hose_xml_filename_safe($profile->name);
+    }
+    // Check bucket actually had profiles in it
+    if (empty($collect)) {
+      $ret['error'][] = t("Bucket '@name' does not contain any profiles.", array('@name' => $profile->name));
+    }
+    else {
+      // $as_file ??? That's surely not relevant??
+      // ...Unless perhaps validation occurs for buckets one day?  I'll leave it in...
+      $bucket_extras = module_invoke_all('hose_xml_bucket_export', $profile->bid, $collect, $node, $filename, $as_file);
+      if (!empty($bucket_extras['_errors'])) {
+        foreach ($bucket_extras['_errors'] as $error) {
+          $ret['error'][] = $error;
+        }
+      }
+    }
+    // Check for success and provide download link from bucket NOT from profiles
+    if (empty($ret['error'])) {
+      hose_xml_zip_up($filename);
+      return;
+    }
+    elseif ($force) {
+      drupal_set_message(t("Nodes processed with errors, <strong>INVALID</strong> XML files produced..."), 'warning');
+      if (is_array($ret['error'])) {
+        foreach ($ret['error'] as $error) {
+          drupal_set_message($error, 'error');
+        }
+      }
+      hose_xml_zip_up($filename);
+      return;
+    }
+  }
+  else {
+    $ret = hose_xml_export_XML($profile, $node, $filename, $as_file);
+  }
+  if (empty($ret['error'])) {
+    drupal_set_message(t("XML file @file written.", array('@file' => basename($ret['file_processed']))));
+    $filename = array_pop(explode('/', $ret['file_processed']));
+    $profile->real_filepath = url($ret['file_processed'], array('absolute' => TRUE));
+    $profile->filepath = module_exists('hose_xml_download') ? url("download/$profile->pid/$filename") : $profile->real_filepath;
+    return t('<a href="@link">Please click here</a> to download the XML file.', array('@link' => $profile->filepath));
+  }
+  elseif ($force) {
+    drupal_set_message(t("Nodes processed with errors, <strong>INVALID</strong> XML files produced..."), 'warning');
+    if (is_array($ret['error'])) {
+      foreach ($ret['error'] as $error) {
+        drupal_set_message($error, 'error');
+      }
+    }
+    drupal_set_message(t("XML file @file written.", array('@file' => basename($ret['file_processed']))));
+    $filename = array_pop(explode('/', $ret['file_processed']));
+    $profile->real_filepath = url($ret['file_processed'], array('absolute' => TRUE));
+    $profile->filepath = module_exists('hose_xml_download') ? url("download/$profile->pid/$filename") : $profile->real_filepath;
+    return t('<a href="@link">Please click here</a> to download the XML file.', array('@link' => $profile->filepath));
+  }
+  else {
+    if (is_array($ret['error'])) {
+      foreach ($ret['error'] as $error) {
+        drupal_set_message($error, 'error');
+      }
+    }
+    return t("Errors processing node @nid - no XML file written.", array('@nid' => $node->nid));
+  }
+} // hose_xml_export_XML_file
+
+/**
+ * Export data as an array of rows for a node (nid) for a given profile id (pid)
+ * suitable for export as CSV, XLS
+ */
+/* moved to pimport
+function hose_xml_export_node_data(&$node, $pid) {
+  module_load_include('inc', 'hose_xml_export', 'includes/export');
+
+  $errors = array();
+  $node_err_str = l(t(
+    "Problem with node @nid : ", 
+    array('@nid' => $node->nid)), 
+    "node/$node->nid/edit",
+    array('attributes' => array('target' => '_blank')));
+  
+  // get the data from the node according to the profile heading to cck_match
+  $result = db_query("SELECT mipd.heading, mipd.cck_match, mipd.unique_id_part, cnf.type FROM {hose_xml_import_profile_data} mipd LEFT JOIN {content_node_field} cnf ON cnf.field_name = mipd.cck_match WHERE mipd.pid = %d ORDER BY mipd.weight ASC", $pid);
+  while ($column = db_fetch_array($result)) {
+    $data[0][] = $column['heading'];
+    // deal with tags
+    if (preg_match("/^vocab_(\d+)$/", $column['cck_match'], $match)) {
+      $tags = array();
+      foreach ($node->taxonomy as $term) {
+        if ($term->vid == $match[1]) {
+          $tags[] = $term->name;
+        }
+      }
+      $data[1][] = implode(' ', $tags);
+    }
+    // deal with cck fields
+    elseif (drupal_substr($column['cck_match'], 0, 6) == "field_") {
+      switch ($column['type']) {
+        case 'date':
+        	// Don't hit the db more than once...
+        	if (empty($date_format) && !($date_format = db_result(db_query("SELECT date_format from {hose_xml_import_profiles} WHERE pid = %d", $pid)))) {
+        	  $date_format = variable_get('hose_xml_import_date_region', 'eu');
+        	}
+        	$field = _hose_xml_reverse_date($node->{$column['cck_match']}[0]['value'], $date_format);
+        	break;
+        default:
+          $field = $node->{$column['cck_match']}[0]['value'];
+          break;
+      }
+      if (isset($node->$column['cck_match'])) {   
+        $data[1][] = $field;
+        if (empty($node->{$column['cck_match']}[0]['value']) && $column['unique_id_part']) {
+          $errors[] = $node_err_str .
+            t(" : <strong>@heading</strong> is specified as part of the unique ID but this node has no 
+            data in mapped cck field <strong>@field</strong>", 
+              array('@heading' => $column['heading'], '@field' => $column['cck_match']));
+        }
+      }
+      else {
+        $errors[] = $node_err_str .
+          t("<strong>@cck_match</strong> does not exist in <strong>@type</strong> which is the content type for this node",
+            array('@cck_match' => $column['cck_match'], '@type' => $node->type));
+        $data[1][] = "";
+      }
+    }
+    // deal with simple fields like title, body
+    elseif (!empty($column['cck_match'])) {
+      if (isset($node->$column['cck_match'])) {   
+        $data[1][] = $node->{$column['cck_match']};
+      }
+      else {
+        $errors[] = $node_err_str .
+          t("The basic field <strong>@cck_match</strong> does not exist in <strong>@type</strong> which is the content 
+            type for this node.",
+            array('@cck_match' => $column['cck_match'], '@type' => $node->type));
+      }
+    }
+    // there is no cck_match
+    else {
+      // stick an empty cell in there so the order is maintained
+      $data[1][] = "";
+      $errors[] = $node_err_str .
+        t("<strong>@heading</strong> is not mapped to a cck field in this import profile", 
+          array('@heading' => $column['heading']));
+    }
+  }
+  if (!empty($errors)) {
+    foreach ($errors as $error) {
+      drupal_set_message($error, 'error');
+    }
+  }
+  else {
+    //drupal_set_message(t("CSV exported succesfully."));
+  }
+  return array('data' => $data, 'errors' => $errors);
+} // hose_xml_export_node_data
+*/
+
+function hose_xml_export_node_filename(&$node, $pid) {
+  $profile = hose_xml_import_profile_load($pid);
+  $filename = hose_xml_filename_safe('metadata_'. $node->title ."_". $profile->title);
+  return $filename;
+} // hose_xml_export_node_filename
+
+/**
+ * Ensures the users directory in the hose_xml temp directory is clean.
+ */
+function hose_xml_clean_export_dir() {
+  global $user;
+  $export_dir = variable_get('hose_xml_file_path', HOSE_XML_FILE_FILES_DIR);
+  $user_export_dir = "$export_dir/$user->uid";
+  file_check_directory($export_dir, FILE_CREATE_DIRECTORY);
+  _hose_xml_sure_remove_dir($user_export_dir, FALSE);
+  file_check_directory($user_export_dir, FILE_CREATE_DIRECTORY);
+} // _hose_xml_clean_export_dir
+
+/**
+ * Helper function for hose_xml_clean_export_dir function.
+ */
+function _hose_xml_sure_remove_dir($dir, $deleteme) {
+  if (!$dh = @opendir($dir)) {
+    return;
+  }
+  while (false !== ($obj = readdir($dh))) {
+    if ($obj == '.' || $obj == '..') {
+      continue;
+    }
+    if (!@unlink("$dir/$obj")) {
+      _hose_xml_sure_remove_dir("$dir/$obj", TRUE);
+    }
+  }
+
+  closedir($dh);
+  if ($deleteme) {
+    @rmdir($dir);
+  }
+} // _hose_xml_sure_remove_dir
+
+/**
+ * Exports a series.
+ * 
+ * @see _hose_xml_form_ending()
+ */
+function hose_xml_export_multiple_submit($form, &$form_state) {
+  $form_values = $form_state['values'];
+  $nodes = array();
+  
+  $filename = "";
+  switch ($form_values['hose_xml-type']) {
+    case 'vocabs':
+      foreach ($form_values['hose_xml-items'] as $value) {
+        if ($form_values['hose_xml-items'][$value['tid']]['checkbox']) {
+          $tid = $form_values['hose_xml-items'][$value['tid']]['tid'];
+          $params[] = $tid;
+          
+        }
+      }
+      if (count($params) == 1) {
+        $filename .= taxonomy_get_term($tid)->name;
+      }
+      else {
+        $filename .= 'metadata';
+      }
+      $tid_in = db_placeholders($params, 'int');
+      $lang_in = db_placeholders($form_values['language'], 'varchar');
+      $params += $form_values['language'];
+      $query = db_query('
+        SELECT DISTINCT(n.nid) FROM {node} n INNER JOIN {term_node} tn ON n.vid = tn.vid 
+        WHERE tn.tid IN ('. $tid_in .') AND n.status = 1
+        AND n.language IN ('. $lang_in .') ', $params);
+      while ($fetch = db_fetch_object($query)) {
+        $nodes[$fetch->nid] = $fetch->nid;
+      }
+      break;
+    default:
+      foreach ($form_values['hose_xml-items'] as $value) {
+        if ($form_values['hose_xml-items'][$value['nid']]['checkbox']) {
+          $nodes[$value['nid']] = $form_values['hose_xml-items'][$value['nid']]['nid'];
+        }
+      }
+      break;
+  }
+  if (empty($nodes)) {
+    if ($form_values['hose_xml-type'] == 'nodes') {
+      drupal_set_message(t("Nothing was selected for export."), 'error');
+    }
+    else {
+      drupal_set_message(t("The series and languages you've selected contains nothing to export."), 'error');
+    }
+   drupal_goto();
+  }
+  switch ($form_state['clicked_button']['#value']) {
+    case t('Export XML'):
+      $batch = array(
+        'operations' => array(
+          array(
+            'hose_xml_export_batch_process',
+              array(
+                $form_values['hose_xml_profiles'],
+                $nodes,
+                $form_values['hose_xml_export_force'],
+                $form_values['hose_xml_delivery_method'],
+                $form_values['delivery_settings'],
+              ),
+            ),
+          ),
+        'finished' => 'hose_xml_export_batch_finished',
+        'title' => t('Processing series export...'),
+        'init_message' => t('Batch processing is starting...'),
+        'progress_message' => t('Processed @current out of @total.'),
+        'error_message' => t('Batch processing has encountered an error.'),
+      );
+      hose_xml_clean_export_dir();
+      batch_set($batch);
+      break;
+    case t('Export CSV'):
+      $profile = pimport_profile_load($form_values['hose_xml_import_profiles']);
+      $filename = hose_xml_filename_safe($filename .'_'. $profile->title);
+      pimport_export_multiple_nodes($nodes, $form_values['hose_xml_import_profiles'], $filename , 'CSV', '/'); 
+      break;
+    /*  deprecated
+    case t('Export XLS'):
+      hose_xml_export_multiple_nodes($nodes, $form_values['hose_xml_import_profiles'], $filename, 'XLS'); 
+      break; 
+    */
+  }
+} // hose_xml_export_multiple_submit
+
+/**
+ * Export multiple nodes as XLS or CSV format.
+ */
+/* moved to pimport
+function hose_xml_export_multiple_nodes($nids, $pid, $filename = 'metadata',  $type = 'CSV') {
+  hose_xml_clean_export_dir();
+  $errors = array();
+  $data = array();
+  $n = 0;
+  foreach ($nids as $nid) {  
+    $node = node_load($nid, NULL, TRUE);
+    $return = hose_xml_export_node_data($node, $pid);
+    if ($n == 0) {
+      $data[] = $return['data'][0];
+    }
+    $data[] = $return['data'][1];
+    $errors = array_merge($return['errors']);
+    $n++;
+  }
+  if (!empty($errors)) {
+    foreach ($errors as $error) {
+      drupal_set_message($error, 'error');
+    }
+  }
+  $filename = hose_xml_filename_safe($filename .'_'. date(variable_get('hose_xml_import_date_output', 'c')));
+  switch ($type) {
+    case 'CSV':
+      hose_xml_export_to_csv($data, $filename, 'save');
+      break;
+    case 'XLS':
+      hose_xml_export_to_xls($data, $filename, 'save');
+      break;
+  }
+//  This is only ever one file isn't it???  No need for zipping???
+//  hose_xml_zip_up($filename);
+} // hose_xml_export_multiple_nodes
+*/
+
+/**
+ * Traverse tree searching for a non-empty or special or required child tag
+ */
+function _hose_xml_branch_has_content(&$branch, $node) {
+  // Start out checking for relies_on fields
+  if ($branch->required == HOSE_XML_RELIES_ON) {
+    // First check for title/ body
+    if ($branch->relies_on == 'title') {
+      if (!_hose_xml_empty($node->title)) {
+        return TRUE;
+      }
+    }
+    if ($branch->relies_on == 'body') {
+      if (!_hose_xml_empty($node->body)) {
+        return TRUE;
+      }
+    }
+    // Then check for cck_matches
+    if (drupal_substr($branch->relies_on, 0, 6) == "field_") {
+      // @TODO *must* allow for cck types (date? url?) which don't store values in [0]['value']
+      // Also this is rubbish for multi-value fields as it only checks for key '0'...
+      if ((isset($node->{$branch->relies_on}[0]['value']) && !_hose_xml_empty($node->{$branch->relies_on}[0]['value'])) || (isset($node->{$branch->relies_on}[0]['fid']) && !_hose_xml_empty($node->{$branch->relies_on}[0]['fid'])) || (isset($node->{$branch->relies_on}[0]['url']) && !_hose_xml_empty($node->{$branch->relies_on}[0]['url']))) {
+        return TRUE;
+      }
+    }
+    // Lastly check for vocabs
+    elseif (preg_match("/^vocab_(\d+)$/", $branch->relies_on, $vocab)) {
+      if (isset($node->taxonomy)) {
+        foreach ($node->taxonomy as $term) {
+          if ($term->vid == $vocab[1]) {
+            return TRUE;
+          }
+        }
+      }
+    }
+    // No conditions match so give up...
+    return FALSE;
+  }
+  // If it's special, it's REQUIRED, it has defaults or the modification modules have output.
+  // @TODO test removing default here as _hose_xml_parse_text already handles it?
+  $field = array('value' => '');
+  $info = _hose_xml_parse_text($field, $branch, $node);
+  if ($branch->special || $branch->required == HOSE_XML_REQUIRED || !_hose_xml_empty($info['processed'])) {
+    return TRUE;
+  }
+  // If cck_match has something in it, check for...
+  if (!empty($branch->cck_match)) {
+    // CCK field types
+    if (preg_match("/^field_.+$/", $branch->cck_match)) {
+      $field = array('value' => $node->{$branch->cck_match}[0]['value']);
+      $info = _hose_xml_parse_text($field, $branch, $node);
+      if (!_hose_xml_empty($info['processed'])) {
+        return TRUE;
+      }
+    }
+    // Vocabs
+    elseif (preg_match("/^vocab_(\d+)$/", $branch->cck_match, $vocab)) {
+      if (isset($node->taxonomy)) {
+        foreach ($node->taxonomy as $term) {
+          $field = array('value' => $term->vid);
+          $info = _hose_xml_parse_text($field, $branch, $node);
+          if ($info['processed'] == $vocab[1]) {
+            return TRUE;
+          }
+        }
+      }
+    }
+    // Anything else (title, body).
+    else {
+      $field = array('value' => $node->{$branch->cck_match});
+      $info = _hose_xml_parse_text($field, $branch, $node);
+      if (!_hose_xml_empty($info['processed'])) {
+        return TRUE;
+      }
+    }
+  }
+  // Recursively check the children (if any) as optional containers should be displayed
+  // if one or more of their children have content.
+  if ($branch->children) {
+    foreach ($branch->children as $leaf) {
+      if (_hose_xml_branch_has_content($leaf, $node)) {
+        return TRUE;
+      }
+    }
+  }
+  return FALSE;
+} // _hose_xml_branch_has_content
+
+/**
+ * Creates the XML export for a node.
+ * 
+ * @return returns error message on error
+ * RULES:
+ * Empty tags don't get printed unless they are required
+ * Containers always get printed
+ * If it's an optional container but not special and all it's children are empty don't display the container or 
+ * its children
+ */
+function hose_xml_export_create_xml(&$tree, &$writer, $node, &$fids = array(), &$error = array(), $as_file = TRUE) {
+  foreach ($tree as $branch) {
+    $field = array();
+    // Always display special tags, or tags with a match, or tags with content.
+    if (_hose_xml_branch_has_content($branch, $node)) {
+      // handle custom fields - check for function name delimiter.
+      if (preg_match("/(.+)?\|.+/", $branch->cck_match, $match)) {
+        $function = "{$match[1]}_hose_xml_process_field";
+        if (function_exists($function) && $function($branch, $writer, $node, $fids, $error, $as_file)) {
+          return $error;
+        }
+        else {
+          $error[] = t("Error, custom field function '@function_hose_xml_process_field' does not exist. Please check your enabled modules.",
+            array(
+              '@function' => $match[1],
+            )
+          );
+          return $error;
+        }
+      }
+      // handle cck fields
+      if (drupal_substr($branch->cck_match, 0, 6) == "field_") {
+        // check this tag for problems
+        $field_data = content_fields($branch->cck_match, $node->type);
+        if (!$field_data) {
+          $error_str = t("<a href=\"@link\">%title</a> - @tag is mapped to field (@match) but this field does not exist in this content type @type.",
+            array(
+              '%title' => $node->title,
+              '@tag' => "<$branch->tag>",
+              '@match' => $branch->cck_match,
+              '@type' => $node->type,
+              '@link' => url("node/$node->nid/edit"),
+            )
+          );
+          if ($branch->children && user_access('administrate XML profiles')) {
+            $error_str .= t("<br/>Also this tag contains other tags. Tags that contain other tags but no data should be
+              specified as container in the profile configuration.");
+          }
+          $error[] = $error_str;
+        }
+        // sometimes the field may not be in the node so process the branch anyway
+        if (!is_array($node->{$branch->cck_match})) {            
+          if (is_array($field_data)) {
+            $field_title = $field_data['widget']['label'];
+          }
+          // even though this tag is in error, if there's anything useful down the branch, display it
+          if (_hose_xml_branch_has_content($branch, $node)) {
+            $writer->startElement($branch->tag);        
+            _hose_xml_generate_tag($branch, $writer, $node, $field, $fids, $error); 
+            if ($branch->children) {
+              hose_xml_export_create_xml($branch->children, $writer, $node, $fids, $error, $as_file);
+            }
+            $writer->endElement();           
+          }
+        }
+        // if there's anything to show here or further down the branch
+        else {
+          // If this is a View then gain the info from it.
+          // @TODO This only checks the first key, maybe this should be more robust?
+          if ($branch->type == 'sandwich' && isset($node->{$branch->cck_match}[0]['view_id'])) {
+            $build_return = array();
+            foreach ($node->{$branch->cck_match} as $key => $view_ref) {
+              if ($view = db_fetch_object(db_query("SELECT name, position FROM {viewreference} WHERE view_id = '%d'", $view_ref['view_id']))) {
+                if (($view_object = views_get_view($view->name)) && $view_object->access($view->position)) {
+                  foreach (views_get_view_result($view->name, $view->position, $view_ref['arguments']) as $result) {
+                    // Gather results in the same way node reference does so we can just reuse the same pickup below for node_load.
+                    $build_return[] = (array) $result;
+                  }
+                }
+              }
+            }
+            // Blat the old Views info, replace it with the Views results else old info will be used in node_load and create bogus references...
+            if (!empty($build_return)) {
+              $node->{$branch->cck_match} = $build_return;
+            }
+          }
+          foreach ($node->{$branch->cck_match} as $field) {
+            if ($field || $branch->children) {
+              $writer->startElement($branch->tag);
+              // If this is referenced node, then use that node rather than the calling one.
+              if ($branch->type == 'sandwich') {
+                // Grab the referenced node (if Views is also providing the vid use that as well).
+                $node = node_load($field['nid'], $field['vid'], TRUE);
+              }
+              _hose_xml_generate_tag($branch, $writer, $node, $field, $fids, $error);
+              if ($branch->children) { 
+                hose_xml_export_create_xml($branch->children, $writer, $node, $fids, $error, $as_file);
+              }
+              $writer->endElement();           
+            }
+          }        
+        }
+      }
+      // Handle taxonomy.
+      elseif (drupal_substr($branch->cck_match, 0, 6) == "vocab_") {
+        $vid = drupal_substr($branch->cck_match, 6);
+        // handle multiple terms
+        foreach ($node->taxonomy as $term) {
+          if ($term->vid == $vid) {
+            $writer->startElement($branch->tag);       
+            $field['value'] = $term->name;
+            _hose_xml_generate_tag($branch, $writer, $node, $field, $fids, $error);
+            if ($branch->children) { 
+              hose_xml_export_create_xml($branch->children, $writer, $node, $fids, $error, $as_file);
+            }
+            $writer->endElement();                    
+          }
+        }       
+      }
+      //handle containers & basic tags
+      //containers can be empty so always print containers
+      //if it's not a container at this point must be a basic field ie title or body
+      else {
+        $writer->startElement($branch->tag);
+        if (!empty($branch->cck_match)) {
+          $field['value'] = $node->{$branch->cck_match};
+        }
+        _hose_xml_generate_tag($branch, $writer, $node, $field, $fids, $error);
+        if ($branch->children) { 
+          hose_xml_export_create_xml($branch->children, $writer, $node, $fids, $error, $as_file);
+        }
+        $writer->endElement();
+      }
+    }
+  }
+  return $error;
+} // hose_xml_export_create_xml
+
+/**
+ * Parse the given text through the modification processes and return what is relevant.
+ *
+ * @param $field
+ * Array containing field information (possibly just 'value' at this point).
+ * @param $branch
+ * The current export tree branch object.
+ * @param $node
+ * Drupal node object being acted upon.
+ * 
+ * @return
+ * Array containing information gaining from parsing the given field.
+ */
+function _hose_xml_parse_text($field, $branch, $node, &$error = array()) {
+  if ($branch->type == 'file') {
+    // Add the value here as we need to check whether the field has any input
+    // for showing children containing content.
+    $settings = unserialize($branch->settings);
+    if ($settings['default'] == 'checksum' && !_hose_xml_empty($node->{$branch->cck_match}[0]['filepath'])) {
+      $field['value'] = md5($node->{$branch->cck_match}[0]['filepath']);
+    }
+    else {
+      $field['value'] = $node->{$branch->cck_match}[0][$settings['default']];
+    }
+  }
+  if ($branch->type == 'url') {
+    $field['value'] = $field['url'];
+  }
+  $collect_attributes = array();
+  $text = (_hose_xml_empty($field['value'])) ? $branch->defaults : $field['value'];
+  if (module_exists('token')) {
+    $text = token_replace($text, 'node', $node);
+  }
+
+  // Fetch labels
+  if (drupal_substr($branch->cck_match, 0, 6) == "field_") {
+    // Find a human readable label if a cck field.
+    $field_data = content_fields($branch->cck_match);
+    if (is_array($field_data)) {
+      $label = $field_data['widget']['label'];
+    }
+  }
+  elseif (drupal_substr($branch->cck_match, 0, 6) == "vocab_") {
+    // Find a human readable label if a vocabulary.
+    $label = db_result(db_query("SELECT name FROM {vocabulary} WHERE vid = %d", drupal_substr($branch->cck_match, 6)));
+  }
+  else {
+    // Else, it's an internal Drupal label i.e. title or body.
+    $label = drupal_ucfirst($branch->cck_match);
+  }
+
+  $data = &$error;
+  $data['__drupal_alter_by_ref'] = array(&$text);
+  // Call any modifying modules.
+  drupal_alter("hose_xml_mince_export_text", $data, $branch, $node);
+  // Process attributes (if there are any?)
+  if (!empty($branch->attributes) && ($attributes = unserialize($branch->attributes)) && is_array($attributes)) {
+    foreach ($attributes as $attribute) {
+      // Test to see if the attribute matches the attribute value (our indicator to take the value from the filter).
+      if (preg_match("/\[({$attribute['attribute-attribute']})\]/", $attribute['attribute-value'])) {
+        preg_match("/\[". $attribute['attribute-attribute'] .":([^\]]+)\]/", $text, $match);
+        $collect_attributes[] = array(
+          'attribute' => $attribute['attribute-attribute'],
+          'value' => $match[1],
+          'required' => (bool) $attribute['attribute-required'],
+        );
+      }
+      // Else test if attribute value contains a token, process it.
+      elseif (module_exists('token') && preg_match("/(\[.+\])/", $attribute['attribute-value'])) {
+        $collect_attributes[] = array(
+          'attribute' => $attribute['attribute-attribute'],
+          'value' => token_replace($attribute['attribute-value'], 'node', $node),
+          'required' => (bool) $attribute['attribute-required'],
+        );
+      }
+      else {
+        $collect_attributes[] = array(
+          'attribute' => $attribute['attribute-attribute'],
+          'value' => $attribute['attribute-value'],
+          'required' => (bool) $attribute['attribute-required'],
+        );
+      }
+    }
+    // Remove any filters.
+    preg_match("/\]([^\]]+)$/", $text, $match);
+    // If there's NO match OR the original contained ONLY an attribute return NOTHING else return the original.
+    if (!_hose_xml_empty($match[1]) || preg_match("/^\[.*\]$/", $text)) {
+      $text = $match[1];
+    }
+  }
+  return array(
+    'original' => $field['value'],
+    'processed' => $text,
+    'label' => $label,
+    'attributes' => $collect_attributes,
+  );
+} // _hose_xml_parse_text
+
+/**
+ * Generate this tag using the XMLWriter object.
+ * 
+ * @TODO _hose_xml_parse_text has already been run once at this point, we should pass it in through
+ * $field instead of calling it in again. If a php filter calls a drupal_set_message - it'll be displayed twice...
+ */
+function _hose_xml_generate_tag(&$branch, &$writer, $node, $field, &$fids, &$error = array()) {
+  // Store fids of all files referenced in the export profile.
+  if (isset($field['fid']) && $branch->type == 'file' && !array_key_exists($branch->fid, $fids)) {
+    $fids[$field['fid']] = $field;
+  }
+
+  // Parse the field and work out what we have to work with.
+  $info = _hose_xml_parse_text($field, $branch, $node, $error);
+
+  // Act on attributes.
+  foreach ($info['attributes'] as $attribute) {
+    if (!_hose_xml_empty($attribute['value']) || $attribute['value'] === 0) {
+      $writer->writeAttribute($attribute['attribute'], $attribute['value']);
+    }
+    if ($attribute['required'] && _hose_xml_empty($attribute['value'])) {
+      // Show it anyway as it's required.
+      $writer->writeAttribute($attribute['attribute'], $attribute['value']);
+      $error[] = t("<a href=\"@link\">%title</a> - [@match] Tag: @tag has a required attribute [@attr] that has no data.",
+        array(
+          '%title' => $node->title,
+          '@match' => ($branch->cck_match ? $info['label'] : t("No field match provided")),
+          '@tag' => "<$branch->tag>",
+          '@attr' => $attribute['attribute'],
+          '@link' => url("node/$node->nid/edit"),
+        )
+      );
+    }
+  }
+
+  // Validate processed text.
+  $function = "hose_xml_{$branch->type}_hose_xml_validate";
+  if (function_exists($function)) {
+    // Test for files as they parse data differently.
+    if ($branch->type == 'file') {
+      $info['processed'] = $field;
+    }
+    $valid = $function($info['processed'], unserialize($branch->settings));
+  }
+  else {
+    $valid = $function($info['processed'], array('default' => 'text'));
+    $error[] = t("No validation function exists for field type '@type'. Please check your enabled modules.", array('@type', $branch->type));
+  }
+  // Output an error if the validation fails.
+  if ($valid['reason']) {
+    $error[] = t("<a href=\"@link\">%title</a> - @tag <strong>@data</strong> @reason.",
+      array(
+        '%title' => $node->title,
+        '@tag' => "<$branch->tag>",
+        '@data' => $valid['data'],
+        '@reason' => $valid['reason'],
+        '@link' => url("node/$node->nid/edit"),
+      )
+    );
+  }
+  // Little backwards, but assess DOCTYPE here...  @TODO maybe improve this?
+  if (preg_match('/^!DOCTYPE ([a-z]+)$/i', $branch->tag, $dtd)) {
+    $writer->writeDTD($dtd[1]);
+  }
+  // Finally output to the XMLWriter.
+  if (!_hose_xml_empty($valid['data'])) {
+    // If selected, use CDATA
+    if ($branch->cdata) {
+      $writer->writeCData($valid['data']);
+    }
+    // Else, if selected use RAW
+    elseif ($branch->type == 'raw') {
+      $writer->writeRaw($valid['data']);
+    }
+    // Else. it's just normal use TEXT...
+    else {
+      $writer->text($valid['data']);
+    }
+  }
+  // Else (special case), if selected type is special and the tag is set to not self close...
+  elseif ($branch->type == 'special' && _hose_xml_check_self_close($branch->settings)) {
+    // Output some nothingness
+    $writer->text(NULL);
+  }
+
+  // Test for required fields and report back any errors.
+  if (_hose_xml_empty($valid['data']) && $branch->required && !in_array($branch->type, array('container', 'special', 'file', 'sandwich'))) {
+    $error_str = t("<a href=\"@link\">%title</a> - @tag is a required tag ",
+      array(
+        '%title' => $node->title,
+        '@tag' => "<$branch->tag>",
+        '@link' => url("node/$node->nid/edit"),
+      )
+    );
+    if (empty($branch->cck_match)) {
+      $error_str .= t("which has no content and is not mapped to a field in the export profile.");
+    }
+    else {
+      $error_str .= t("and is mapped to field <strong>@field_title</strong> (@field_name) but the node has no data in this field.</a>",
+        array(
+          '@field_name' => $branch->cck_match,
+          '@field_title' => $info['label'],
+        )
+      );
+      if ($branch->children) {
+        $error_str .= t(" Furthermore @tag contains other tags. Tags which contain other tags but no data should be specified as <em>Containers</em> in the export profile configuration.",
+          array(
+            '@tag' => "<$branch->tag>",
+          )
+        );
+      }
+    }
+    $error[] = $error_str;
+  }
+  return $error;
+} // _hose_xml_generate_tag
+
+/**
+ * Helper function to determine whether a tag should be self closing or not.
+ *
+ * @param $settings
+ * Serialized array of field settings.
+ *
+ * @return
+ * Returns TRUE if self closing, FALSE if not.
+ */
+function _hose_xml_check_self_close($settings) {
+  $settings = unserialize($settings);
+  if (is_array($settings) && $settings['no_self_close']) {
+    return TRUE;
+  }
+  return FALSE;
+} // _hose_xml_check_self_close
+
+function hose_xml_export_links($form_state, $node) {
+  global $user;
+  $form['hose_xml_export_nid'] = array('#type' => 'hidden', '#value' => $node->nid);
+  $form['hose_xml_export_xml'] = array(
+    '#prefix' => '<div id="hose_xml-export-xml-container" class="container-inline">',
+    '#suffix' => '</div>',
+  );
+  if ($options = hose_xml_fetch_export_profiles($node->type) + hose_xml_fetch_buckets($node->type)) {
+    $form['hose_xml_export_xml']['hose_xml_profiles'] = array(
+      '#type' => 'select',
+      '#options' => $options,
+      '#default_value' => !empty($user->hose_xml_export_default_profile) ? $user->hose_xml_export_default_profile : variable_get('hose_xml_export_default_profile', NULL),
+    );
+    if (variable_get('hose_xml_force_download', FALSE)) {
+      $form['hose_xml_export_xml']['hose_xml_export_force'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Force download'),
+      );
+    }
+    $form['hose_xml_export_xml']['hose_xml_export_view'] = array(
+      '#type' => 'submit',
+      '#value' => t('Validate XML'),
+    );
+    $form['hose_xml_export_xml']['hose_xml_export_xml_save'] = array(
+      '#type' => 'submit',
+      '#value' => t('Export XML'),
+    );
+  }
+  $form['hose_xml_export_csv'] = array(
+    '#prefix' => '<div id="hose_xml-export-csv-container" class="container-inline">',
+    '#suffix' => '</div>',
+  );
+  if (module_exists('pimport')) {
+    if ((user_access('administrate hose_xml module') || user_access('access pimport module')) && $options = pimport_fetch_profiles($types, 'names')) {
+      $form['hose_xml_export_csv']['hose_xml_import_profiles'] = array(
+        '#type' => 'select',
+        '#options' => $options,
+        '#default_value' => !empty($user->hose_xml_import_default_profile) ? $user->hose_xml_import_default_profile : variable_get('hose_xml_import_default_profile', NULL),
+      );
+      $form['hose_xml_export_csv']['hose_xml_export_csv_save'] = array(
+        '#type' => 'submit',
+        '#value' => t('Export CSV'),
+      );
+    }
+  }
+  return $form;
+} // hose_xml_export_links
+
+function hose_xml_export_links_submit(&$form, &$form_state) {
+  switch ($form_state['clicked_button']['#value']) {
+    case t('Export XML'):
+      $node = node_load($form_state['values']['hose_xml_export_nid']);
+      $profile = hose_xml_profile_load($form_state['values']['hose_xml_profiles']);
+      hose_xml_clean_export_dir();
+      $ret = hose_xml_export_XML_file($profile, $node, NULL, TRUE, $form_state['values']['hose_xml_export_force']);
+      //TODO: This is stopping the no file produced warning on single xml file export but it might be here for a good reason 
+      //if (isset($profile->filepath)) {
+        drupal_set_message($ret, 'warning');
+      //}
+//      hose_xml_zip_up(hose_xml_filename_safe($node->title) .'_'. hose_xml_filename_safe(date(variable_get('hose_xml_import_date_output', 'c'))));
+      break;
+    case t('Validate XML'):
+      drupal_goto(sprintf("hose_xml/view_xml/%s/%d", $form_state['values']['hose_xml_profiles'], $form_state['values']['hose_xml_export_nid']), drupal_get_destination());
+      break;
+    case t('Export CSV'):
+      pimport_export_node($form_state['values']['hose_xml_import_profiles'], $form_state['values']['hose_xml_export_nid']);
+    /*  
+    case t('Export XLS'):
+      hose_xml_export_node($form_state['values']['hose_xml_import_profiles'], $form_state['values']['hose_xml_export_nid'], 'XLS');
+      exit();
+    */  
+  }
+} // hose_xml_export_links_submit
+
+function hose_xml_get_export_config_flat($pid, $parent = 0, $depth = -1, $max_depth = NULL, $keyed_by_tag = FALSE, $unserialize = FALSE) {
+  static $children, $parents, $configs;
+
+  $depth++;
+
+  // We cache trees, so it's not CPU-intensive to call get_tree() on a term
+  // and its children, too.
+  if (!isset($children[$pid])) {
+    $children[$pid] = array();
+
+    $result = db_query("SELECT * FROM {hose_xml_profile_data} WHERE pid = %d ORDER BY did, weight, id ASC", $pid);
+    while ($config = db_fetch_object($result)) {
+      $children[$pid][$config->did][] = $config->id;
+      $parents[$pid][$config->id][] = $config->did;
+      $configs[$pid][$config->id] = $config;
+      if ($unserialize) {
+        $config->settings = unserialize($config->settings);
+        $config->attributes = unserialize($config->attributes);
+      }
+      else {
+        $config->settings = unserialize($config->settings);
+        $config->attributes = unserialize($config->attributes);
+      }
+    }
+  }
+
+  $max_depth = (is_null($max_depth)) ? count($children[$pid]) : $max_depth;
+  $tree = array();
+  if ($max_depth > $depth && !empty($children[$pid][$parent])) {
+    foreach ($children[$pid][$parent] as $child) {
+      $config = drupal_clone($configs[$pid][$child]);
+      $config->depth = $depth;
+      // The "parent" attribute is not useful, as it would show one parent only.
+      //unset($config->did);
+      $config->parents = $parents[$pid][$child];
+      $config->children = $children[$pid][$config->id];
+      if($keyed_by_tag) { 
+        $tree[$config->tag] = $config;  
+      }
+      else {
+        $tree[$config->id] = $config; 
+      }
+      if (!empty($children[$pid][$child])) {
+        $newtree = hose_xml_get_export_config_flat($pid, $child, $depth, $max_depth, $keyed_by_tag, $unserialize);
+        $tree += $newtree;
+      }
+    }
+  }
+  return $tree;
+} // hose_xml_get_export_config_flat
+
+/**
+ * Recursive function to retrieve the settings as a tree
+ * The default parent is 0 
+ */
+function hose_xml_get_export_config_tree($pid, $parent = 0, $depth = -1, $max_depth = NULL, $unserialize = FALSE) {
+  static $children, $parents, $configs;
+  $depth++;
+  // We cache trees, so it's not CPU-intensive to call get_tree() on a term
+  // and its children, too.
+  if (!isset($children[$pid])) {
+    $children[$pid] = array();
+
+    $result = db_query("SELECT * FROM {hose_xml_profile_data} WHERE pid = %d ORDER BY did, weight, id ASC", $pid);
+    while ($config = db_fetch_object($result)) {
+      $children[$pid][$config->did][] = $config->id;
+      $parents[$pid][$config->id][] = $config->did;
+      $configs[$pid][$config->id] = $config;
+      if ($unserialize) {
+        $config->settings = unserialize($config->settings);
+        $config->attributes = unserialize($config->attributes);
+      }
+      else {
+        $config->settings = $config->settings;
+        $config->attributes = $config->attributes;
+      }
+    }
+  }
+
+  $max_depth = (is_null($max_depth)) ? count($children[$pid]) : $max_depth;
+  $tree = array();
+  if ($max_depth > $depth && !empty($children[$pid][$parent])) {
+    foreach ($children[$pid][$parent] as $child) {
+      $config = drupal_clone($configs[$pid][$child]);
+      $config->depth = $depth;
+      // The "parent" attribute is not useful, as it would show one parent only.
+      //unset($config->did);
+      $config->parents = $parents[$pid][$child];
+      $config->children = array();
+      if (!empty($children[$pid][$child])) {
+        $config->children = hose_xml_get_export_config_tree($pid, $child, $depth, $max_depth, $unserialize);
+      }
+      $tree[] = $config;
+    }
+  }
+  return $tree;
+} // hose_xml_get_export_config_tree
+
+function hose_xml_get_node_xml_array() {
+  
+}
+
+/**
+ * Get the config fields from the db
+ * 
+ * TODO: why does this return an array - could there be more than one config per pid??
+ */
+function hose_xml_fetch_config($pid, $strict = FALSE) {
+  $output = array();
+  $ignore = '';
+  if ($strict) {
+    $ignore = '&& ignore_field = FALSE';
+  }
+  $query = db_query("SELECT * FROM {hose_xml_profile_data} WHERE pid = %d ". $ignore ." ORDER BY did, weight, id ASC", $pid);
+  while ($fetch = db_fetch_object($query)) {
+    $output[] = $fetch;
+  }
+  return $output;
+} // hose_xml_fetch_config
+
+/**
+ * Export a node as CSV or XLS directly to the browser.
+ */
+/* moved to pimport
+function hose_xml_export_node($pid, $nid, $type = 'CSV') {
+  $node = node_load($nid);
+  $return = hose_xml_export_node_data($node, $pid);
+  $data = $return['data'];
+  $errors = $return['errors'];
+  foreach ($errors as $error) {
+    drupal_set_message($error, 'error');
+  }
+  $filename = hose_xml_export_node_filename($node, $pid);
+  switch ($type) {
+    case 'CSV':
+      hose_xml_export_to_csv($data, $filename, 'push');
+      exit();
+      break;
+    case 'XLS':
+      hose_xml_export_to_xls($data, $filename, 'push');
+      exit();
+      break;
+  }
+} // hose_xml_export_node
+*/
+
+/**
+ * version of fputcsv lifted from php.net and adapted to output a string
+ * this is supposed to produce mysql compatible nulls if mysql_null is TRUE
+ * but we generally want blank cells not NULL for empty values
+ */
+/* moved to pimport
+function hose_xml_row_to_csv(array $fields, $delimiter = ',', $enclosure = '"', $mysql_null = FALSE) {
+    $delimiter_esc = preg_quote($delimiter, '/');
+    $enclosure_esc = preg_quote($enclosure, '/');
+
+    $output = array();
+    foreach ($fields as $field) {
+        if ($field === NULL && $mysql_null) {
+            $output[] = 'NULL';
+            continue;
+        }
+        //encode according to pref
+        $field =
+        $output[] = preg_match("/(?:${delimiter_esc}|${enclosure_esc}|\s)/", $field) ? (
+            $enclosure . str_replace($enclosure, $enclosure . $enclosure, $field) . $enclosure
+        ) : $field;
+    }
+
+    return join($delimiter, $output) ."\n";
+} // hose_xml_row_to_csv
+*/
+
+function hose_xml_is_spreadsheet(&$file) {
+  $errors = array();
+  $allowed = array('csv');
+
+  $extension = drupal_substr(strrchr($file->filename, '.'), 1);
+  if (!$extension || !in_array(drupal_strtolower($extension), $allowed)) {
+    $errors[] = t('Only CSV filetypes are allowed.');
+  }
+
+  return $errors;
+} // hose_xml_is_spreadsheet
+
+
+function hose_xml_is_xml_file(&$file) {
+  $errors = array();
+  $allowed = array('xml');
+
+  $extension = drupal_substr(strrchr($file->filename, '.'), 1);
+  if (!$extension || !in_array(drupal_strtolower($extension), $allowed)) {
+    $errors[] = t('Only XML filetypes are allowed.');
+  }
+
+  return $errors;
+}
+/* moved to pimport
+function hose_xml_fetch_import_profile_title($pid) {
+  return db_result(db_query("SELECT title FROM {hose_xml_import_profiles} WHERE pid = %d", $pid));
+} //hose_xml_fetch_import_profile_title
+*/
+
+/**
+ * Returns an array of output profiles $pid => $name for select options etc.
+ */
+function hose_xml_fetch_export_profiles($type = '') {
+  $output = array();
+  $where = '';
+  if (!empty($type)) {
+    $where = "WHERE mepa.type IN (". db_placeholders((array) $type, 'varchar') .") ";
+  }
+  $query = db_query("SELECT mep.pid, mep.name FROM {hose_xml_profiles} mep LEFT JOIN {hose_xml_profile_association} mepa ON mep.pid = mepa.pid ". $where ."ORDER BY mep.name ASC", $type);
+  while ($fetch = db_fetch_object($query)) {
+    if (user_access('administrate hose_xml module') || (variable_get('hose_xml_use_permissions', FALSE) ? user_access(_hose_xml_perm_export_profiles($fetch->name)) : user_access('access hose_xml module'))) {
+      $output[$fetch->pid] = $fetch->name;
+    }
+  }
+  return $output;
+} // hose_xml_fetch_export_profiles
+
+/**
+ * Returns an array of buckets $pid => $name for select options etc.
+ */
+function hose_xml_fetch_buckets($type = '') {
+  global $user;
+  $output = array();
+  $where = '';
+  if (!empty($type)) {
+    $where = "WHERE mepa.type IN (". db_placeholders((array) $type, 'varchar') .") ";
+  }
+  $query = db_query("SELECT DISTINCT(b.bid), b.uid, b.name FROM {hose_xml_buckets} b LEFT JOIN {hose_xml_bucket_profiles} mp ON b.bid = mp.bid LEFT JOIN {hose_xml_profile_association} mepa ON mp.pid = mepa.pid ". $where ."ORDER BY b.name ASC", $type);
+  while ($fetch = db_fetch_object($query)) {
+    if (user_access('access hose_xml module') || $fetch->uid == $user->uid) {
+      $output["bucket-$fetch->bid"] = sprintf("Bucket: %s", $fetch->name);
+    }
+  }
+  return $output;
+} // hose_xml_fetch_buckets
+
+/**
+ * Returns an array of outprut profiles $pid => $name for select options etc.
+ */
+/* moved to pimport
+function hose_xml_fetch_import_profiles($type = '') {
+  $output = array();
+  $where = '';
+  if (!empty($type)) {
+    $where = "WHERE mipa.type IN (". db_placeholders((array) $type, 'varchar') .") ";
+  }
+  $query = db_query("SELECT mip.pid, mip.title FROM {hose_xml_import_profiles} mip LEFT JOIN {hose_xml_import_profile_association} mipa ON mip.pid = mipa.pid ". $where ."ORDER BY mip.title ASC", $type);
+  while ($fetch = db_fetch_object($query)) {
+    if (user_access('administrate hose_xml module') || (variable_get('hose_xml_use_permissions', FALSE) ? user_access(_hose_xml_perm_import_profiles($fetch->title)) : user_access('access hose_xml module'))) {
+      $output[$fetch->pid] = $fetch->title;
+    }
+  }
+  return $output;
+} // hose_xml_fetch_import_profiles
+*/
+
+/**
+ * Returns an array of all enabled field types.
+ */
+function hose_xml_fetch_types() {
+  return module_invoke_all('hose_xml_field_name');
+} // hose_xml_fetch_types
+
+/**
+ * Makes a safe filename from a string
+ */
+function hose_xml_filename_safe($filename) { 
+  if (module_exists('transliteration')) {
+    module_load_include('inc', 'transliteration');
+    return transliteration_clean_filename($filename);
+  }
+  $temp = $filename;  
+  // Lower case  
+  $temp = drupal_strtolower($temp);  
+  // Replace spaces with a '_'  
+  $temp = str_replace(" ", "_", $temp);  
+  // Loop through string  
+  $result = '';  
+  for ($i = 0; $i < drupal_strlen($temp); $i++) {    
+    if (preg_match('([0-9]|[a-z]|_)', $temp[$i])) {      
+      $result = $result . $temp[$i];    
+    }
+  }
+  // Return filename
+  return $result;
+} // hose_xml_filename_safe
+
+/**
+ * Zips up the output files and pushes them to the browser
+ * @param: $export_type currently XML or CSV
+ */
+function hose_xml_zip_up($filename = 'metadata') {
+  global $user;
+  $source = sprintf("%s/%s", variable_get('hose_xml_file_path', HOSE_XML_FILE_FILES_DIR), $user->uid);
+  $dest = sprintf("%s/%s", $source, $filename);
+  $files_added = _hose_xml_zip_encode($source, $dest);
+  if ($files_added) {
+    $file_link = module_exists('hose_xml_download') ? url("download/". basename($dest)) : url($dest);
+    drupal_set_message(t("Zip file '@file' created containing @files_added files. <a href=\"@link\">Click here to download</a>.",
+      array('@file' => basename($dest), '@files_added' => $files_added, '@link' => $file_link)), 'warning');
+    watchdog('hose_xml', 'Zip file created', array(), WATCHDOG_NOTICE);
+    return TRUE;
+  }
+  else {
+    watchdog('hose_xml', 'Error creating zip file', array(), WATCHDOG_ERROR);
+    drupal_set_message(t('Error creating zip file, please contact the system administrator.'), 'error');
+    return FALSE;
+  }
+} // hose_xml_zip_up
+
+if (class_exists('ZipArchive')) {
+  class Zipper extends ZipArchive {       
+    public function addDir($path) {
+      //print 'adding ' . $path . '<br>';
+      $this->addEmptyDir($path);
+      $nodes = glob("$path/*");
+      $files_added = 0;
+      foreach ($nodes as $node) {
+        //print $node . '<br>';
+        if (is_dir($node)) {
+          $files_added += $this->addDir($node);
+        } 
+        elseif (is_file($node)) {
+          global $user;
+          $local_file = str_replace(variable_get('hose_xml_file_path', HOSE_XML_FILE_FILES_DIR) ."/$user->uid/", '', $node);
+          $this->addFile($node, $local_file);
+          $files_added++;
+        }
+      }
+      return $files_added;
+    }       
+  } // class Zipper 
+}
+
+/**
+ * Zip encode a file. Returns number of files added or 0 on fail
+ */
+function _hose_xml_zip_encode($source, &$dest) {
+  @include_once('Archive/Tar.php');
+  $files_added = 0;
+  if (class_exists('Zipper')) {
+    $zip = new Zipper;
+    $dest .= '.zip';
+    $res = $zip->open($dest, constant("ZipArchive::CREATE"));
+    if ($res === TRUE) {
+      $files_added = $zip->addDir($source);
+      if (!$zip->close()) {
+        watchdog('hose_xml', "Couldn't close zip file", array(), WATCHDOG_ERROR);
+        $files_added = FALSE;
+      }
+    }
+    else {
+      watchdog('hose_xml', "Couldn't open zip file: @dest", array('@dest' => $dest), WATCHDOG_ERROR);
+    }
+  }
+  elseif (class_exists('Archive_Tar')) {
+    global $user;
+    $files = array();
+    $dest .= '.tar.gz';
+    $tar = new Archive_Tar($dest, "gz");
+    $profiles = glob("$source/*");
+    if (is_array($profiles)) {
+      foreach ($profiles as $profile) {
+        $nodes = glob("$profile/*");
+        if (is_array($nodes)) {
+          foreach ($nodes as $node) {
+            $files_added++;
+            $remove = variable_get('hose_xml_file_path', HOSE_XML_FILE_FILES_DIR) ."/$user->uid/";
+            $tar->addModify($node, '', $remove);
+          }
+        }
+      }
+    }
+  }
+  else {
+    watchdog('hose_xml', 'Zipper class cant be found', array(), WATCHDOG_ERROR);
+  }
+  return $files_added;
+} // _hose_xml_zip_encode
+
+function hose_xml_date_formats($format = '', $all = TRUE) {
+  $formats = array(
+    NULL => t('System wide setting (@date)', array('@date' => variable_get('hose_xml_import_date_region', 'eu'))),
+    'eu' => t('European w/ slashes (d/m/y)'),
+    'eu-time' => t('European + time w/ slashes (d/m/y h:m)'),
+    'eu-time-secs' => t('European + time w/ slashes (d/m/y h:m:s)'),
+    'eu-hyphen' => t('European w/ hyphen (d-m-y)'),
+    'eu-hyphen-time' => t('European + time w/ hyphen (d-m-y h:m)'),
+    'eu-hyphen-time-secs' => t('European + time w/ hyphen (d-m-y h:m:s)'),
+    'us' => t('American w/ slashes (m/d/y)'),
+    'us-time' => t('American + time w/ slashes (m/d/y h:m)'),
+    'us-time-secs' => t('American + time w/ slashes (m/d/y h:m:s)'),
+    'us-hyphen' => t('American w/ hyphen (m-d-y)'),
+    'us-hyphen-time' => t('American + time w/ hyphen (m-d-y h:m)'),
+    'us-hyphen-time-secs' => t('American + time w/ hyphen (m-d-y h:m:s)'),
+    'us-alt' => t('Alternative American w/ slashes (y/m/d)'),
+    'us-alt-time' => t('Alternative American + time w/ slashes (y/m/d h:m)'),
+    'us-alt-time-secs' => t('Alternative American + time w/ slashes (y/m/d h:m:s)'),
+    'us-alt-hyphen' => t('Alternative American w/ hyphen (y-m-d)'),
+    'us-alt-hyphen-time' => t('Alternative American + time w/ hyphen (y-m-d h:m)'),
+    'us-alt-hyphen-time-secs' => t('Alternative American + time w/ hyphen (y-m-d h:m:s)'),
+  );
+  if ($format) {
+    return $formats[$format];
+  }
+  if (!$all) {
+    unset($formats[NULL]);
+  }
+  return $formats;
+} // hose_xml_date_formats
+
+/**
+ * Parses import field. 
+ * Return value is an array( 'value' => $return_value, 'error' => "Some error message")
+ * If 'error' is FALSE the function was succesful
+ */
+function _hose_xml_parse_field($field, $cell, $date_format, $pid) {
+  // Stupid clause as you can't tell what something is if it's from 'text';
+  //  $type = db_result(db_query("SELECT IF ((SELECT type FROM {content_node_field} WHERE field_name = '%s') = 'text', (SELECT widget_module FROM {content_node_field_instance} WHERE field_name = '%s'), (SELECT type FROM {content_node_field} WHERE field_name = '%s')) AS type", $field, $field, $field));
+  if (($type = db_result(db_query("SELECT type FROM {content_node_field} WHERE field_name = '%s'", $field))) && $type == 'text') {
+  	$type = db_result(db_query("SELECT widget_module FROM {content_node_field_instance} WHERE field_name = '%s'", $field));
+  }
+  switch ($type) {
+    case 'date':
+    case 'datetime':
+      if (empty($cell) && variable_get('hose_xml_import_blank_date_ok','')) {
+        return array('error'=>FALSE, 'value'=>$cell);
+      }
+      // otherwise date types are handled below @TODO maybe move to its own function?
+      break;
+    case 'optionwidgets':
+      // Workaround for Disney not being consistent with their spreadsheet input.
+      $global_settings = unserialize(db_result(db_query("SELECT global_settings FROM {content_node_field} WHERE field_name = '%s'", $field)));
+      $allowed_values = $global_settings['allowed_values'];
+      preg_match("/($cell)\|/i", $allowed_values, $bool);
+      return array('error' => isset($bool[1]) ? FALSE : t("Invalid input for field '@field': '@cell' is not valid input.", array('@field' => $field, '@cell' => $cell)), 'value' => isset($bool[1]) ? $bool[1] : $cell);
+    default:
+      return array('error' => FALSE, 'value' => $cell);
+  }
+  // Continued from date case above;
+  $format = $date_format ? $date_format : variable_get('hose_xml_import_date_region', 'eu');
+  switch ($format) {
+    case 'eu':
+      sscanf($cell, '%d/%d/%d', $day, $month, $year);
+      $error = t("Invalid date, should be d/m/y. Check import settings.");
+      break;
+    case 'eu-time':
+      sscanf($cell, '%d/%d/%d %d:%d', $day, $month, $year, $hour, $minute);
+      $error = t("Invalid date, should be d/m/y h:m. Check import settings.");
+      break;
+    case 'eu-time-secs':
+      sscanf($cell, '%d/%d/%d %d:%d:%d', $day, $month, $year, $hour, $minute, $second);
+      $error = t("Invalid date, should be d/m/y h:m:s. Check import settings.");
+      break;
+    case 'eu-hyphen':
+      sscanf($cell, '%d-%d-%d', $day, $month, $year);
+      $error = t("Invalid date, should be d-m-y. Check import settings.");
+      break;
+    case 'eu-hyphen-time':
+      sscanf($cell, '%d-%d-%d %d:%d', $day, $month, $year, $hour, $minute);
+      $error = t("Invalid date, should be d-m-y h:m. Check import settings.");
+      break;
+    case 'eu-hyphen-time-secs':
+      sscanf($cell, '%d-%d-%d %d:%d:%d', $day, $month, $year, $hour, $minute, $second);
+      $error = t("Invalid date, should be d-m-y h:m:s. Check import settings.");
+      break;
+    case 'us':
+      sscanf($cell, '%d/%d/%d', $month, $day, $year);
+      $error = t("Invalid date, should be m/d/y. Check import settings.");
+      break;
+    case 'us-time':
+      sscanf($cell, '%d/%d/%d %d:%d', $month, $day, $year, $hour, $minute);
+      $error = t("Invalid date, should be m/d/y h:m. Check import settings.");
+      break;
+    case 'us-time-secs':
+      sscanf($cell, '%d/%d/%d %d:%d:%d', $month, $day, $year, $hour, $minute, $second);
+      $error = t("Invalid date, should be m/d/y h:m:s. Check import settings.");
+      break;
+    case 'us-hyphen':
+      sscanf($cell, '%d-%d-%d', $month, $day, $year);
+      $error = t("Invalid date, should be m-d-y. Check import settings.");
+      break;
+    case 'us-hyphen-time':
+      sscanf($cell, '%d-%d-%d %d:%d', $month, $day, $year, $hour, $minute);
+      $error = t("Invalid date, should be m-d-y h:m. Check import settings.");
+      break;
+    case 'us-hyphen-time-secs':
+      sscanf($cell, '%d-%d-%d %d:%d:%d', $month, $day, $year, $hour, $minute, $second);
+      $error = t("Invalid date, should be m-d-y h:m:s. Check import settings.");
+      break;
+    case 'us-alt':
+      sscanf($cell, '%d/%d/%d', $year, $month, $day);
+      $error = t("Invalid date, should be y/m/d. Check import settings.");
+      break;
+    case 'us-alt-time':
+      sscanf($cell, '%d/%d/%d %d:%d', $year, $month, $day, $hour, $minute);
+      $error = t("Invalid date, should be y/m/d h:m. Check import settings.");
+      break;
+    case 'us-alt-time-secs':
+      sscanf($cell, '%d/%d/%d %d:%d:%d', $year, $month, $day, $year, $hour, $minute, $second);
+      $error = t("Invalid date, should be y/m/d h:m:s. Check import settings.");
+      break;
+    case 'us-alt-hyphen':
+      sscanf($cell, '%d-%d-%d', $year, $month, $day);
+      $error = t("Invalid date, should be y-m-d. Check import settings.");
+      break;
+    case 'us-alt-hyphen-time':
+      sscanf($cell, '%d-%d-%d %d:%d', $year, $month, $day, $hour, $minute);
+      $error = t("Invalid date, should be y-m-d h:m. Check import settings.");
+      break;
+    case 'us-alt-hyphen-time-secs':
+      sscanf($cell, '%d-%d-%d %d:%d:%d', $year, $month, $day, $hour, $minute, $second);
+      $error = t("Invalid date, should be y-m-d h:m:s. Check import settings.");
+      break;
+    case 'strtotime':
+      $date = strtotime($cell);
+      if (!$date) {
+        $error = t("Invalid date, should be an ISO 8601 date (yyyy-mm-ddThh:mm:ss). Check import settings.");
+        break;
+      }
+      $hour = date("H", $date);
+      $minute = date("i", $date);
+      $second = date("s", $date);
+      $day = date("d", $date);
+      $month = date("m", $date);
+      $year = date("Y", $date);
+  }
+  // Ensure we have *something* valid to work with...
+  if (checkdate($month, $day, $year)) {
+    if (module_exists('hose_xml_timezone') && ($zonename = db_result(db_query("SELECT timezone FROM {hose_xml_timezone} WHERE pid = %d", $pid)))) {
+      $date = date_create(sprintf('%04d-%02d-%02dT%02d:%02d:%02d', $year, $month, $day, $hour, $minute, $second), timezone_open($zonename));
+      $date->setTimezone(timezone_open(variable_get('date_default_timezone_name', NULL)));
+    }
+    else {
+      $date = date_create(sprintf('%04d-%02d-%02dT%02d:%02d:%02d', $year, $month, $day, $hour, $minute, $second)); // default timezone
+    }
+    return array('error' => FALSE, 'value' => date_format($date, variable_get('hose_xml_import_date_output', 'c')));
+  }
+  // ...else return an error
+  return array(
+    'error' => $error, 
+    'value' => $cell,
+  );
+} // _hose_xml_parse_field
+
+/**
+ * "Deconvert" date field; i.e. return date in it's original imported format (for CSV and XLS exports).
+ */
+function _hose_xml_reverse_date($value, $format) {
+  // An empty value is an empty field so don't show anything (no need to report an error)
+  if (empty($value)) {
+    return NULL;
+  }
+  // An empty format means something has gone wrong, report it
+  if (empty($format)) {
+    drupal_set_message(t('Invalid date format. Please contact your <a href="mailto:!sysadmin">System Administrator</a>.', array('!sysadmin' => variable_get('site_mail', ini_get('sendmail_from')))), 'error');
+    return FALSE;
+  }
+  switch ($format) {
+    case 'eu':
+    	return date("d/m/Y", strtotime($value));
+    case 'eu-time':
+    	return date("d/m/Y h:i", strtotime($value));
+    case 'eu-time-secs':
+    	return date("d/m/Y h:i:s ", strtotime($value));
+    case 'eu-hyphen':
+    	return date("d-m-Y", strtotime($value));
+    case 'eu-hyphen-time':
+    	return date("d-m-Y h:i", strtotime($value));
+    case 'eu-hyphen-time-secs':
+    	return date("d-m-Y h:i:s ", strtotime($value));
+    case 'us':
+    	return date("m/d/Y", strtotime($value));
+    case 'us-time':
+    	return date("m/d/Y h:i", strtotime($value));
+    case 'us-time-secs':
+    	return date("m/d/Y h:i:s", strtotime($value));
+    case 'us-hyphen':
+    	return date("m-d-Y", strtotime($value));
+    case 'us-hyphen-time':
+    	return date("m-d-Y h:i", strtotime($value));
+    case 'us-hyphen-time-secs':
+    	return date("m-d-Y h:i:s", strtotime($value));
+    case 'us-alt':
+    	return date("Y/m/d", strtotime($value));
+    case 'us-alt-time':
+    	return date("Y/m/d h:i", strtotime($value));
+    case 'us-alt-time-secs':
+    	return date("Y/m/d h:i:s", strtotime($value));
+    case 'us-alt-hyphen':
+    	return date("Y-m-d", strtotime($value));
+    case 'us-alt-hyphen-time':
+    	return date("Y-m-d h:i", strtotime($value));
+    case 'us-alt-hyphen-time-secs':
+    	return date("Y-m-d h:i:s", strtotime($value));
+    default: // strtotime
+      return date("c", strtotime($value));
+  }
+} // _hose_xml_reverse_date
+
+function hose_xml_popup_form(&$form_state, $type = 'hose_xml') {
+  $form['popup']['name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Name'),
+    '#description' => t('In the format: Firstname Surname'),
+    '#size' => 32,
+    '#maxlength' => 250,
+    '#attributes' => array('class' => 'popup-name'),
+    '#required' => TRUE,
+  );
+  $form['popup']['display'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Display Name'),
+    '#description' => t('In the format: Surname, Firstname'),
+    '#size' => 32,
+    '#maxlength' => 250,
+    '#attributes' => array('class' => 'popup-display'),
+    '#required' => TRUE,
+  );
+  $form['popup']['amg_artist_id'] = array(
+    '#type' => 'textfield',
+    '#title' => t('AMG Artist ID'),
+    '#description' => t('The All Movie Guide person ID assigned to this person'),
+    '#size' => 32,
+    '#attributes' => array('class' => 'popup-amg'),
+  );
+  $form['popup']['billing'] = array(
+    '#type' => 'select',
+    '#title' => t('Billing'),
+    '#description' => t('The All Movie Guide person ID assigned to this person'),
+    '#options' => array(NULL => '', 'top' => t('Top'), 'ordered' => t('Ordered')),
+    '#attributes' => array('class' => 'popup-billing'),
+  );
+  $form['popup']['extra'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Actual Info'),
+    '#description' => t('Character Name or Crew Member Job Title'),
+    '#size' => 32,
+    '#attributes' => array('class' => 'popup-extra'),
+  );
+  $form['popup']['submit-popup'] = array(
+    '#type' => 'submit',
+    '#value' => t('Submit'),
+    '#attributes' => array('class' => 'popup-submit'),
+  );
+  $form['type'] = array(
+    '#type' => 'hidden',
+    '#value' => $type,
+  );
+  return $form;
+} // hose_xml_popup_form
+
+/**
+ * Potentially handy cleanup for hose_xml based products
+ */
+function hose_xml_taxman() {
+  $vocabs = taxonomy_get_vocabularies();
+  foreach ($vocabs as $vocab) {
+    //if ($vocab->vid != 30) taxonomy_del_vocabulary($vocab->vid);
+  }
+  return t("Vocabs cleaned up");
+} // hose_xml_taxman
+
+/**
+ * Helper function used with array mapping for permissions.
+ */
+function _hose_xml_perm_export_profiles($profile) {
+  return sprintf("use export profile: %s", check_plain($profile));
+} // _hose_xml_perm_export_profiles
+
+/**
+ * Get a list of XML profiles keyed by profile ID
+ * If 'name' is supplied as a parameter the values are profiles names (e.g. for select options)
+ * @param unknown_type $type
+ */
+function hose_xml_fetch_profiles($type = NULL) {
+  $output = array();
+  $query = db_query("SELECT u.name AS username, dep.* FROM {hose_xml_profiles} dep LEFT JOIN {users} u ON dep.uid = u.uid ORDER BY dep.name ASC");
+  while ($fetch = db_fetch_object($query)) {
+    if (user_access('administrate hose_xml module') || (variable_get('hose_xml_use_permissions', FALSE) ? user_access(_hose_xml_perm_export_profiles($fetch->name)) : user_access('access hose_xml module'))) {
+      $output[$fetch->pid] = $type == 'names' ? $fetch->name : $fetch;
+    }
+  }
+
+  return $output;
+} // hose_xml_fetch_profiles
+
+//----------------------------------------------------------------------------
+// Theme functions.
+
+function theme_hose_xml_popup_form($form) {
+  $output = '<div id="popupContact">';
+  $output .= '<a id="popupContactClose">x</a>';
+  $output .= '<h1>'. t("'@type' Input Helper", array('@type' => $form['type']['#value'])) .'</h1>';
+  $output .= '<p id="popupContent">'. drupal_render($form['popup']) .'</p>';
+  $output .= '</div>';
+  $output .= '<div id="backgroundPopup"></div>';
+  // render any remaining form elements
+  $output .= drupal_render($form);
+
+  return $output;
+} //theme_hose_xml_popup_form
+
+/**
+ * @} End of "defgroup hose_xml_core".
+ */
+

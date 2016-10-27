@@ -1,0 +1,146 @@
+<?php
+// $Id$
+
+function sort_by_perm() {
+  return array('View Block for sorting');
+}
+
+
+
+function sort_by_block($op = 'list', $delta = 0, $edit = array()) {
+drupal_add_js(drupal_get_path('module', 'sort_by') .'/sort_by.js');
+
+if ($op == "list") {
+$block[0]["info"] = t("Sort Block");
+return $block;
+}
+else if($op == 'view')
+{
+$QUERYVAR= parse_url($_SERVER['REQUEST_URI'] , PHP_URL_QUERY);
+
+$GETVARS = explode('&',$QUERYVAR);
+
+$g =$GETVARS;
+
+
+    $gopts = array();
+    foreach ($g as $k => $v) {
+	$keyvalue=explode('=',$v);
+	$key=$keyvalue[0];
+       $key=str_replace("%255B%255D","[]" , urldecode($key));
+	$value=$keyvalue[1];
+    	$gopts[$key]= htmlspecialchars(urldecode($value));
+    }
+
+ unset($gopts['sort']);
+ $opts_sort = http_build_query($gopts);	
+ // dsm( $opts_sort);
+ $nid=$_GET['nid'];
+ $selected= $_GET['sort'];
+
+ if(arg(0)=='historic-sites'){
+
+    $s1 = $s2 = '';
+ 
+    switch ($selected) {
+      case '1'   : $s1 = 'selected="selected"';break;
+      case '2'   : $s2 = 'selected="selected"';break;
+            
+    }
+    $block_content .= " 
+   <form id='form_sort'><div ><p class='sort_options'>Sort By	
+   <select name='site' id='site'>
+   <option $s1  value='?sort=1&amp;$opts_sort'>Site Name(A-Z)</option>
+   <option $s2  value='?sort=2&amp;$opts_sort'>Site Name(Z-A)</option>
+   </select></p></div></form>";
+
+}
+else{
+
+$s1 = $s2 = $s3 = $s4 = $s5 = '';
+ 
+    switch ($selected) {
+      case '1'   : $s1 = 'selected="selected"';break;
+      case '2'   : $s2 = 'selected="selected"';break;
+      case '3'   : $s3 = 'selected="selected"';break;
+      case '4'   : $s4 = 'selected="selected"';break;
+      case '5'   : $s5 = 'selected="selected"';break;
+
+    }
+
+
+    $block_content .= " 
+   <form id='form_sort'><div ><p class='sort_options'><label>Sort By	</label>
+   <select name='site' id='site'>
+   <option $s1   value='?sort=1&amp;$opts_sort' >Relevance</option>
+   <option $s2   value='?sort=2&amp;$opts_sort'>Title(A to Z)</option>
+   <option $s3   value='?sort=3&amp;$opts_sort'>Title(Z to A)</option>
+   <option $s4   value='?sort=4&amp;$opts_sort'>Institution(A to Z)</option>
+   <option $s5   value='?sort=5&amp;$opts_sort' >Institution(Z to A)</option>
+   </select></p></div></form>";
+}
+
+}
+
+$block['subject'] = "Sort Block";
+$block['content'] = $block_content;
+return $block;
+}
+
+
+function sort_by_views_query_alter(&$view, &$query) {
+
+if ($view->name == 'New_heritage_sites'){
+
+$sorting=$_GET['sort'];
+
+switch ($sorting) {
+                case '1':
+                    $query->orderby[0]='node_title ASC';
+    	        break;
+	        case '2':
+                    unset($query->orderby[0]);
+                    $query->orderby[1]='node_title DESC';
+                    
+                break;
+             
+		} 
+
+  }
+
+
+
+
+if ($view->name == 'search'  || $view->name=='Search_landing_page' || $view->name =="search_navy_museums" || $view->name == "search_national_parks" || $view->name == "search_civilwar_museums" || $view->name =="search_smithsonian_museums") {
+$sorting=$_GET['sort'];
+
+switch ($sorting) {
+            case '1':
+                   // $query->orderby[0]='1';
+    	            break;
+	        case '2':
+                    unset($query->orderby[1]);
+                    unset($query->orderby[2]);
+		            unset($query->orderby[3]);
+                    break;
+             case '3':
+                    unset($query->orderby[0]);
+                    unset($query->orderby[2]);
+		            unset($query->orderby[3]);
+		            break;
+		     case '4':
+                    unset($query->orderby[0]);
+                    unset($query->orderby[1]);
+                    unset($query->orderby[3]);
+                    break;
+  	         case '5':
+                    unset($query->orderby[0]);
+                    unset($query->orderby[1]);
+                    unset($query->orderby[2]);
+		            break;
+            } 
+
+  }
+return true;
+}
+

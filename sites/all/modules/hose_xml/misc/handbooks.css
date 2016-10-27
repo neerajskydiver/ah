@@ -1,0 +1,19 @@
+
+#hose_xml-handbook {
+  display: block;
+  margin-top: 10px;
+}
+
+#hose_xml-handbook-title {
+  font-weight: bold;
+  font-size: larger;
+  color: #554;
+}
+
+#hose_xml-handbook-description {
+  margin: 5px 0 10px 0;
+}
+
+#hose_xml-handbook-tag {
+  margin-bottom: 5px;
+}

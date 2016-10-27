@@ -1,0 +1,6 @@
+; $Id$
+name = Display information in block
+description = It Display the Bloavcks in fucntional manner
+core = 6.x
+package = Ah
+

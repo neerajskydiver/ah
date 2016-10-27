@@ -1,0 +1,17 @@
+From www-data Fri Aug  5 09:49:00 2016
+Return-Path: <www-data>
+Received: (from www-data@localhost)
+	by ip-10-186-133-230.ec2.internal (8.14.4/8.14.4/Submit) id u759n0fl027322;
+	Fri, 5 Aug 2016 09:49:00 GMT
+Date: Fri, 5 Aug 2016 09:49:00 GMT
+From: www-data <www-data>
+Message-Id: <201608050949.u759n0fl027322@ip-10-186-133-230.ec2.internal>
+To: cmark@americanheritage.com
+Subject: American Heritage Magazine backup succeeded
+X-PHP-Originating-Script: 0:filters.statusnotify.inc
+
+
+The site backup has completed successfully with the following messages:
+Default Database backed up successfully to AmericanHeritageMagazine-2016-08-05T05-40-23 in destination Manual Backups Directory in 516068 ms. 
+
+

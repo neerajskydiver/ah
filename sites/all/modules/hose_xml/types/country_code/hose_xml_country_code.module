@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * @file
+ * Implementation of 'country_code' tag type.
+ */
+
+/**
+ * @defgroup hose_xml_country_code Country Code
+ * @{
+ * Country Code field type plug-in.
+ *
+ * Matches country code (simple check, 2 characters in length)
+ * and returns an export error on failure.
+ */
+
+/**
+ * Implementation of hook_hose_xml_field_name().
+ */
+function hose_xml_country_code_hose_xml_field_name() {
+  return array('country_code' => t('Country Code'));
+} // hose_xml_country_code_hose_xml_field_name
+
+/**
+ * Implementation of hook_hose_xml_field_icon().
+ */
+function hose_xml_country_code_hose_xml_field_icon() {
+  return drupal_get_path('module', 'hose_xml_country_code') .'/country_code.png';
+} // hose_xml_country_code_hose_xml_field_icon
+
+/**
+ * Implementation of hook_hose_xml_settings_information().
+ */
+function hose_xml_country_code_hose_xml_settings_information() {
+  return array(
+    'hint_country_code' => array(
+      'title' => t('Validation Hint'),
+      'description' => t("(Optional) Enter a validation hint, specific to this export profile which will appear instead of the generic error message on export failure."),
+    ),
+  );
+} // hose_xml_country_code_hose_xml_settings_information
+
+/**
+ * Implementation of hook_hose_xml_validate().
+ */
+function hose_xml_country_code_hose_xml_validate($data, $settings) {
+  $reason = '';
+  if (!empty($data) && !preg_match('/^[a-z]{2}$/i', $data)) {
+    $reason = $settings['hint_country_code'] ? $settings['hint_country_code'] : t('Entry is not a valid Country code.');
+  }
+  return array(
+    'data' => $data,
+    'reason' => $reason,
+  );
+} // hose_xml_country_code_hose_xml_validate
+
+/**
+ * @} End of "defgroup hose_xml_country_code".
+ */

@@ -1,0 +1,44 @@
+<?php
+// $Id$
+
+function add_banner_to_site_schema()
+{
+	$schema = array();
+	
+	$schema['banner_info'] = array(
+  'description' => t('this will hold which node has what associated with it'),
+  'fields' => array(
+    'pkey' => array(
+      'description' => t('Primary Key'),
+      'type' => 'serial',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+    ),
+    'nid' => array(
+      'description' => t('Node Id'),
+      'type' => 'int',
+      'unsigned' => TRUE,
+      'not null' => TRUE,
+    ),
+    'path' => array(
+      'description' => t('Banner Path'),
+      'type' => 'varchar',
+      'length' => '100',
+      'not null' => TRUE,
+    ),
+  ),
+  'primary key' => array('pkey'),
+);
+
+	return $schema;
+}
+
+function add_banner_to_site_install()
+{
+	drupal_install_schema('add_banner_to_site');
+}
+
+function add_banner_to_site_uninstall()
+{
+	drupal_uninstall_schema('add_banner_to_site');
+}

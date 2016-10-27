@@ -1,0 +1,108 @@
+<?php 
+// $Id
+
+define('FEEDS_HOSE_NODE_PROCESSOR', 'FeedsHoseXMLNodeProcessor');
+
+/**
+ * Implementation of hook_menu().
+ */
+function hose_xml_import_menu() {
+  // Admin Settings and tabs.
+  $items['admin/settings/hose_xml/import'] = array(
+    'description' => 'Administration settings for the Hose XML imports.',
+    'title' => 'Hose XML Import Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('hose_xml_import_settings'),
+    'access arguments' => array('administrate Hose XML Import module'),
+  );
+
+  // override the mappings path for feeds profiles that use hose_xml_import
+  $importers = feeds_importer_load_all();
+  ctools_include('plugins');
+  $plugins = ctools_get_plugins('feeds', 'plugins');
+  foreach($importers as $importer_id => $importer) {
+    $plugin_key = $importer->config['processor']['plugin_key'];
+    $info = $plugins[$plugin_key];
+    if ($info['handler']['class'] == FEEDS_HOSE_NODE_PROCESSOR || feeds_plugin_child($plugin_key, FEEDS_HOSE_NODE_PROCESSOR)) {
+      $items['admin/build/feeds/edit/'. $importer_id .'/mapping'] = array(
+        'title' => 'Mappings',
+        'page callback' => 'hose_feeds_ui_edit_page',
+        'page arguments' => array(4, 5),
+        'access arguments' => array('administer feeds'),
+        'file' => 'hose_xml_import.admin.inc',
+        'type' => MENU_CALLBACK,
+      );
+    }
+  }
+  return $items;
+} // pimport_menu
+
+/**
+ * Implementation of hook_theme().
+ */
+function hose_xml_import_theme() {
+  return array(
+    'hose_feeds_ui_mapping_form' => array(
+      'file' => 'hose_xml_import.admin.inc',
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_ctools_plugin_api.
+ */
+function hose_xml_import_ctools_plugin_api($owner, $api) {
+  if ($owner == 'feeds' && $api == 'plugins') {
+    return array('version' => 1);
+  }
+}
+
+/**
+ * A hook_feeds_plugins() declares available Fetcher, Parser or Processor
+ * plugins to Feeds. For an example look at feeds_feeds_plugin(). For exposing
+ * this hook hook_ctools_plugin_api() MUST be implemented, too.
+ *
+ * @see feeds_feeds_plugin()
+ */
+function hose_xml_import_feeds_plugins() {
+  $info = array();
+
+  $info['HoseXMLProcessor'] = array(
+    'name' => 'Hose XML Node Processor',
+    'description' => 'Hose XML Processor.',
+    'help' => 'Hose XML Processor.',
+    'handler' => array(
+      'parent' => 'FeedsNodeProcessor',
+      'class' => 'FeedsHoseXMLNodeProcessor',
+      'file' => 'FeedsHoseXMLNodeProcessor.inc',
+      'path' => drupal_get_path('module', 'hose_xml_import') . '/plugins',
+    ),
+  );
+
+  $info['HoseXMLParser'] = array(
+    'name' => 'Hose XML Parser',
+    'description' => 'Hose XML Parser.',
+    'help' => 'Hose XML Parser.',
+    'handler' => array(
+      'parent' => 'FeedsParser',
+      'class' => 'FeedsHoseXMLParser',
+      'file' => 'FeedsHoseXMLParser.inc',
+      'path' => drupal_get_path('module', 'hose_xml_import') . '/plugins',
+    ),
+  );
+  return $info;
+}
+
+/**
+ * Load the contents of a file into a string.
+ * This function uses file_get_contents which is faster than reading the file
+ * line by line.
+ *
+ * It is the callers duty to log if this function returns FALSE.
+ */
+function hose_xml_load_file($path) {
+  // load the file into string
+  return file_get_contents($path);
+}
+
+

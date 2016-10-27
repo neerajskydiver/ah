@@ -1,0 +1,52 @@
+/* $Id: accordion.css,V1 01-Feb-2011 by Akshay S.  */
+
+.quicktabs_main.quicktabs-style-accordion{
+  clear:both;
+}
+ul.quicktabs_tabs.quicktabs-style-accordion{
+  margin:0 0 10px 0;
+  font-size:12px;
+  list-style: none;
+  padding:3px 0 23px 0;
+}
+ul.quicktabs_tabs.quicktabs-style-accordion li{
+  float: left;
+  margin:0 2px; 
+  border:1px solid #BBB;
+}
+ul.quicktabs_tabs.quicktabs-style-accordion li a{
+  margin: 0;
+  display:block;
+  text-decoration:none;
+  color: #062D4D;
+  padding:5px; 
+}
+ul.quicktabs_tabs.quicktabs-style-accordion li:hover a{
+	background-color: #778FA8 ;
+	color: #FFF;
+}
+ul.quicktabs_tabs.quicktabs-style-accordion li:hover{
+	background-color: #778FA8 ;
+	color: #FFF; 
+}
+ul.quicktabs_tabs.quicktabs-style-accordion li.active a,
+ul.quicktabs_tabs.quicktabs-style-accordion li.active a:hover{
+	background-color: #062D4D;
+	color: #FFF;
+}
+ul.quicktabs_tabs.quicktabs-style-accordion li.active{
+	background-color: #062D4D;
+	color: #FFF; 
+}
+
+/* IE6 Gif (no PNGs) */
+
+*html ul.quicktabs_tabs.quicktabs-style-accordion li a{
+  color:#062D4D!important;
+}
+*html ul.quicktabs_tabs.quicktabs-style-accordion li.active a{
+  color:#FFF!important;
+}
+*html ul.quicktabs_tabs.quicktabs-style-accordion li{  /* image for IE6  */
+
+}

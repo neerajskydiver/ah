@@ -1,0 +1,66 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * The install file for Page Title allows the module to install (and uninstall) itself. This is required as this module uses its own table.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function mass_operations_install() {
+  drupal_install_schema('mass_operations');
+}
+
+
+/**
+ * Implementation of hook_schema().
+ */
+function mass_operations_schema() {
+  $schema = array();
+$schema['mass_operations'] = array(
+  'description' => t('Keeps track of Current collection processed.'),
+  'fields' => array(
+    'id' => array(
+      'description' => t('Sr. no.'),
+      'type' => 'serial',
+      'not null' => TRUE,
+    ),
+    'latest_nid' => array(
+      'description' => t('Latest collection node nid'),
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+  ),
+  'primary key' => array('id'),
+);
+$schema['mass_operations_nids'] = array(
+    'description' => t('Keeps track of Collections processed.'),
+    'fields' => array(
+      'sid' => array(
+        'description' => t('Sr. no.'),
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'collection_nid' => array(
+        'description' => t('Collection nid.'),
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('sid'),
+);
+  return $schema;
+}
+
+
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function mass_operations_uninstall() {
+  drupal_uninstall_schema('mass_operations');
+}

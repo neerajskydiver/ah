@@ -1,0 +1,96 @@
+<?php
+
+/**
+ * @file
+ * Implementation of 'file' tag type.
+ */
+
+/**
+ * @defgroup hose_xml_file File
+ * @{
+ * File field type plug-in.
+ *
+ * Matches only files uploaded through filefield, displays;
+ *  - File Name
+ *  - File Path
+ *  - File Size
+ *  - Mime Type
+ *  - Checksum
+ * According to field level setting,
+ * will return an export error on failure.
+ */
+
+/**
+ * Implementation of hook_hose_xml_field_name().
+ */
+function hose_xml_file_hose_xml_field_name() {
+  return array('file' => t('File'));
+} // hose_xml_file_hose_xml_field_name
+
+/**
+ * Implementation of hook_hose_xml_field_icon().
+ */
+function hose_xml_file_hose_xml_field_icon() {
+  return drupal_get_path('module', 'hose_xml_file') .'/file.png';
+} // hose_xml_file_hose_xml_field_icon
+
+/**
+ * Implementation of hook_hose_xml_settings_information().
+ */
+function hose_xml_file_hose_xml_settings_information() {
+  return array(
+    'default' => array(
+      'title' => t('Filefield return parameter'),
+      'description' => t('The CCK field type is Filefield. Select which of the file parameters to export.'),
+      'type' => 'select',
+      'options' => array(
+        'filename' => t('Filename'),
+        'filepath' => t('Filepath'),
+        'filesize' => t('Filesize'),
+        'checksum' => t('Checksum'),
+      ),
+    ),
+    'hint_file' => array(
+      'title' => t('Validation Hint'),
+      'description' => t("(Optional) Enter a validation hint, specific to this export profile which will appear instead of the generic error message on export failure."),
+    ),
+  );
+} // hose_xml_file_hose_xml_settings_information
+
+/**
+ * Implementation of hook_hose_xml_validate().
+ */
+function hose_xml_file_hose_xml_validate($data, $settings) {
+  $reason = '';
+  switch ($settings['default']) {
+    case 'filename':
+      $data = $data['filename'];
+      break;
+    case 'filepath':
+      $data = $data['filepath'];
+      break;
+    case 'filesize':
+      $data = $data['filesize'];
+      break;
+    case 'filemime':
+      $data = $data['filemime'];
+      break;
+    case 'checksum':
+      $data = md5($data['filepath']);
+      break;
+    default:
+      $data = '';
+      break;
+  }
+  if (empty($data)) {
+    $reason = $settings['hint_file'] ? $settings['hint_file'] : t('Requested return value is either empty or not valid.');
+  }
+  return array(
+    'data' => $data,
+    'reason' => $reason,
+  );
+} // hose_xml_file_hose_xml_validate
+
+/**
+ * @} End of "defgroup hose_xml_file".
+ */

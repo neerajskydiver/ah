@@ -1,0 +1,318 @@
+<?php
+
+
+/**
+ * @file
+ * Implementation of 'reference' tag type.
+ */
+
+/**
+ * @defgroup hose_xml_reference Reference
+ * @{
+ * Reference field type plug-in.
+ *
+ * Default field type, matches any given text.
+ * Includes field level settings for;
+ *  - Character Limit
+ *  - Truncate after x number of characters
+ *  - Truncate at last space within the upper limit
+ *  - Add trailing dots (ellipsis)
+ * Returns an export error on failure.
+ */
+
+/**
+ * Implementation of hook_hose_xml_field_name().
+ */
+function hose_xml_reference_hose_xml_field_name() {
+  return array('reference' => t('Reference'));
+} // hose_xml_reference_hose_xml_field_name
+
+/**
+ * Implementation of hook_hose_xml_field_map_import().
+ *
+ * object $node
+ *   The semi-built node.
+ * 
+ * array $import_item
+ *   The item that is being imported.
+ *
+ * array $item_profile
+ *   Subpart of the hose_xml_profile that represents this profile.
+ */
+function hose_xml_reference_hose_xml_field_map_import(&$node, $value = NULL, array &$import_item, stdClass $item_profile) {
+  //dpm($item_profile, 'reference import profile');
+  if ($item_profile->type != 'reference' || empty($item_profile->cck_match)) {
+    return;
+  }
+  //dpm('hose_xml_reference_hose_xml_field_map_import');
+  //dpm($node, 'node');
+  //dpm($value, 'value');
+ //dpm($item_profile, 'item_profile');
+  $profile_reference = hose_xml_get_export_config_flat($item_profile->settings['hose_xml_pid'], 0, -1, NULL, FALSE, TRUE);
+
+  /* get rid of the last tag from the path
+   * this is because the referenced profile must have the containing tag so that if any attributes
+   * are mapped to fields the profile has access to the tag
+   */
+  $item_profile_tag_path = implode('/', array_slice(explode('/', $item_profile->tag_path), 0, -1));
+  
+  foreach($profile_reference as &$profile) {
+    //$profile->tag_path = $item_profile_tag_path . '/' . $profile->tag_path;
+    //$profile->tag_path = $item_profile->tag_path. '/' . $profile->tag_path;
+  }
+ //dpm($profile_reference, '$profile_reference');
+ //dpm($import_item, 'import item');
+  //handle multiple values
+  // xml2array will create a numerical of array for multiple value tags whereas a single value will 
+  // create a key so we need to handle that
+  $items = arrayIsAssoc($value) ? array($value) : $value;
+  
+  /* find the branch of the import_item which has the tag we need.  Referenced profiles *must*
+  * have a container tag which matches the reference tag in the parent profile so that attrs can 
+  * bepassed down if need be
+  * The branch base is used to construct a process item to be recursed by the system
+  */
+  $branch_base = xml_array_get_value_by_path($import_item, $item_profile_tag_path);
+ //dpm($branch_base, 'branch_base b4');
+  $branch_tag = array_pop(array_keys($branch_base));
+ //dpm($branch_tag, 'branch_tag');
+  
+ //dpm($items, 'items');
+  foreach ($items as $item) {
+    // add the branch base to the process item for each iteration so that attributes are passed down
+    $process_item = array( 
+      $branch_tag => $item
+    );
+    if (!empty($branch_base['@attributes'])) {
+      $process_item['@attributes'] = $branch_base['@attributes'];
+    }
+   //dpm($process_item, 'process item');
+    // create a new node for this field
+    $reference_node = _hose_feeds_blank_node_instance();
+   //dpm($reference_node, 'ref node just after creation');
+    /* Here we are assuming that there is just one type that this profile applies to
+    * TODO: Clarify in the UI that referenced profiles should only be allocated to ONE type
+    */
+    $node_type = array_pop(hose_xml_export_fetch_types($item_profile->settings['hose_xml_pid']));
+    $reference_node->type = $node_type;
+    
+    hose_xml_import_node_map_recurse($reference_node, $process_item, $profile_reference);
+  
+    // support for unique_field module
+    // @TODO: this might not be needed anymore:
+    //        @see FeedsHoseXMLNodeProcessor::transformHoseXMLConfigMappings and
+    //        @see FeedsHoseXMLNodeProcessor::existingItemId method
+    
+    /*
+     * The import will create a new node each time unless the unique_field module is enabled and
+     * one or more unique fields have been configured in the content type
+     */
+    $node_validate_status = _hose_node_validate_with_unique_field($reference_node);
+    if ($node_validate_status == HOSE_UNIQUE_FIELD_NODE_UPDATE) {
+      $node_type_uniquefields = (array) variable_get('unique_field_fields_'. $reference_node->type, array());
+      $field = array_pop($node_type_uniquefields);
+      if ($field == 'title') {
+        $nid = db_result(db_query("SELECT nid FROM {node} WHERE type = '%s' AND %s = '%s'", $this->config['content_type'], $target, $value));
+      }
+      else {
+        list($table_name, $column_name) = get_content_field_db_info($target);
+        $nid = db_result(db_query("SELECT n.nid FROM {node} n LEFT JOIN {$table_name} tn ON tn.vid = n.vid
+          WHERE n.type = '%s' AND tn.$column_name = '%s'", $this->config['content_type'], $value));
+      }
+      drupal_set_message(t("Updating referenced node: @node_title", array('@node_title', $reference_node->title)));
+      $reference_node->nid = $nid;
+    }
+
+    // flush Token's internal cache
+    // required in order for auto nodetitle module to work correctly
+    token_get_values('global', NULL, TRUE);
+
+    // save the reference node
+    node_save($reference_node);
+   //dpm($reference_node, 'saved $reference_node');
+    drupal_set_message(t('Saved referenced @ref_type @ref_nid for @parent_type @parent_nid', array(
+      '@ref_type' => $reference_node->type,
+      '@ref_nid' => $reference_node->nid,
+      '@parent_type' => $node->type,
+      '@parent_nid' => $node->nid
+    )));
+  
+    $referenced_nid = $reference_node->nid;
+    // add the reference to the parent node
+    //dpm($item_profile, 'item profile');
+    $cck_match = $item_profile->cck_match;
+    if (!isset($node->{$cck_match})) {
+      $node->{$cck_match} = array();
+    }
+    if (empty($node->{$cck_match}[0]['nid'])) {
+      $node->{$cck_match}[0]['nid'] = $referenced_nid;
+    }
+    else {
+      $node->{$cck_match}[] = array(
+      	'nid' => $referenced_nid,
+      );
+    }
+  }
+  //dpm($node, 'parent node');
+} // hose_xml_reference_hose_xml_field_name
+
+/**
+ * Implementation of hook_hose_xml_field_icon().
+ */
+function hose_xml_reference_hose_xml_field_icon() {
+  return drupal_get_path('module', 'hose_xml_reference') .'/icon.png';
+} // hose_xml_reference_hose_xml_field_icon
+
+/**
+ * Implementation of hook_hose_xml_settings_information().
+ */
+function hose_xml_reference_hose_xml_settings_information() {
+  foreach (hose_xml_fetch_profiles () as $profile_id => $profile) {
+    $hose_xml_profiles[$profile_id] = $profile->name;
+  }
+
+  return array(
+    'hose_xml_pid' => array(
+      'title' => t('Hose XML Profile Reference'),
+      'description' => t('Hose XML Profile Reference'),
+      'type' => 'select',
+      'options' => $hose_xml_profiles,
+    ),
+  );
+} // hose_xml_reference_hose_xml_settings_information
+
+/**
+ * Implementation of hook_hose_xml_settings_validate().
+ */
+function hose_xml_reference_hose_xml_settings_validate($setting, $value) {
+  switch ($setting) {
+    case 'default':
+      if (!empty($value) && !preg_match("/^[0-9]+$/", $value)) {
+        return t('Character limit can be numeric only.');
+      }
+    case 'truncate':
+      if (!empty($value) && !preg_match("/^[0-9]+$/", $value)) {
+        return t('Truncate field value can be numeric only.');
+      }
+  }
+} // hose_xml_reference_hose_xml_settings_validate
+
+/**
+ * Implementation of hook_hose_xml_validate().
+ */
+function hose_xml_reference_hose_xml_validate($data, $settings) {
+  if (empty($data)) {
+    return array(
+      'data' => $data,
+      'reason' => '',
+    );
+  }
+  $reason = '';
+  // Character limit
+  $clean = $settings['raw'] ? $data : trim(_hose_xml_reference_check_plain($data));
+  if (is_numeric($settings['default']) && drupal_strlen($clean) > $settings['default']) {
+    $reason = t('Entry has too many characters, the limit for this tag is @limit characters.', array('@limit' => $settings['default']));
+  }
+  if (empty($clean)) {
+    $clean = $data;
+    $reason = t('Entry contains invalid characters.');
+  }
+  // Truncate/ Word Safe/ Ellipsis
+  if (is_numeric($settings['truncate'])) {
+    $data = truncate_utf8($data, $settings['truncate'], $settings['wordsafe'], $settings['ellipsis']);
+  }
+  return array(
+    'data' => $data,
+    'reason' => $reason,
+  );
+} // hose_xml_reference_hose_xml_validate
+
+/**
+ * Present as Drupals own check plain doesn't encode to utf-8.
+ *
+ * @param $text
+ *   Field input from node content.
+ *
+ * @return
+ *   UTF-8 compliant text.
+ *
+ * @see hose_xml_reference_hose_xml_validate()
+ */
+function _hose_xml_reference_check_plain($text) {
+  return drupal_validate_utf8($text) ? htmlspecialchars($text, ENT_NOQUOTES, 'UTF-8') : '';
+} // _hose_xml_reference_check_plain
+
+/**
+ * Implementation of hook_hose_xml_has_content
+ * 
+ * @param unknown_type $branch
+ * @param unknown_type $node
+ */
+function hose_xml_reference_hose_xml_has_content(&$branch, $node) {
+  return TRUE;
+}
+
+/**
+ * The module must write out XML to the $writer and or add errors to the error array
+ * 
+ * @param unknown_type $branch
+ * @param unknown_type $writer
+ * @param unknown_type $node
+ * @param unknown_type $field
+ * @param unknown_type $fids
+ * @param unknown_type $error
+ * 
+ * @see hose_xml_generate_tag()
+ */
+function hose_xml_reference_hose_xml_generate_tag(&$branch, &$writer, $node, $field, &$fids, &$error = array()) {
+  // get the hose profile for this reference
+  $settings = unserialize($branch->settings);
+  $pid = isset($settings['hose_xml_pid']) ? $settings['hose_xml_pid'] : FALSE;
+  if (!$pid) {
+    watchdog(
+    	'hose_xml_ref', 
+    	'No referenced profile id in profile @pid, tag @tag', 
+      array('@pid' => $branch->pid, '@tag' => $branch->tag),
+      WATCHDOG_ERROR
+    );
+    $error[] = t('No referenced profile id in profile @pid, tag @tag', 
+      array('@pid' => $branch->pid, '@tag' => $branch->tag));
+  }
+  $tree = hose_xml_get_export_config_tree($pid);
+  $referenced_nid = $node->{$branch->cck_match}[0]['nid'];
+  // if there is no value bail out
+  if (empty($referenced_nid)) {
+    return $error;
+  }
+  // create the XML using the profile and the referenced nid
+  $referenced_node = node_load($referenced_nid);
+  $fids = array();
+  hose_xml_export_create_xml($tree, $writer, $referenced_node, $fids, $error, FALSE);
+  return $error;
+}
+
+/**
+ * Implementation of hook_form_alter
+ * 
+ * @param unknown_type $form
+ * @param unknown_type $form_state
+ * @param unknown_type $form_id
+ */
+function hose_xml_reference_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'hose_xml_ui_profile_view') {
+    foreach ($form['settings'] as $id => &$element) {
+      if ($element['type']['#value'] == 'reference') {
+        $element_settings = hose_xml_get_profile_element_settings($id);
+        $linked_profile = hose_xml_profile_load($element_settings->settings['hose_xml_pid']);
+        $element['type']['#value'] = l(
+        	'reference', 
+          'hose_xml/profiles/'. $linked_profile->pid .'/view', 
+          array('attributes' => array('title' => $linked_profile->name)));
+      };
+    }
+  }
+}
+
+/**
+ * @} End of "defgroup hose_xml_reference".
+ */

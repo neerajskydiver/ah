@@ -1,0 +1,66 @@
+<?php
+// $Id: ah_xml.install,v 1.10.4.4 2009/06/17 15:03:07 njt1982 Exp $
+
+/**
+ * @file
+ * The install file for Page Title allows the module to install (and uninstall) itself. This is required as this module uses its own table.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function collection_taxonomy_install() {
+  drupal_install_schema('collection_taxonomy');
+}
+
+
+/**
+ * Implementation of hook_schema().
+ */
+function collection_taxonomy_schema() {
+  $schema = array();
+$schema['collection_taxonomy'] = array(
+  'description' => t('Keeps track of Current collection processed.'),
+  'fields' => array(
+    'id' => array(
+      'description' => t('Sr. no.'),
+      'type' => 'serial',
+      'not null' => TRUE,
+    ),
+    'latest_nid' => array(
+      'description' => t('Latest collection node nid'),
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+  ),
+  'primary key' => array('id'),
+);
+$schema['collection_taxonomy_nids'] = array(
+    'description' => t('Keeps track of Collections processed.'),
+    'fields' => array(
+      'sid' => array(
+        'description' => t('Sr. no.'),
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'collection_nid' => array(
+        'description' => t('Collection nid.'),
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('sid'),
+);
+  return $schema;
+}
+
+
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function collection_taxonomy_uninstall() {
+  drupal_uninstall_schema('collection_taxonomy');
+}

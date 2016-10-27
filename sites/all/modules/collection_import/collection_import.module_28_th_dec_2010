@@ -1,0 +1,294 @@
+<?php
+// $Id$
+function collection_import_perm()
+{
+	return array("View Collection Import");
+}
+
+
+function collection_import_menu()
+{
+
+	$items = array();
+	$items['admin/settings/collection_import'] = array(
+	'title' => 'Import Collection',
+	'description' => 'Import collection data related to museums',
+	'page callback' => 'import_collection_museum',
+	'access callback' => user_access,
+	'access arguments' => array('administer site configuration'),
+	);
+
+	return $items;
+}
+
+
+function import_collection_museum()
+{
+	return drupal_get_form('import_collection_form');
+}
+
+
+
+
+function import_collection_form()
+{
+/*
+create direcroty according to folders path given in xcl file
+*/
+$form = array();
+$form['#attributes'] = array('enctype' => "multipart/form-data");
+  //'upload' will be used in file_check_upload()
+$form['upload'] = array('#type' => 'file');
+
+$sql = "SELECT content_type_bookmarks_sites.nid, title
+FROM `content_type_bookmarks_sites`
+INNER JOIN node ON node.nid = content_type_bookmarks_sites.`nid`";
+
+$result = db_query($sql);
+$option = array();
+while($obj_array = db_fetch_object($result))
+{
+	$nid = $obj_array->nid;
+	$option[$nid] = $obj_array->title; 
+}
+
+
+
+$array_new = array(a=>'1',b=>'2',c=>'3',d=>'4',e=>'5');
+
+$form['select_list'] = array(
+'#type' => "select",
+'#title' => t('Site Title'),
+'#options' => $option,
+);
+
+$form['submit'] = array(
+'#type' => "submit",
+'#value' => t('Import'),
+);
+  //'upload' will be used in file_check_upload()
+
+return $form;
+
+
+}
+
+
+function import_collection_form_submit(&$form,&$form_state)
+{
+/*
+create direcroty according to folders path given in xcl file
+*/
+$path = file_directory_path().'/'.uploaded_files;
+$dir = file_create_path($path);
+  $validators = array();
+  $is_writable = file_check_directory($dir, 1);
+    if($is_writable) { 
+		if ($file = file_save_upload('upload',$validators,$dir)) {
+//		$path_csv = file_directory_path().'/'.uploaded_files.'/'.$file->filename;
+		$path_csv = $file->destination;
+	    drupal_set_message(t('The Uploaded File has been saved successfully.'));
+        } else {
+          file_delete($file->filepath);
+          drupal_set_message('Uploaded file does not appear to be a valid image file. Please try again.');
+        }
+    }
+
+// call the function , that creates collection nodes
+
+$var  = logic_for_collection_import($form_state['values']['select_list'],$path_csv);
+if($var)
+	drupal_set_message(t( "All collections Imported Succesfully"));
+else
+	drupal_set_message(t( "collections Importing Failed"));
+
+}
+
+function logic_for_collection_import($nid,$path_csv)
+{
+	$sql = "SELECT title from node where nid = %d";
+	$result = db_query($sql,$nid);
+	
+	while($obj_array = db_fetch_object($result))
+	{
+		$title = $obj_array->title;
+	}
+	
+	
+	$collection_name = str_replace(" ","",$title);
+	//$collection_name =  "marylandhouseofstate";
+
+/////////////////////////////// Main Collection Directory /////////////////////////////////////////////////////
+
+	$dir = file_directory_path().'/'.$collection_name;
+	if(is_dir($dir))
+	{
+		drupal_set_message(t( "Direcotory alreday exists, no new directory created"));
+	}
+	else
+	{
+		if(mkdir($dir,0777))
+		{
+			drupal_set_message(t("Directory created"));
+		}
+		else
+		{
+			drupal_set_message(t("Directory creation Failed"));
+		}
+	}
+	
+/////////////////////////////// Main Collection Directory /////////////////////////////////////////////////////	
+	
+/////////////////////////////// Internbal Directory For Images /////////////////////////////////////////////////////
+
+	$dir = file_directory_path().'/'.$collection_name.'/'.'Images';
+
+	if(is_dir($dir))
+	{
+		drupal_set_message(t( "Direcotory alreday exists, no new directory created"));
+	}
+	else
+	{
+		if(mkdir($dir,0777))
+		drupal_set_message(t( "Direcotory created"));
+		else
+		drupal_set_message(t( "Direcotory creation failed"));
+
+	}	
+	
+/////////////////////////////// Internbal Directory For Images /////////////////////////////////////////////////////	
+	
+	
+	/*
+	$directory = "marylandhouseofstate/Images";
+	*/
+	
+	$handle = fopen($path_csv, "r");
+	$cnt = 1;
+	
+	while (($data = fgetcsv($handle,10000, ",")) !== FALSE) {
+	
+	// Retrive all information from csv file, to be saved to the node
+
+	$ttile  = $data[0];
+	$creator  = $data[1];
+	$contributor = $data[2];
+	$date = $data[3];
+	$contnet_decs = $data[4];
+	$physical_desc = $data[5];
+	$institution = $data[6];
+	$item_group = $data[7];
+	$subjects = $data[8];
+	$categroy = $data[9];
+	$identifier = $data[10];
+	$image_path = $data[11];
+	
+	
+	// logic for attaching taxonmoy terms dynamically
+	
+	$get_term_id_sql = "select tid from term_data where name like '$categroy%'";
+	$result = db_query($get_term_id_sql);
+	
+	$record = db_fetch_array($result);
+	$tid = $record[tid];
+	
+	
+	$create_dir_var =  explode("/",$image_path);
+	if(!empty($image_path))
+	{
+		if(!(strpos($create_dir_var[0],".")))
+		{
+			foreach($create_dir_var as $indivisula_dir)
+			{
+				if(!(strpos($indivisula_dir,".")))
+				{
+					if(!is_dir(file_directory_path().'/'.$collection_name.'/Images/'.$indivisula_dir))
+					{
+						$_SESSION['last_dir'] = $indivisula_dir;
+						if(mkdir(file_directory_path() .'/'. $collection_name .'/Images/'. $indivisula_dir,0777))
+							$image_final = file_directory_path() .'/'. $collection_name .'/Images/'. $indivisula_dir.'/';
+					}
+					else if(is_dir(file_directory_path().'/'.$collection_name.'/Images/'.$indivisula_dir))
+					{
+						$_SESSION['last_dir'] = $indivisula_dir;
+						$image_final = file_directory_path() .'/'. $collection_name .'/Images/'. $indivisula_dir.'/';
+					}				
+				}
+				else
+				{
+				$image_final = file_directory_path() .'/'. $collection_name .'/Images/'.$_SESSION['last_dir'].'/';
+				}
+			}
+		}
+		else
+		{
+				$image_final = file_directory_path() .'/'. $collection_name .'/Images' ;
+		
+		}
+	}
+	else
+	{
+				$image_final = file_directory_path() .'/'. $collection_name .'/Images' ;
+	}
+	
+	
+	
+	$node = new stdclass();
+	$node->title = $ttile;
+	$node->body = $contnet_decs;
+	$node->type = 'collection';
+	
+	
+	$tmp_filepath = file_directory_path().'/'."2010.0005.0023.jpg";
+	
+	//creating image from jpeg
+	$my_img = imagecreatefromjpeg ($tmp_filepath);
+	
+	$image_path = $data[11];
+	
+	if(!empty($image_path))
+	{
+		$explode_for_temp = explode("/",$image_path);
+		if(strpos($explode_for_temp[0],"."))
+		{
+		imagejpeg($my_img,file_directory_path().'/aj/default/'.$explode_for_temp[0]); 
+		$image = file_directory_path().'/aj/default/'.$explode_for_temp[0];
+		}
+		else
+		{
+		imagejpeg($my_img,file_directory_path().'/aj/default/'.$explode_for_temp[1]); 
+		$image = file_directory_path().'/aj/default/'.$explode_for_temp[1];
+		}
+	}
+	else
+	{
+	$tmp_filepath_png = file_directory_path().'/'."no_record.png";
+	$my_img_png = imagecreatefrompng($tmp_filepath_png);
+	$image = file_directory_path().'/no_record.png';
+	}
+	
+	
+	
+	$field= content_fields('field_image',"collection");
+	$validators= array_merge(filefield_widget_upload_validators($field), imagefield_widget_upload_validators($field));
+	$files_path=  filefield_widget_file_path($field);
+	$file = field_file_save_file($image,$validators,$image_final);
+	$node->field_image = array (0 => $file);
+	
+	
+	
+	
+	$node->field_creator[0][value] = $creator;
+	$node->field_contributor[0][value] = $contributor;
+	$node->field_date[0][value] = $date;
+	$node->field_description_physical[0][value] = $physical_desc;
+	$node->field_institution[0][value] = $institution;
+	$node->field_identifier[0][value] = $identifier;
+	$node->field_site_id[0][nid] =  $nid;
+	$node->taxonomy[] =  $tid;
+	$node->field_keywords[0][value] = $subjects;	
+	node_save($node);
+	
+	}
+return true;
+}

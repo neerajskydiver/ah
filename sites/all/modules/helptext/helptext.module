@@ -1,0 +1,36 @@
+<?php
+
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function helptext_form_alter(&$form, &$form_state, $form_id) {
+ switch($form_id){
+		case 'ad_node_form':
+   		/*
+		echo "<div style='display:none'><pre>";
+		print_r($form);
+		echo "</pre></div>"; 
+ 		$form['attachments']['#description'] = " <p><font color='#C52020'>Note:- Size for Banner</font></p>
+						<p>Top Left Banner   - Width(728)*Height(90)</p>
+						<p>Top Right Banner - Width(299)*Height(90)</p>
+						<p>Right Banner       - Width(300)*Height(250)</p>";
+		*/
+		
+		$form['attachments']['#description'] = " <p><font color='#C52020'>Note:- Size for Banner</font></p>
+						<p>Top Left Banner   - Width(728)*Height(90)</p>
+						<p>Top Right Banner - Width(299)*Height(90)</p>
+						<p>Right Banner       - Width(300)*Height(250)</p>";
+						
+		drupal_add_js(drupal_get_path('module', 'helptext') . '/helptext.js');	
+		$form['attachments']['wrapper']['new']['upload']['#description']="The maximum upload size is 1 MB. Only files with the following extensions may be uploaded: For Image - jpg jpeg bmp gif png.For Flash - swf flv. ";
+		$form['attachments']['wrapper']['new']['upload']['#attributes']=array('onchange' => 'return check();');
+		$form['attachments']['wrapper']['new']['upload']['#suffix']="<div id='file_error' style='color:red;'></div/>";
+		$form['select']['adtype_select']['#attributes']=array('onchange' => 'return check();');
+		
+						
+		break;
+	}
+}
+
+

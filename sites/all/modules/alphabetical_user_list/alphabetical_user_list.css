@@ -1,0 +1,80 @@
+
+.alphabetical_user_list_menu ul {
+  /*padding: 0; margin: 0;*/
+
+}
+
+.alphabetical_user_list_menu ul li {
+  list-style-type: none;
+  list-style-image: none;
+  float: left;
+  padding:0px 0px;
+  margin:0px 2px;
+	background-color:#CCCCCC;
+}
+
+.alphabetical_user_list_menu ul:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+.alphabetical_user_list_menu ul {display: inline-block;}
+
+/* Hides from IE-mac \*/
+* html .alphabetical_user_list_menu ul {height: 1%;}
+.alphabetical_user_list_menu ul {display: block;}
+/* End hide from IE-mac */
+
+
+/* ---- Code added Amit and Akshay on 03 March 2011 -------------- */
+
+.alphabetical_user_list tr.even, .alphabetical_user_list tr.odd {
+background:none;
+}
+
+.alphabetical_user_list h3 {margin-bottom:5px;}
+
+.alphabetical_user_list .alphabetical_user_list_menu ul{
+
+    margin-bottom: 5px;
+    padding: 5px 0;
+}
+.alphabetical_user_list .alphabetical_user_list_menu ul li a {
+color:#000000;
+text-decoration:none;
+display:block;
+padding:2px 6px;
+}
+.alphabetical_user_list .alphabetical_user_list_menu ul li.active {
+background-image:url(../../../default/files/arrow_down_list.png);
+background-position:center bottom;
+background-repeat:no-repeat;
+padding-bottom:9px;
+background-color:#FFFFFF;
+}
+.alphabetical_user_list .alphabetical_user_list_menu ul li a:hover{
+background-color:#062d4d;
+color:#FFFFFF;
+}
+.alphabetical_user_list .alphabetical_user_list_menu ul li a.active, .alphabetical_user_list .alphabetical_user_list_menu ul li a.active:hover {
+background-color:#062d4d;
+color:#FFFFFF;
+padding:2px 8px;
+font-weight:900;
+}
+
+
+.alphabetical_user_list .contributor-list .contributor-pic{
+    border: 5px solid #DEDFDE;
+    height: 66px;
+    overflow: hidden;
+    padding: 2px;
+    text-align: center;
+    width: 66px;
+}
+.alphabetical_user_list .contributor-list .contributor-pic .picture img{
+	width:100%;
+}

@@ -1,0 +1,70 @@
+<?php
+// $Id: bannerclick.install,v 1.4 2008/06/16 15:03:06 kbahey Exp $
+
+/**
+* Implementation of hook_install().
+*/
+function bannerclick_install() {
+  // Create tables.
+  drupal_install_schema('bannerclick');
+}
+
+/**
+* Implementation of hook_schema().
+*/
+function bannerclick_schema() {
+  $schema['bannerclicks'] = array(
+    'fields' => array(
+      'gid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0),
+      'nid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0),
+      'day_bannerclicks' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0),
+      'week_bannerclicks' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0),
+      'total_bannerclicks' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0),
+      'start' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0),
+      'last' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0),
+    ),
+    'primary key' => array('gid', 'nid'),
+  );
+
+  return $schema;
+
+}
+
+/**
+* Implementation of hook_uninstall().
+*/
+function bannerclick_uninstall() {
+  // Remove tables.
+  drupal_uninstall_schema('bannerclick');
+
+  db_query("DELETE FROM {variable} WHERE name LIKE 'bannerclick_%';");
+}
+

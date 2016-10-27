@@ -1,0 +1,174 @@
+<?PHP
+// $Id: phpids.module,v 1.8.4.2.2.14 2010/08/09 20:09:03 gos77 Exp $
+
+/**
+ * @file
+ *
+ * phpids tries to identify attacks (xss, sql-injections ...) and
+ * uses an external package called PHPIDS (php-ids.org) to scan 
+ * incoming and POST & GET variables. It's able to log, redirect 
+ * or send out mails to warn the site administrator.
+ */
+
+/**
+ * Implementation of hook_menu().
+ */
+function phpids_menu() {
+  $items['admin/settings/logging/phpids'] = array(
+    'title' => 'PHPIDS Settings',
+    'description' => t('Configure PHPIDS settings and levels'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('phpids_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'phpids.admin.inc'
+  );
+  $items['phpidswarning'] = array(
+    'title' => 'PHPIDS warning',
+    'page callback' => 'phpids_warning',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK
+  );
+  return $items;
+}
+
+/**
+ * Implementation of hook_init().
+ * $ignore : value depends which action will happen
+ *   0 = do nothing
+ *   1 = only log
+ *   2 = log & actions
+ */
+function phpids_init() {
+
+  if (file_exists(variable_get('phpids_path',realpath(dirname(__FILE__))). '/IDS/Config/Config.ini.php') || file_exists(variable_get('phpids_path',realpath(dirname(__FILE__))). '/IDS/Config/Config.ini')) {
+
+    global $user, $base_root;
+
+    // default is logging
+    $ignore = 1;
+    // anonymous user
+    if ($user->uid == 0) {
+      $anon = variable_get('phpids_anonymous',2);
+      if ($anon == 2) $ignore = 2;
+    }
+    // authenticated user - always ignore user 1
+    if ($user->uid != 0) {
+      if ($user->uid == 1) $ignore = 0;
+      else {
+        $auth = variable_get('phpids_authenticated',2);
+        if ($auth == 1) $ignore = 0;
+        if ($auth == 3) $ignore = 2;        
+      }
+    }
+        
+    // start PHPIDS if ignore is not 0
+    if ($ignore != 0) {
+ 
+      $request_uri = $base_root . request_uri();
+
+      // set include path and required the needed files
+      $phpids_path = variable_get('phpids_path',realpath(dirname(__FILE__)));
+      $phpids_tmppath = variable_get('phpids_tmppath',ini_get('upload_tmp_dir'). 'phpids');
+      set_include_path(get_include_path(). PATH_SEPARATOR. $phpids_path);
+      require_once 'IDS/Init.php';
+
+      // instanciate the needed stuff
+      $http_request = array_merge_recursive($_GET, $_POST, $_COOKIE);
+	  if (file_exists(variable_get('phpids_path',realpath(dirname(__FILE__))). '/IDS/Config/Config.ini.php'))
+        $init = IDS_Init::init($phpids_path.'/IDS/Config/Config.ini.php');
+	  else
+        $init = IDS_Init::init($phpids_path.'/IDS/Config/Config.ini');
+      $init->config['General']['tmp_path'] = $phpids_tmppath;
+      $init->config['General']['filter_path'] = $phpids_path . '/IDS/default_filter.xml';
+      $init->config['General']['HTML_Purifier_Cache'] = $phpids_tmppath;
+      $init->config['General']['html'] = array();
+      $init->config['General']['json'] = array();
+      $init->config['General']['exceptions'] = array();
+      if (variable_get('phpids_html_fields', '') != '')
+        $init->config['General']['html'] = explode(',', (variable_get('phpids_html_fields', '')));
+      if (variable_get('phpids_json_fields', '') != '')
+        $init->config['General']['json'] = explode(',', (variable_get('phpids_json_fields', '')));
+      if (variable_get('phpids_excl_fields', '') != '')
+        $init->config['General']['exceptions'] = explode(',', (variable_get('phpids_excl_fields', '')));
+      $init->config['Caching']['caching'] = 'file';
+      $init->config['Caching']['path'] = $phpids_tmppath. '/default_filter.cache';
+
+      $request = new IDS_Monitor($http_request, $init);
+      $report = $request->run();
+
+      // if report is not empty, always log
+      // depending on variables, take other actions if impact level matches settings criteria.
+      if (!$report->isEmpty()) {
+        // default action is log
+        $action = 0;
+
+        // level of severity
+        $severity = $report->getImpact(); 
+
+        // get variables to see if we need to take more action than only logging
+        $mail_level = variable_get('phpids_maillevel',9);
+        $mail_sent = variable_get('phpids_mail','');
+        $warn_level = variable_get('phpids_warnlevel',27);
+        if ($severity >= $mail_level && !empty($mail_sent) && $ignore == 2) $action = 1;
+        if ($severity >= $warn_level && $ignore == 2) $action = 2;
+
+        // create detailed report
+        $message = 'Total impact: ' . $severity . '<br />';
+        $message .= 'All tags: ' . join(", ", $report->getTags()) . '<br />';
+        // iterate through the result an get every event (IDS_Event)
+        foreach ($report as $event) {
+          $message .= '<hr>Variable: '.$event->getName().' | Value: ' . htmlspecialchars($event->getValue()) . '<br />';
+          $message .= 'Impact: '.$event->getImpact().' | Tags: ' . join(", ", $event->getTags()) . '<br />'; 
+          // iterator throught every filter 
+          $message .= '<ul>';
+          foreach ($event as $filter) {
+            $message .= '<li>Rule: '. $filter->getRule() .'<br />';
+            $message .= 'Description: '. $filter->getDescription() .'<br />';
+            $message .= 'Tags: ' . join(", ", $filter->getTags()) . '</li>';
+          }
+          $message .= '</ul>';
+        }
+
+        // log the impact
+        //phpids_addevent($user,$message,$severity,$action,$request_uri);
+        watchdog('phpids',wordwrap($message,'100',' ',TRUE));
+
+        // send out mail if needed
+        if ($action >= 1 && $mail_sent != '') {
+          drupal_mail('phpids','warning',$mail_sent,user_preferred_language($account),array('severity' => $severity));
+          watchdog('phpids',wordwrap('Send warning mail to '.$mail_sent,'100',' ',TRUE));
+        }
+        // Warning : redirect the user to a warning page so nothing can happen to the system
+        if ($action == 2) {
+          // load common.inc and path.inc if necessary
+          if (!function_exists('drupal_goto')) {
+            require_once './includes/common.inc';
+            require_once './includes/path.inc';
+          }
+          drupal_goto('phpidswarning');
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Mail function
+ * @todo more info in mail  
+ */
+function phpids_mail($key,&$message,$params) {
+  $language = $message['language'];
+  $message['subject'] = t('Notification from !site', $variables, $language->language);
+  $body = 'Check your logs to see a full detail of the report.';
+  $message['subject'] = t('PHPIDS detected an attack with impact !severity', array('!severity' => $params['severity']));
+  $message['body'] = t($body);
+}
+
+/**
+ * Warning page: display this page if the attack has reached warning level thus
+ * making the action of the (anonymous) user completely worthless.
+ */
+function phpids_warning() {
+  $output = t('We have detected malicious input and blocked your attempt.<br />If you keep experiencing problems but feel like you are doing nothing wrong, please contact the site administrator.');
+  return $output;
+}

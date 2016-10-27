@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * @file
+ * Implementation of 'checksum' tag type.
+ */
+
+/**
+ * @defgroup hose_xml_checksum Checksum
+ * @{
+ * Checksum field type plug-in.
+ *
+ * Matches only md5 checksum (simple check, 32 character length a-f A-F 0-9)
+ * and returns an export error on failure.
+ */
+
+/**
+ * Implementation of hook_hose_xml_field_name().
+ */
+function hose_xml_checksum_hose_xml_field_name() {
+  return array('checksum' => t('Checksum'));
+} // hose_xml_checksum_hose_xml_field_name
+
+/**
+ * Implementation of hook_hose_xml_field_icon().
+ */
+function hose_xml_checksum_hose_xml_field_icon() {
+  return drupal_get_path('module', 'hose_xml_checksum') .'/checksum.png';
+} // hose_xml_checksum_hose_xml_field_icon
+
+/**
+ * Implementation of hook_hose_xml_settings_information().
+ */
+function hose_xml_checksum_hose_xml_settings_information() {
+  return array(
+    'hint_checksum' => array(
+      'title' => t('Validation Hint'),
+      'description' => t("(Optional) Enter a validation hint, specific to this export profile which will appear instead of the generic error message on export failure."),
+    ),
+  );
+} // hose_xml_checksum_hose_xml_settings_information
+
+/**
+ * Implementation of hook_hose_xml_validate().
+ */
+function hose_xml_checksum_hose_xml_validate($data, $settings) {
+  $reason = '';
+  if (!empty($data) && !preg_match('/^[a-f0-9]{32}$/i', $data)) {
+    $reason = $settings['hint_checksum'] ? $settings['hint_checksum'] : t('Entry is not a valid @type checksum.', array('@type' => $data));
+  }
+  return array(
+    'data' => $data,
+    'reason' => $reason,
+  );
+} // hose_xml_checksum_hose_xml_validate
+
+/**
+ * @} End of "defgroup hose_xml_checksum".
+ */

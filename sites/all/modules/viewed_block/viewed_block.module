@@ -1,0 +1,71 @@
+<?php
+// $Id$
+
+function viewed_block_perm() {
+  return array('View Block of viewed rated Commented');
+}
+
+
+
+function viewed_block_block($op = 'list', $delta = 0, $edit = array()) {
+
+if ($op == "list") {
+$block[0]["info"] = t("Custom Block");
+return $block;
+}
+else if($op == 'view')
+{
+	$res = db_query("SELECT nid,count(DISTINCT(`session_id`)) as cnt,`session_id` FROM `viewed_count` GROUP BY nid order by cnt DESC limit 0,10");
+
+	while ($result_set = db_fetch_object($res))
+	{
+		//echo $sql = "select nid,title,filepath from node inner join files on node.nid = files.fid  where node.nid = ".$result_set->nid;
+		$sql = "SELECT c.nid as nid, title, filepath
+					FROM content_type_collection c
+					INNER JOIN files ON c.field_image_fid = files.fid
+					INNER JOIN node ON node.nid = c.nid
+					WHERE node.nid= ".$result_set->nid;
+	
+		$sql_exec = db_query($sql);
+		$res_title = db_fetch_object($sql_exec);
+		$title1 = $res_title->title;
+		$path =  $res_title->filepath;
+		$nid_site =  $res_title->nid;
+		$expl_arr = explode("/",$path);
+		$val =  count($expl_arr);
+		
+		
+		
+		if($val == 7)
+		$file_name = $expl_arr[$val - 2]."/".$expl_arr[$val - 1];
+		else
+		$file_name = $expl_arr[$val - 1];
+
+		$sql_site = "select title,nid from node where nid in (select field_site_id_nid from content_type_collection where nid = ".$result_set->nid.")";
+		$sql_exec_site = db_query($sql_site);
+		$res_site_title = db_fetch_object($sql_exec_site);
+		$site_title = $res_site_title->title;
+		$node_id = $res_site_title->nid;
+		$path_nid = "node/".$node_id."?nid=".$node_id;
+
+
+		$nid_site = "node/".$nid_site;
+
+		$block_content .= "<div  class=\"record\">";
+		$block_content .= "<a href=\"$nid_site\">".theme_imagecache('colection', $path,$alt = '', $title = '', $attributes = NULL, $getsize = TRUE)."</a>";
+		$block_content .=	"<ul><li class=\"title\">";
+		$block_content .= "<a href=\"$nid_site\">";
+		$block_content .= $title1;
+		$block_content .= "</a></li>";
+		$block_content .= "<li class=\"collection\"><a href=\"$path_nid\">".$site_title."</a></li></ul>";
+		$block_content .= "</div>";
+
+}
+//$block_content = theme('imagecache','colection', '2010.0005.0001.jpg','sad','asdsad','');
+$block['subject'] = "Custom Block";
+$block['content'] = $block_content;
+return $block;
+}
+
+}
+

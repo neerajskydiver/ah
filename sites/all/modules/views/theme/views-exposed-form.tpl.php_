@@ -1,0 +1,127 @@
+<?php
+// $Id: views-exposed-form.tpl.php,v 1.4.4.1 2009/11/18 20:37:58 merlinofchaos Exp $
+/**
+ * @file views-exposed-form.tpl.php
+ *
+ * This template handles the layout of the views exposed filter form.
+ *
+ * Variables available:
+ * - $widgets: An array of exposed form widgets. Each widget contains:
+ * - $widget->label: The visible label to print. May be optional.
+ * - $widget->operator: The operator for the widget. May be optional.
+ * - $widget->widget: The widget itself.
+ * - $button: The submit button for the form.
+ *
+ * @ingroup views_templates
+ */
+?>
+<?php if (!empty($q)): ?>
+  <?php
+    // This ensures that, if clean URLs are off, the 'q' is added first so that
+    // it shows up first in the URL.
+    print $q;
+  ?>
+<?php endif; ?>
+<div class="views-exposed-form">
+
+
+<?php  if (arg(0)=="search" || arg(1) == 19044 || arg(1) == 19042 || arg(1) == 19043 || arg(1) == 19045)
+{
+
+	
+	if(arg(1) == 19042)
+	{
+		$site_name = "Gettysburg National Military Park";
+	}
+	if(arg(1) == 19043)
+	{
+		$site_name = "Sandy Spring Museum";
+	}
+	if(arg(1) == 19044)
+	{
+		$site_name = "USS Constellation Museum";
+	}
+	if(arg(1) == 19045)
+	{
+		$site_name = "Ah-Tah-Thi-Ki Museum";
+	}
+
+
+	if(arg(0)=="search" && (!(stripos($_SERVER['REQUEST_URI'],"?"))))
+	{
+	print "<p class=\"under_title\"><p>For the first time, many of America&rsquo;s leading museums are now  at your fingertips!<br>  The shocking fact is that 99% of America&rsquo;s historical  treasures are hidden.&nbsp; Museums display  only a tiny fraction of their holdings, and very few have put their collections  online.&nbsp; <br> <br> Our team works with museum staff to obtain internal data on their  historic collections and add them to the National Portal.&nbsp; <br> <br>  Whether you&rsquo;re a researcher, collector, or tourist, you&rsquo;ll  find thousands of historic photographs, paintings, letters, and artifacts here,  from ship models and swords to quilts and pottery.<br>   American Heritage&rsquo;s National Portal is growing rapidly, so  come back often!</p></p>";
+	print "<fieldset><legend>Search All Collections</legend>";
+	}
+	else
+	{
+		print "<fieldset><legend>Search $site_name</legend>";
+	
+	}
+	
+}	
+?>
+
+
+
+	
+  <div class="views-exposed-widgets">
+
+ <div class="views-exposed-widget" style="clear:left;">
+    <?php foreach($widgets as $id => $widget): ?>
+     
+        
+
+	<?php if (!empty($widget->label)): ?>
+        <div class="views-widget"  style="clear:left">  <lable for="<?php print $widget->id; ?>">
+            <?php print $widget->label; ?>
+          </lable></div>
+        <?php endif; ?>
+
+        <?php if (!empty($widget->operator)): ?>
+          <div class="views-operator">
+            <?php print $widget->operator; ?>
+          </div>
+        <?php endif; ?>
+        <div class="views-widget">
+          <?php print $widget->widget; ?>
+        </div>
+  
+
+
+    <?php endforeach; ?>
+
+
+<div style="float:left;">       <?php print $button ?></div>
+
+    </div> 
+
+
+<!-- Added by AKshar -->
+<?php if(arg(0)== "search")
+{
+?>
+	 <div id="additional_search">
+	<a href="#"> &raquo; Advanced</a>
+	<br/>
+	<a href="#"> &raquo; Tips</a>
+	</div>
+
+<?php
+}
+?>
+<!-- Added by Akshar -->
+
+
+<?php  if (arg(1)=="search")
+{
+ print "</fieldset>";
+
+}
+?>
+
+ </div>
+
+
+</div>
+
+

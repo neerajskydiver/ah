@@ -1,0 +1,278 @@
+<?php
+/**
+ * Implementation of hook_menu().
+ */
+function username_split_menu() {
+	$items['admin/settings/username-split'] = array(
+		'title'		=> 'Username Split',
+		'page callback'		=> 'split_username',
+		'access callback'	=> 'user_access',
+		'access arguments'	=> array('administer username split'),
+	);
+	return $items;
+}
+/**
+ * Implementation of hook_menu().
+ */
+function username_split_perm() {
+return array('administer username split');
+}
+
+
+
+
+//$authornote = $art->authornote;
+// Save information about user
+function split_username(){
+
+	$count = $_GET['count'];
+	$start = $_GET['start'];
+	if(empty($count) && empty($start)) {
+		echo " count  and  start are empty";
+	}
+
+
+//	echo "<table border='1' >";
+//	echo "<tr><th> full name </th><th> prefix </th><th> first name </th><th> middle name </th><th> last name </th> <th> suffix </th></tr>";
+    if(!empty($count) && !empty($start)) {
+
+		$sql = "SELECT uid,	name FROM {users} WHERE 1 limit ".$start." , ".$count." ";
+		$query = db_query($sql);
+		while ($results2 = db_fetch_object($query)) {
+		
+			$prefix_name = '';
+			$first_name = ''; 
+			$middle_name = '';
+			$last_name = ''; 
+			$suffix_name = '';
+		
+		
+		
+			if(!empty($results2->name)){
+				$flag_dr = 0;
+				$flag_jr = 0;
+				if(strpos(strtolower($results2->name),"dr.") !== FALSE){
+					$flag_dr = 1;						
+				}
+				if(strpos(strtolower($results2->name),"jr.") !== FALSE){
+					$flag_jr = 1;
+				}
+				$split_name_arr = explode(" ",$results2->name);
+				
+				$total_cnt = count($split_name_arr);
+
+
+/*
+				echo "<tr><td colspan=5>";
+					echo "<b>Full name :- ".$results2->name."<b> ";
+				echo "</td></tr>";
+*/
+
+
+				if($total_cnt == 1){
+				if($flag_dr == 1 && $flag_jr == 0 ){
+						$prefix_name 	= $split_name_arr[0];						
+					}
+				if($flag_dr == 0 && $flag_jr == 1 ){
+						$suffix_name 	= $split_name_arr[0];
+					}
+				if($flag_dr == 0 && $flag_jr == 0 ){
+						$first_name 	= $split_name_arr[0];
+					}					
+				}
+
+
+
+				if($total_cnt == 2){
+					
+					if($flag_dr == 1 && $flag_jr == 0 ){
+						$prefix_name 	= $split_name_arr[0];
+						$last_name 	= $split_name_arr[1];
+						}
+					if($flag_dr == 0 && $flag_jr == 1 ){
+						$last_name 	= $split_name_arr[0];
+						$suffix_name 	= $split_name_arr[1];
+						}			
+						
+					if($flag_dr == 1 && $flag_jr == 1 ){
+							$prefix_name 	= $split_name_arr[0];
+							$suffix_name 	= $split_name_arr[1];					
+						}					
+					if($flag_dr == 0 && $flag_jr == 0 ){
+							$first_name 	= $split_name_arr[0];
+							$last_name 	= $split_name_arr[1];
+						}																	
+				}			
+
+
+
+				if($total_cnt == 3){
+					if($flag_dr == 1 && $flag_jr == 0 ){
+							$prefix_name 	= $split_name_arr[0];
+							$first_name 	= $split_name_arr[1];
+							$last_name 	= $split_name_arr[2];
+					
+					}else if($flag_dr == 0 && $flag_jr == 1 ){
+							$first_name 	= $split_name_arr[0];
+							$last_name 	= $split_name_arr[1];
+							$suffix_name 	= $split_name_arr[2];
+				
+					}else if($flag_dr == 1 && $flag_jr == 1 ){
+							$prefix_name 	= $split_name_arr[0];
+							$first_name 	= $split_name_arr[1];
+							$suffix_name 	= $split_name_arr[2];
+				
+					}else if($flag_dr == 0 && $flag_jr == 0){									
+							$first_name 	= $split_name_arr[0];
+							$middle_name 	= $split_name_arr[1];
+							$last_name 	= $split_name_arr[2];
+					}
+				}		
+				
+
+
+				if($total_cnt == 4){
+					if($flag_dr == 1 && $flag_jr == 0 ){
+							$prefix_name 	= $split_name_arr[0];
+							$first_name 	= $split_name_arr[1];
+							$middle_name 	= $split_name_arr[2];
+							$last_name 	= $split_name_arr[3];
+					
+					}else if($flag_dr == 0 && $flag_jr == 1 ){
+							$first_name 	= $split_name_arr[0];
+							$middle_name 	= $split_name_arr[1];
+							$last_name 	= $split_name_arr[2];
+							$suffix_name 	= $split_name_arr[3];					
+					
+					}else if($flag_dr == 1 && $flag_jr == 1 ){
+							$prefix_name 	= $split_name_arr[0];
+							$first_name 	= $split_name_arr[1];
+							$last_name 	= $split_name_arr[2];
+							$suffix_name 	= $split_name_arr[3];					
+					
+					}else if($flag_dr == 0 && $flag_jr == 0){									
+							$first_name 	= $split_name_arr[0];
+							$middle_name 	= $split_name_arr[1];
+							$last_name 	= $split_name_arr[2]." ".$split_name_arr[3];
+					}
+				}						
+					
+				
+					
+
+				if($total_cnt == 5){
+					if($flag_dr == 1 && $flag_jr == 0 ){
+							$prefix_name 	= $split_name_arr[0];
+							$first_name 	= $split_name_arr[1];
+							$middle_name 	= $split_name_arr[2];
+							$last_name 	= $split_name_arr[3]. " ".$split_name_arr[4];
+					
+					}else if($flag_dr == 0 && $flag_jr == 1 ){
+							$first_name 	= $split_name_arr[0];
+							$middle_name 	= $split_name_arr[1];
+							$last_name 	= $split_name_arr[2]." ".$split_name_arr[3];
+							$suffix_name 	= $split_name_arr[4];					
+					
+					}else if($flag_dr == 1 && $flag_jr == 1 ){
+							$prefix_name 	= $split_name_arr[0];
+							$first_name 	= $split_name_arr[1];
+							$middle_name 	= $split_name_arr[2];						
+							$last_name 	= $split_name_arr[3];
+							$suffix_name 	= $split_name_arr[4];					
+					
+					}else if($flag_dr == 0 && $flag_jr == 0){									
+							$first_name 	= $split_name_arr[0];
+							$middle_name 	= $split_name_arr[1];
+							$last_name 	= $split_name_arr[2]." ".$split_name_arr[3]." ".$split_name_arr[4];
+					}
+				}						
+					
+					
+
+				if($total_cnt >= 6){
+				/*
+				echo "<tr><td colspan=5> ";
+					print_r($split_name_arr);
+				echo "</td> </tr>";				
+				*/
+					
+				/* ------------------- 
+					if($flag_dr == 1 && $flag_jr == 0 ){
+							$prefix_name 	= $split_name_arr[0];
+							$first_name 	= $split_name_arr[1];
+							$middle_name 	= $split_name_arr[2];
+							$last_name 	= $split_name_arr[3]. " ".$split_name_arr[4]. " ".$split_name_arr[5];				
+					}else if($flag_dr == 0 && $flag_jr == 1 ){
+							$first_name 	= $split_name_arr[0];
+							$middle_name 	= $split_name_arr[1];
+							$last_name 	= $split_name_arr[2]." ".$split_name_arr[3]. " ".$split_name_arr[4];
+							$suffix_name 	= $split_name_arr[5];					
+					
+					}else if($flag_dr == 1 && $flag_jr == 1 ){
+							$prefix_name 	= $split_name_arr[0];
+							$first_name 	= $split_name_arr[1];
+							$middle_name 	= $split_name_arr[2];						
+							$last_name 	= $split_name_arr[3]. " ".$split_name_arr[4];
+							$suffix_name 	= $split_name_arr[5];
+					}else if($flag_dr == 0 && $flag_jr == 0){									
+							$first_name 	= $split_name_arr[0];
+							$middle_name 	= $split_name_arr[1];
+							$last_name 	= $split_name_arr[2]." ".$split_name_arr[3]." ".$split_name_arr[4]. " ".$split_name_arr[5];
+					}
+					------------------- */
+				}						
+										
+					
+					$user_id_edit = $results2->uid;
+					if(empty($prefix_name)){	$prefix_name = '';	}else{	$prefix_name = ucwords(strtolower($prefix_name));	}
+					if(empty($first_name)){		$first_name = ''; 	}else{	$first_name = ucwords(strtolower($first_name));	}
+					if(empty($middle_name)){	$middle_name = ''; 	}else{	$middle_name = ucwords(strtolower($middle_name));	}
+					if(empty($last_name)){		$last_name = ''; 	}else{	$last_name = ucwords(strtolower($last_name));	}
+					if(empty($suffix_name)){	$suffix_name = ''; 	}else{	$suffix_name = ucwords(strtolower($suffix_name));	}
+
+					/*
+					echo "<tr>";
+					echo "<td>"; 	echo $results2->name; echo "</td>";
+					echo "<td>"; 	echo $prefix_name;	echo "</td>";
+					echo "<td>";	echo $first_name;	echo "</td>";
+					echo "<td>";	echo $middle_name;	echo "</td>";
+					echo "<td>";	echo $last_name;	echo "</td>";
+					echo "<td>";	echo $suffix_name;	echo "</td>";
+					echo "</tr>";
+						*/
+					set_user_bio($user_id_edit, $prefix_name, $first_name, $middle_name, $last_name, $suffix_name);
+					
+			}
+		}
+//		echo "</table>";		
+    }
+return "Great Drupal";	
+}
+
+
+/*	------------- Code commented till testing for name spliting is going on ---------- */
+
+function set_user_bio($user_id, $prefix_name, $firstname, $middlename, $lastname, $suffix_name) {
+	$user = user_load($user_id);
+	
+	$profile_authornote = $user->profile_authornote;
+
+	 $edit = array('profile_authornote' => $profile_authornote,
+				  'profile_prefix' => $prefix_name ,
+				  'profile_first_name' => $firstname,
+				  'profile_middle_name' => $middlename,
+				  'profile_last_name' => $lastname,
+				  'profile_suffix' => $suffix_name
+				  ); 
+//		echo "<pre>";	print_r($edit);	  echo "</pre>";
+			
+	profile_save_profile($edit, $user, 'Profile');
+	drupal_set_message($user->name." is updated. ");
+	$user = user_load($user_id);
+	//dsm($user);
+	echo "<pre>";	print_r($user);	  echo "</pre>";
+	
+}
+
+
+?>

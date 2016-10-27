@@ -1,0 +1,518 @@
+<?php
+
+/**
+ * @file
+ * Install file for Hose XML module.
+ *
+ * @ingroup hose_xml_core
+ * @{
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function hose_xml_install() {
+  drupal_install_schema('hose_xml');
+} // hose_xml_install
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function hose_xml_uninstall() {
+  drupal_uninstall_schema('hose_xml');
+  variable_del('hose_xml_content_types');
+  variable_del('hose_xml_handbook');
+} // hose_xml_uninstall
+
+/**
+ * Implementation of hook_schema().
+ */
+function hose_xml_schema() {
+  $schema['hose_xml_profiles'] = array(
+    'description' => t('Table containing Hose XML export profile information.'),
+    'fields' => array(
+      'pid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => t("User's {users}.uid."),
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '64',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'description' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'created' => array(
+        'description' => t('The Unix timestamp when the profile was created.'),
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => t('The Unix timestamp when the profile was most recently saved.'),
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'count' => array(
+        'description' => t('The number of times this profile has been used to export metadata.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'filename_tokens' => array(
+        'description' => t('A string containing tokens to insert in export filenames.'),
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'settings' => array(
+        'description' => t('If the profile needs to hold any extra settings, these are serialised here.'),
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',
+      ),
+    ),
+    'primary key' => array('pid'),
+  );
+  $schema['hose_xml_profile_association'] = array(
+    'description' => t('Table containing Hose XML profile node type associations.'),
+    'fields' => array(
+      'pid' => array(
+        'description' => t('Unique profile identifier.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'type' => array(
+        'description' => 'The {node_type}.type association for this profile.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('pid', 'type'),
+  );
+  $schema['hose_xml_profile_data'] = array(
+    'description' => t('Table containing all Hose XML profile data.'),
+    'fields' => array(
+      'pid' => array(
+        'description' => t('Unique profile identifier.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+       'default' => 0,
+      ),
+      'id' => array(
+        'description' => t('Unique field identifier.'),
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'did' => array(
+        'description' => t('Parent (Daddy) field id this item is an element of.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'title' => array(
+        'description' => t('The human readable title of this entry.'),
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'description' => array(
+        'description' => t('A full description from the handbook for this entry.'),
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',
+      ),
+      'cck_match' => array(
+        'description' => t('The CCK field to match against this entry.'),
+        'type' => 'varchar',
+        'length' => 64,
+        'default' => '',
+      ),
+      'tag' => array(
+        'description' => t('The XML tag for this entry.'),
+        'type' => 'varchar',
+        'length' => 64,
+        'default' => '',
+      ),
+      'type' => array(
+        'description' => t('Holds the tag type (text, numeric, etc) for validation.'),
+        'type' => 'varchar',
+        'length' => 64,
+        'default' => '',
+      ),
+      'defaults' => array(
+        'description' => t('Holds a static default value should the field not require input.'),
+        'type' => 'varchar',
+        'length' => 255,
+        'default' => '',
+      ),
+      'required' => array(
+        'description' => t('Boolean (true or false) to signify if this entry is a required setting.'),
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'relies_on' => array(
+        'description' => t('The CCK field this field relies on (if set).'),
+        'type' => 'varchar',
+        'length' => 64,
+        'default' => '',
+      ),
+      'attributes' => array(
+        'description' => t('Any attributes and values held for those attributes, these are stored here.'),
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',
+      ),
+      'settings' => array(
+        'description' => t('If the type needs to hold any extra settings, these are stored here.'),
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',
+      ),
+      'weight' => array(
+        'description' => 'Field weight',
+        'type' => 'int',
+        'unsigned' => FALSE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'cdata' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'pidid' => array('pid', 'id'),
+    ),
+  );
+  $schema['hose_xml_transcode_profiles'] = array(
+    'description' => t('Table containing Hose XML transcode profile information.'),
+    'fields' => array(
+      'pid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => t("User's {users}.uid."),
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '64',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'description' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'created' => array(
+        'description' => t('The Unix timestamp when the profile was created.'),
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => t('The Unix timestamp when the profile was most recently saved.'),
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'count' => array(
+        'description' => t('The number of times this profile has been used to export metadata.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'filename_tokens' => array(
+        'description' => t('A string containing tokens to insert in export filenames.'),
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('pid'),
+  );
+  $schema['hose_xml_transcode_profile_association'] = array(
+    'description' => t('Table containing Hose XML transcode profile node type associations.'),
+    'fields' => array(
+      'pid' => array(
+        'description' => t('Unique profile identifier.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+       'default' => 0,
+      ),
+      'type' => array(
+        'description' => 'The {node_type}.type association for this profile.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('pid', 'type'),
+  );
+  $schema['hose_xml_transcode_profile_data'] = array(
+    'description' => t('Table containing all Hose XML transcode profile data.'),
+    'fields' => array(
+      'pid' => array(
+        'description' => t('Unique profile identifier.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+       'default' => 0,
+      ),
+      'id' => array(
+        'description' => t('Unique field identifier.'),
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'did' => array(
+        'description' => t('Parent (Daddy) field id this item is an element of.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'title' => array(
+        'description' => t('The human readable title of this entry.'),
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'description' => array(
+        'description' => t('A full description from the handbook for this entry.'),
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',
+      ),
+      'cck_match' => array(
+        'description' => t('The CCK field to match against this entry.'),
+        'type' => 'varchar',
+        'length' => 64,
+        'default' => '',
+      ),
+      'tag' => array(
+        'description' => t('The XML tag for this entry.'),
+        'type' => 'varchar',
+        'length' => 64,
+        'default' => '',
+      ),
+      'type' => array(
+        'description' => t('Holds the tag type (text, numeric, etc) for validation.'),
+        'type' => 'varchar',
+        'length' => 64,
+        'default' => '',
+      ),
+      'defaults' => array(
+        'description' => t('Holds a static default value should the field not require input.'),
+        'type' => 'varchar',
+        'length' => 255,
+        'default' => '',
+      ),
+      'required' => array(
+        'description' => t('Boolean (true or false) to signify if this entry is a required setting.'),
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'attributes' => array(
+        'description' => t('Any attributes and values held for those attributes, these are stored here.'),
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',
+      ),
+      'settings' => array(
+        'description' => t('If the type needs to hold any extra settings, these are stored here.'),
+        'type' => 'text',
+        'not null' => FALSE,
+        'size' => 'big',
+      ),
+      'weight' => array(
+        'description' => 'Field weight',
+        'type' => 'int',
+        'unsigned' => FALSE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'cdata' => array(
+        'type' => 'int',
+        'size' => 'tiny',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'pidid' => array('pid', 'id'),
+    ),
+  );
+  $schema['hose_xml_buckets'] = array(
+    'description' => t('Table containing Hose XML Buckets (export profiles).'),
+    'fields' => array(
+      'bid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => t("User's {users}.uid."),
+      ),
+      'name' => array(
+        'type' => 'varchar',
+        'length' => '64',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'description' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'created' => array(
+        'description' => t('The Unix timestamp when the profile was created.'),
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => t('The Unix timestamp when the profile was most recently saved.'),
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'count' => array(
+        'description' => t('The number of times this profile has been used to export metadata.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'filename_tokens' => array(
+        'description' => t('A string containing tokens to insert in export filenames.'),
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array('bid'),
+  );
+  $schema['hose_xml_bucket_profiles'] = array(
+    'description' => t('Table containing Hose XML profiles contained in Buckets.'),
+    'fields' => array(
+      'bid' => array(
+        'description' => t('Unique Bucket identifier {hose_xml_buckets}.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+       'default' => 0,
+      ),
+      'pid' => array(
+        'description' => 'Unique (export) profile identifier {hose_xml_profiles}.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'weight' => array(
+        'description' => t('Profile weight'),
+        'type' => 'int',
+        'unsigned' => FALSE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('bid', 'pid'),
+    'indexes' => array(
+      'weight' => array('weight'),
+    ),
+  );
+
+  return $schema;
+} // hose_xml_schema
+
+/**
+ * Implementation of hook_requirements().
+ */
+function hose_xml_requirements($phase) {
+  $t = get_t();
+  $requirements = array();
+  if ($phase == 'runtime') {
+    if (!hose_xml_fetch_types()) {
+      $requirements['hose_xml']['title'] = $t('Hose XML');
+      $requirements['hose_xml']['value'] = $t('No Hose XML field modules enabled');
+      $requirements['hose_xml']['description'] = $t('You <strong>must</strong> install one of the Hose XML field type modules in order for the Hose XML module to function correctly. Please enable one or more of them on your <a href="@link">Drupal modules page</a>.', array('@link' => url('admin/build/modules')));
+      $requirements['hose_xml']['severity'] = REQUIREMENT_ERROR;
+    }
+  }
+  return $requirements;
+} // hose_xml_requirements
+
+/**
+ * Add settings field to profile table
+ */
+function hose_xml_update_6001() {
+	$spec = array(
+	  'description' => t('If the type needs to hold any extra settings, these are stored here.'),
+	  'type' => 'text',
+	  'not null' => FALSE,
+	  'size' => 'big',
+   );
+  $ret = array();
+	db_add_field($ret, 'hose_xml_profiles', 'settings', $spec);
+	return $ret;
+}
+
+/**
+ * @} End of "ingroup hose_xml_core".
+ */
+
+

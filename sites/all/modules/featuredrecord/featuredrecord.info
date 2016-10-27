@@ -1,0 +1,11 @@
+; $Id: featuredrecord.info,v 1.3 2008/02/24 17:01:07 toddy Exp $
+name = featuredrecord
+description = Displays Featured Record data
+core = 6.x
+package = American Heritage
+; Information added by drupal.org packaging script on 2010-12-16
+version = "6.x-5.18"
+core = "6.x"
+project = "featuredrecord"
+datestamp = "1292519148"
+

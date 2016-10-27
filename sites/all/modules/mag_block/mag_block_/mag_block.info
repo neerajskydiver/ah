@@ -1,0 +1,6 @@
+; $id$
+
+name = Magazine Block
+description =  Magazine Left sidebar.
+package = "American Heritage"
+core =  6.x

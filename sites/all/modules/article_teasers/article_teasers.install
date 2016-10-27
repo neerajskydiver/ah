@@ -1,0 +1,66 @@
+<?php
+// $Id: ah_xml.install,v 1.10.4.4 2009/06/17 15:03:07 njt1982 Exp $
+
+/**
+ * @file
+ * The install file for Page Title allows the module to install (and uninstall) itself. This is required as this module uses its own table.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function article_teasers_install() {
+  drupal_install_schema('article_teasers');
+}
+
+
+/**
+ * Implementation of hook_schema().
+ */
+function article_teasers_schema() {
+  $schema = array();
+$schema['article_teasers'] = array(
+  'description' => t('Keeps track of Current Article processed.'),
+  'fields' => array(
+    'id' => array(
+      'description' => t('Sr. no.'),
+      'type' => 'serial',
+      'not null' => TRUE,
+    ),
+    'latest_nid' => array(
+      'description' => t('Latest collection node nid'),
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+  ),
+  'primary key' => array('id'),
+);
+$schema['article_teasers_nids'] = array(
+    'description' => t('Keeps track of Articles processed.'),
+    'fields' => array(
+      'sid' => array(
+        'description' => t('Sr. no.'),
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'article_nid' => array(
+        'description' => t('Collection nid.'),
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('sid'),
+);
+  return $schema;
+}
+
+
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function article_teasers_uninstall() {
+  drupal_uninstall_schema('article_teasers');
+}

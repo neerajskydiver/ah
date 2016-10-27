@@ -1,0 +1,5 @@
+; $Id$
+name = Cron Magic
+description = The Module indexes entire data in one go
+core = 6.x
+package = Akshar  

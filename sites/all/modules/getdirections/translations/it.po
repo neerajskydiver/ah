@@ -1,0 +1,335 @@
+# $Id: it.po,v 1.1.2.1 2010/04/22 15:17:37 hutch Exp $
+#
+# Traduzione italiana di Enzo De Simone (hopfrog)
+# Copyright 2010 <info@hopfrog.it>
+# Generated from files:
+#  getdirections.admin.inc,v 1.6 2010-03-22 21:22:17 hutch
+#  getdirections.theme.inc,v 1.2 2010-03-21 19:04:04 hutch
+#  getdirections.module,v 1.8 2010-03-22 21:22:17 hutch
+#  getdirections.info,v 1.2.2.1 2010/03/18 20:41:17 hutch
+#  Get Directions = Indicazioni Stradali
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2010-03-22 23:13+0000\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: getdirections.admin.inc:22
+msgid "Use Googlemaps version 3"
+msgstr "Usa Googlemaps versione 3"
+
+#: getdirections.admin.inc:23
+msgid "Use version 3 of the Googlemaps API instead of version 2."
+msgstr "Usa Googlemaps versione 3 al posto della versione 2"
+
+#: getdirections.admin.inc:36
+msgid "Your Google Maps API key"
+msgstr "La tua Google Maps API key"
+
+#: getdirections.admin.inc:39
+msgid "Required for version 2 of the Googlemaps API."
+msgstr "Richiesto per la versione 2 di Googlemaps API"
+
+#: getdirections.admin.inc:45
+msgid "Get directions map settings"
+msgstr "Impostazione mappa Indicazioni Stradali"
+
+#: getdirections.admin.inc:52
+msgid "Your Google Maps API version"
+msgstr "La tua versione di Google Maps API"
+
+#: getdirections.admin.inc:54
+msgid "The Google Maps API version to use. Cen be a specific version number or '2' for Current, '2.x' for Latest or '2.s' for Stable."
+msgstr "La versione di Google Maps API da usare. Può essere una specifica versione o '2' per quella Corrente, '2.x' per la più recente o 2.s' per la Stabile"
+
+#: getdirections.admin.inc:61
+msgid "Default width"
+msgstr "Larghezza predefinita"
+
+#: getdirections.admin.inc:65
+msgid "The default width of a Google map, as a CSS length or percentage. Examples: <em>50px</em>, <em>5em</em>, <em>2.5in</em>, <em>95%</em>"
+msgstr "La larghezza predefinita di una Google map, espressa come misura CSS o in percentuale. Esempi: <em>50px</em>, <em>5em</em>, <em>2.5in</em>, <em>95%</em>"
+
+#: getdirections.admin.inc:69
+msgid "Default height"
+msgstr "Lunghezza predefinita"
+
+#: getdirections.admin.inc:73
+msgid "The default height of a Google map, as a CSS length or percentage. Examples: <em>50px</em>, <em>5em</em>, <em>2.5in</em>, <em>95%</em>"
+msgstr "La lunghezza predefinita di una Google map, espressa come misura CSS o in percentuale. Esempi: <em>50px</em>, <em>5em</em>, <em>2.5in</em>, <em>95%</em>"
+
+#: getdirections.admin.inc:77
+msgid "Map center"
+msgstr "Centro della mappa"
+
+#: getdirections.admin.inc:81
+msgid "The default center coordinates of Google map, expressed as a decimal latitude and longitude, separated by a comma."
+msgstr "Le coordinate predefinite della Google map, espresse in decimali, della latitudine e longitudine, separati da una virgola"
+
+#: getdirections.admin.inc:85
+msgid "Zoom"
+msgstr ""
+
+#: getdirections.admin.inc:88
+msgid "The default zoom level of a Google map."
+msgstr "Il livello predefinito dello zoom della Google map"
+
+#: getdirections.admin.inc:94;104;111;120;127
+msgid "None"
+msgstr "Nessuno"
+
+#: getdirections.admin.inc:95;105
+msgid "Micro"
+msgstr ""
+
+#: getdirections.admin.inc:96
+msgid "Micro 3D"
+msgstr ""
+
+#: getdirections.admin.inc:97;106;123
+msgid "Small"
+msgstr "Piccola"
+
+#: getdirections.admin.inc:98;107;124
+msgid "Large"
+msgstr "Grande"
+
+#: getdirections.admin.inc:99
+msgid "Large 3D"
+msgstr "Grande 3D"
+
+#: getdirections.admin.inc:112
+msgid "Standard (GMapTypeControl)"
+msgstr ""
+
+#: getdirections.admin.inc:113
+msgid "Hierarchical (GHierarchicalMapTypeControl)"
+msgstr "Gerarchica (GHierarchicalMapTypeControl)"
+
+#: getdirections.admin.inc:114
+msgid "Dropdown (GMenuMapTypeControl)"
+msgstr "A discesa (GMenuMapTypeControl)"
+
+#: getdirections.admin.inc:121
+msgid "Default"
+msgstr "Predefinita"
+
+#: getdirections.admin.inc:122
+msgid "Android"
+msgstr ""
+
+#: getdirections.admin.inc:128
+msgid "Horizontal bar"
+msgstr "Barra orizzontale"
+
+#: getdirections.admin.inc:129
+msgid "Dropdown"
+msgstr "A discesa"
+
+#: getdirections.admin.inc:134
+msgid "Control type"
+msgstr "Tipo di controllo"
+
+#: getdirections.admin.inc:141
+msgid "Map Type Control selection"
+msgstr "Scegli tipo di controllo della mappa"
+
+#: getdirections.admin.inc:164;184
+msgid "Default map type"
+msgstr "Tipo di mappa predefinito"
+
+#: getdirections.admin.inc:187;195
+msgid "Standard street map"
+msgstr ""
+
+#: getdirections.admin.inc:188;203
+msgid "Standard satellite map"
+msgstr ""
+
+#: getdirections.admin.inc:189;210
+msgid "Hybrid satellite map"
+msgstr ""
+
+#: getdirections.admin.inc:190;217
+msgid "Terrain map"
+msgstr ""
+
+#: getdirections.admin.inc:196
+msgid "The standard default street map."
+msgstr ""
+
+#: getdirections.admin.inc:199
+msgid "Enable map types"
+msgstr "Abilita tipi di mappe"
+
+#: getdirections.admin.inc:204
+msgid "Satellite view without street overlay."
+msgstr "Veduta satellitare senza sovrapposizione della strada"
+
+#: getdirections.admin.inc:211
+msgid "Satellite view with street overlay."
+msgstr "Veduta satellitare con sovrapposizione della strada"
+
+#: getdirections.admin.inc:218
+msgid "Map with physical data (terrain, vegetation.)"
+msgstr "Mappa con i dati fisici (terreno, vegetazione)."
+
+#: getdirections.admin.inc:225
+msgid "Default distance units"
+msgstr "Unità di misura predefinita"
+
+#: getdirections.admin.inc:226
+msgid "Units to display distances in. 'Automatic' uses the country of origin."
+msgstr "Unità da mostrare. 'Automatico' usea quelle del paese di origine."
+
+#: getdirections.admin.inc:229
+msgid "Automatic"
+msgstr "Automatico"
+
+#: getdirections.admin.inc:230
+msgid "Metric"
+msgstr "Metrico"
+
+#: getdirections.admin.inc:231
+msgid "Imperial"
+msgstr "Imperiale"
+
+#: getdirections.admin.inc:238
+msgid "Scale"
+msgstr "Scala"
+
+#: getdirections.admin.inc:239
+msgid "Show scale"
+msgstr "Mostra scala"
+
+#: getdirections.admin.inc:247
+msgid "Overview map"
+msgstr "Sovrascrivi la mappa"
+
+#: getdirections.admin.inc:248
+msgid "Show overview map"
+msgstr "Mostra la mappa sovrascritta"
+
+#: getdirections.admin.inc:256
+msgid "Scrollwheel"
+msgstr "Rotella"
+
+#: getdirections.admin.inc:257
+msgid "Enable scrollwheel zooming"
+msgstr "Abilita lo zoom con la rotella"
+
+#: getdirections.admin.inc:264
+msgid "Draggable"
+msgstr "Trascinabili"
+
+#: getdirections.admin.inc:265
+msgid "Enable dragging on the map"
+msgstr "Abilita il trascinamento sulla mappa"
+
+#: getdirections.admin.inc:272
+msgid "Show travel mode"
+msgstr "Mostra modalità di viaggio"
+
+#: getdirections.admin.inc:273
+msgid "Enable travel mode selector."
+msgstr "Abilita sellettore modalità di viaggio"
+
+#: getdirections.admin.inc:279
+msgid "Show travel extras"
+msgstr "Mostra wxtra di viaggio"
+
+#: getdirections.admin.inc:280
+msgid "Enable travel extras checkboxes."
+msgstr "Abilita checkboxes degli Extra di viaggio."
+
+#: getdirections.admin.inc:288
+msgid "Width of From box"
+msgstr "Larghezza della casella Da"
+
+#: getdirections.admin.inc:291
+msgid "The width of the Get directions 'From' box."
+msgstr "La larghezza della casella 'Da' di Indicazioni Stradali"
+
+#: getdirections.admin.inc:295
+msgid "Width of To box"
+msgstr "Larghezza della casella A"
+
+#: getdirections.admin.inc:298
+msgid "The width of the Get directions 'To' box."
+msgstr "La larghezza della casella 'A' di Indicazioni Stradali"
+
+#: getdirections.theme.inc:78;109 getdirections.module:277
+msgid "From"
+msgstr "Da"
+
+#: getdirections.theme.inc:79;112 getdirections.module:309
+msgid "To"
+msgstr "A"
+
+#: getdirections.theme.inc:115
+msgid "Via"
+msgstr ""
+
+#: getdirections.module:16
+msgid "Fetches google map directions."
+msgstr "Recupera le direzioni della mappa di Google."
+
+#: getdirections.module:142;186;224;374 getdirections.info:0
+msgid "Get Directions"
+msgstr "Indicazioni Stradali"
+
+#: getdirections.module:286
+msgid "Starting from"
+msgstr "Partendo da"
+
+#: getdirections.module:289
+msgid "Enter the address, postcode and/or city from where you want to start your journey."
+msgstr "Inserisci l'indirizzo, il CAP e/o la città da dove vuoi partire"
+
+#: getdirections.module:294;326
+msgid "Country"
+msgstr "Paese"
+
+#: getdirections.module:318
+msgid "Destination"
+msgstr "Destinazione"
+
+#: getdirections.module:321
+msgid "Enter the address, postcode and/or city of your journey destination."
+msgstr "Entra l'indirizzo, il CAP e/o la città della tua destinazione"
+
+#: getdirections.module:342
+msgid "Travel mode"
+msgstr "Modalità viaggio"
+
+#: getdirections.module:356
+msgid "Travel options"
+msgstr "Opzioni viaggio"
+
+#: getdirections.module:34
+msgid "access gmap getdirections"
+msgstr "accesso gmap Indicazioni Stradali"
+
+#: getdirections.module:43;52;59;66;73
+msgid "Get directions"
+msgstr "Indicazioni Stradali"
+
+#: getdirections.module:44
+msgid "Configure Get directions"
+msgstr "Configura Indicazioni Stradali"
+
+#: getdirections.info:0
+msgid "Fetches Google map directions."
+msgstr "Recupera le direzioni della Google map"
+
+#: getdirections.info:0
+msgid "Other"
+msgstr "Altro"
+

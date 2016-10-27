@@ -1,0 +1,157 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Main module file for hose_xml PHP Filter module.
+ */
+
+/**
+ * @defgroup hose_xml_php_filter PHP Filter
+ * @{
+ * Allows an admin to alter XML output (for export and validation).
+ */
+
+//----------------------------------------------------------------------------
+// Drupal core hooks.
+
+/**
+ * Implementation of hook_form_alter().
+ * 
+ * @see hose_xml_php_filter_form_hose_xml_ui_profile_edit_submit()
+ */
+function hose_xml_php_filter_form_alter(&$form, $form_state, $form_id) {
+  if (preg_match("/^hose_xml_ui_profile_(add|edit|clone)$/", $form_id)) {
+    $form['hose_xml_php_filter'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('PHP Filter'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#weight' => 0,
+    );
+    $form['hose_xml_php_filter']['hose_xml_php_filter_state'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Use "PHP Filter" functionality with this profile'),
+      '#default_value' => _hose_xml_php_filter_pid_exists($form['pid']['#value']),
+    );
+    $form['#submit'][] = 'hose_xml_php_filter_form_hose_xml_ui_profile_edit_submit';
+  }
+} // hose_xml_php_filter_form_alter
+
+//----------------------------------------------------------------------------
+// Form callbacks.
+
+/**
+ * Submit callback for hose_xml_php_filter_form_hose_xml_ui_profile_edit_alter form.
+ * 
+ * @param $form
+ *   Drupal form array.
+ * @param $form_state
+ *   Drupal form state array.
+ * 
+ * @see hose_xml_php_filter_form_alter()
+ */
+function hose_xml_php_filter_form_hose_xml_ui_profile_edit_submit($form, &$form_state) {
+  $form_values = $form_state['values'];
+  // If STATE is checked and the db doesn't already have an entry;
+  if ($form_values['hose_xml_php_filter_state'] && !_hose_xml_php_filter_pid_exists($form_values['pid'])) {
+    //  ...Create one
+    db_query("INSERT INTO {hose_xml_php_filter} (pid) VALUES (%d)", $form_values['pid']);
+  }
+  // Else if STATE is unchecked AND the row EXISTS - delete it
+  elseif (!$form_values['hose_xml_php_filter_state'] && _hose_xml_php_filter_pid_exists($form_values['pid'])) {
+    db_query("DELETE FROM {hose_xml_php_filter} WHERE pid = %d", $form_values['pid']);
+  }
+} // hose_xml_php_filter_form_hose_xml_ui_profile_edit_submit
+
+//----------------------------------------------------------------------------
+// hose_xml hooks.
+
+/**
+ * Implementation of hook_hose_xml_global_hose_xml_settings_alter().
+ */
+function hose_xml_php_filter_hose_xml_global_hose_xml_settings_alter(&$settings, $profile) {
+  // Only show the setting if we've enabled it for this profile
+  if (_hose_xml_php_filter_pid_exists($profile->pid)) {
+    $settings['hose_xml_php_filter'] = array(
+      'type' => 'textarea',
+      'title' => t('PHP Filter'),
+      'description' => t('EXPORT: The variables available to your code are: &$text, $node, and 
+      $profile. Set $text to set the value of the field; here\'s a simple example which sets the 
+      field\'s value to the value of the sum of the number fields field_a and field_b: 
+      $text = $node->field_a[0][\'value\'] + $node->field_b[0][\'value\'];.<br \>
+      IMPORT: The variables available to your code are 
+      <ul><li>&$current item - the XML being imported as an array - see xml2array()</li>
+      <li>&$node - Hose XML import writes straight to the node so you may want to alter field 
+      values directly</li>
+      <li>$value_by_path - the part of the imported XML array we are dealing with in this element</li>
+      <li>$item_profile - the part of the Hose XML profile for this element</li></ul>'),
+    );
+  }
+} // hose_xml_php_filter_hose_xml_global_hose_xml_settings_alter
+
+/**
+ * Implementation of hook_hose_xml_mince_export_text().
+ * 
+ * TODO:  Should $error be in here?  Doesn't that mean it is available to the filter?  
+ */
+function hose_xml_php_filter_hose_xml_mince_export_text_alter(&$error, &$text, $profile, $node) {
+  if (_hose_xml_php_filter_pid_exists($profile->pid)) {
+    $conf = unserialize($profile->settings);
+    if (!empty($conf['hose_xml_php_filter'])) {
+      ob_start();
+      eval($conf['hose_xml_php_filter']);
+      ob_end_clean();
+    }
+  }
+} // hose_xml_php_filter_hose_xml_mince_export_text_alter
+
+/**
+ * This function allows PHP filter to process the PHP code to alter the import of a particular tag
+ * or attribute in a Hose XML import
+ * 
+ * @TODO: This badly needs refactoring - Hose import was not designed with altering in mind so the
+ * parameters passed in here are potentially very confusing.  Furthermore the ability of profiles to
+ * be import and export makes this even more fragile.  :-\
+ * 
+ * 
+ * @param unknown_type $current_item
+ * @param unknown_type $node
+ * @param unknown_type $value_by_path
+ * @param unknown_type $item_profile
+ */
+function hose_xml_php_filter_hose_xml_import_alter(&$current_item, &$node, $value_by_path, $item_profile) {
+  if (_hose_xml_php_filter_pid_exists($item_profile->pid)) {
+    if (!empty($item_profile->settings['hose_xml_php_filter'])) {
+      ob_start();
+      eval($item_profile->settings['hose_xml_php_filter']);
+      ob_end_clean();
+    }
+  }
+  
+}
+//----------------------------------------------------------------------------
+// Private functions.
+
+/**
+ * Checks the specified pid is enabled to work with this module.
+ * 
+ * @param $pid
+ *   Export profile id.
+ * @param $reset
+ *   Boolean flag representing whether to reset the static variable or not.
+ * 
+ * @return
+ *   TRUE if the profile is utilising this module, FALSE is it isn't.
+ */
+function _hose_xml_php_filter_pid_exists($pid, $reset = FALSE) {
+  static $exists;
+  if (!isset($exists[$pid]) || $reset) {
+    $exists[$pid] = db_result(db_query("SELECT TRUE FROM {hose_xml_php_filter} WHERE pid = %d", $pid));
+  }
+  return $exists[$pid];
+} // _hose_xml_php_filter_pid_exists
+
+/**
+ * @} End of "defgroup hose_xml_php_filter".
+ */

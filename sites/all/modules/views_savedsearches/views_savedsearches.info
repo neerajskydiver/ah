@@ -1,0 +1,12 @@
+; $Id: views_savedsearches.info,v 1.2 2009/01/27 03:59:07 quicksketch Exp $
+name = Saved searches
+description = Allows users to save their current configuration of exposed filters for later use.
+dependencies[] = views
+package = Views
+core = 6.x
+; Information added by drupal.org packaging script on 2010-01-18
+version = "6.x-1.0-beta3"
+core = "6.x"
+project = "views_savedsearches"
+datestamp = "1263825607"
+

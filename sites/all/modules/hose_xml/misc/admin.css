@@ -1,0 +1,94 @@
+
+#hose_xml-operations, .hose_xml-operations-view, .hose_xml-operations-edit, .hose_xml-operations-delete {
+  text-align: center;
+}
+
+#hose_xml-operations-new {
+  margin-top: 1em;
+}
+#hose_xml-operations-new a {
+  margin-right: 1em;
+  display: block;
+  float: left;
+}
+
+#hose_xml-profile-table {
+  margin-top: 1em;
+  width: 100%;
+}
+
+#hose_xml-profile-table th, td {
+  padding: 0.3em;
+}
+
+#hose_xml-view-table {
+  margin-top: 1em;
+}
+
+#hose_xml-view-table caption {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 1em;
+}
+
+#hose_xml-view-table th, td {
+  padding: 0.3em;
+}
+
+#hose_xml-view-table tr td {
+  color: #333333;
+}
+
+#hose_xml-view-table tr {
+  background-color: #eeeeee;
+}
+#hose_xml-view-table tr.hose_xml-required {
+  background-color: #ffeeee;
+}
+
+#hose_xml-view-table tr.hose_xml-required a.hose_xml-tooltip,
+#hose_xml-view-table tr.hose_xml-required td {
+  color: #660000;
+}
+
+a.hose_xml-tooltip span {
+	 display: none;
+}
+
+a.hose_xml-tooltip {
+	 border-bottom: 1px dashed #333333;
+	 text-decoration: none;
+}
+
+a.hose_xml-tooltip:hover {
+ 	position: relative;
+  text-decoration: none;
+}
+
+a.hose_xml-tooltip:hover span {
+	 display: block;
+  position: absolute;
+  top: 10px;
+  left: 0;
+  padding: 5px;
+  margin: 10px;
+  z-index: 100;
+  background: #f0f0f0;
+  border: 1px dotted #c0c0c0;
+  width: 500px;
+/*	 opacity: 0.9;*/
+}
+#hose_xml-export-xml-container,
+#hose_xml-export-csv-container {
+  float: left;
+  clear: left;
+}
+
+#hose_xml-import-import {
+  padding-top: 50px;
+  padding-left: 15px;
+}
+
+#hose_xml-import-import p {
+  padding-top: 15px;
+}

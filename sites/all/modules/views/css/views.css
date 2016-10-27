@@ -1,0 +1,170 @@
+/* $Id: views.css,v 1.11.4.2 2010/03/12 00:25:37 merlinofchaos Exp $ */
+.views-exposed-form .views-exposed-widget {
+  float: left; /* LTR */
+  /*padding: .5em 1em 0 0;  LTR 
+height:30px;*/
+width:100%;
+}
+
+label.edit-keys
+{
+background-color:red;
+}
+
+.views-exposed-form .views-exposed-widget .form-submit {
+/*  margin-top: 0.9em;*/
+}
+
+
+.views-exposed-form .form-item,
+.views-exposed-form .form-submit {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.views-exposed-form label {
+  font-weight: bold;
+}
+
+.views-exposed-widgets {
+ /* margin-bottom: .5em;*/
+}
+
+html.js a.views-throbbing,
+html.js span.views-throbbing {
+  background:url(../images/status-active.gif) no-repeat right center;
+  padding-right:18px;
+}
+
+/* administrative hover links */
+
+div.view div.views-admin-links {
+  font-size: xx-small;
+  margin-right: 1em;
+  margin-top: 1em;
+/*  width: 95%; */
+}
+
+.block div.view div.views-admin-links {
+  margin-top: 0;
+}
+
+div.view div.views-admin-links ul {
+  padding-left: 0;
+}
+
+div.view div.views-admin-links li a {
+  color: #ccc;
+}
+
+div.view div.views-admin-links li {
+  padding-bottom: 2px;
+  z-index: 201;
+}
+
+div.view div.views-admin-links-hover a,
+div.view div.views-admin-links:hover a {
+  color: #000;
+}
+
+div.view div.views-admin-links-hover,
+div.view div.views-admin-links:hover {
+  background: transparent;;
+}
+
+div.view div.views-admin-links a:before {
+  content: "[";
+}
+
+div.view div.views-admin-links a:after {
+  content: "]";
+}
+
+div.view div.views-hide {
+  display: none;
+}
+
+/** For IE we add the class via js; for other browsers we rely on :hover **/
+div.view div.views-hide-hover,
+div.view:hover div.views-hide {
+  display: block;
+  position: absolute;
+  z-index: 200;
+}
+
+/* don't do this one in IE */
+div.view:hover div.views-hide {
+  margin-top: -1.5em;
+}
+
+/* Remove the border on tbody that system puts in */
+.views-view-grid tbody {
+  border-top: none;
+}
+
+.field-content { 
+  margin-bottom: 5px;
+  font-weight: 100;
+font-size:100%;	
+}
+
+.field-content a {/*text-decoration: underline;font-size:110%;*/ /* removed to match the wireframe css - 20- jan-2011 Amit*/}
+
+.view-content .views-view-grid  .views-field-title  .field-content a {text-transform: capitalize;  text-decoration: underline; font-size:135%;}
+
+.field-content a:hover {/*text-decoration: underline; font-size:110%;*/ /* removed to match the wireframe css - 20- jan-2011 Amit*/}
+
+.field-content-body {
+/*text-transform: normal; no such propoerty exists  13th april 2011-  */
+font-size:100%;
+text-transform:none;
+}
+
+.bef-checkboxes{
+width:500px;
+*width:500px;
+line-height:28px;
+}
+
+/*for search pages*/
+
+.views-widget {
+float:left;
+line-height:16px;
+_line-height:16px;
+*line-height:16px;
+
+}
+
+.views-label-body
+{
+float:left;}
+
+.views-label-field-date-value
+{
+font-weight:900;
+}
+
+.views-view-grid td {
+border-bottom:1px solid #424542;
+padding:4px;
+}
+
+.views-field-field-date-value
+{
+/*float:left;*/
+padding-right:5px;
+line-height:18px;
+}
+
+
+.blog-inline p{
+
+margin:0;
+padding:0;
+}
+
+.center-wrapper {
+clear:both;
+float:left;
+}

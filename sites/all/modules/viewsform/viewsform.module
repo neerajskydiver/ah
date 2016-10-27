@@ -1,0 +1,32 @@
+<?php
+// $Id$
+function viewsform_form_alter(&$form, &$form_state, $form_id) {
+
+ $nid=$_GET['nid'];
+ $replace_nid= arg(1);
+ global $base_url;
+ $base=$base_url;
+ 
+ switch ($form_id) {
+    case 'views_exposed_form':
+   
+	if ($form['#id'] == 'views-exposed-form-Search-landing-page-page-1') 
+	{
+     if ($nid==''){$form['nid']['#value']	= $replace_nid;}
+	 $path=$base.'/search-landing-page?keys=&field_institution_value=&nid='.$nid; 
+	 $form['filters']['keys']['id']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Browse Collection'),
+    '#weight' => 2,
+	'#prefix' =>	'<div id = "browse_collection">',
+	'#suffix' =>	'</div>',
+    );
+
+    $form['#action'] = url($path);
+
+	  break;	
+    }
+ }
+	
+
+}

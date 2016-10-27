@@ -1,0 +1,5 @@
+; $Id$
+name = Deletes Imported Data
+description = The Module Deletes Imported Data
+core = 6.x
+package = Delete Data  

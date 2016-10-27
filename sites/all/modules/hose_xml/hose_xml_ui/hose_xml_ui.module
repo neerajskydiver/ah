@@ -1,0 +1,355 @@
+<?php
+
+/**
+ * @file
+ * Administration UI module file for Hose XML module.
+ */
+
+/**
+ * @defgroup hose_xml_ui_mod Export Profile Management
+ * @{
+ * Allows users to manage creating, editing, deleting export profiles and
+ * complete management of the contents of those profiles.
+ */
+
+//----------------------------------------------------------------------------
+// Drupal core hooks.
+
+/**
+ * Implementation of hook_help().
+ */
+function hose_xml_ui_help($path, $arg) {
+  switch ($path) {
+    case "hose_xml/profiles/%/add":
+      return t('Some help will also go in here eventually...');
+    case "hose_xml/profiles/clone/%":
+      return t('Help for cloning...');
+    case "hose_xml/profiles/%/edit/%":
+      return t('Help for editing...');
+    case "hose_xml/profiles/%/import":
+      return t('Help for importing...');
+  }
+} // hose_xml_ui_help
+
+/**
+ * Implementation of hook_menu().
+ */
+function hose_xml_ui_menu() {
+  // Set up a common base to avoid code repetition
+  $base_profile = array(
+    'page callback' => 'drupal_get_form',
+    'access arguments' => array('administrate XML profiles'),
+    'file' => 'includes/profile.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $base_fields = array(
+    'page callback' => 'drupal_get_form',
+    'access arguments' => array('administrate XML profiles'),
+    'file' => 'includes/fields.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  // Admin Tabs
+  $items['admin/settings/hose_xml/profiles'] = array(
+    'title' => 'XML Profiles',
+    'description' => 'Manage your Hose XML profiles.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('hose_xml_ui_settings_profiles'),
+    'access arguments' => array('administrate XML profiles'),
+    'file' => 'includes/admin.inc',
+    'weight' => 2,
+    'type' => MENU_LOCAL_TASK,
+  );
+  // Profile Management related
+  $items['hose_xml/profiles/add'] = array(
+    'page arguments' => array('hose_xml_ui_profile_add'),
+    'page callback' => 'drupal_get_form',
+    'access arguments' => array('create export profiles'),
+    'file' => 'includes/profile.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['hose_xml/profiles/edit/%hose_xml_profile'] = array(
+    'page arguments' => array('hose_xml_ui_profile_edit', 3),
+  ) + $base_profile;
+  $items['hose_xml/profiles/delete/%hose_xml_profile'] = array(
+    'page arguments' => array('hose_xml_ui_profile_delete', 3),
+  ) + $base_profile;
+  $items['hose_xml/profiles/clone/%hose_xml_profile'] = array(
+    'page arguments' => array('hose_xml_ui_profile_clone', 3),
+  ) + $base_profile;
+  // Profile related
+  $items['hose_xml/profiles/%hose_xml_profile/view'] = array(
+    'title callback' => 'hose_xml_ui_title',
+    'title arguments' => array('view', 2),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('hose_xml_ui_profile_view', 2),
+    'access arguments' => array('administrate XML profiles'),
+    'file' => 'includes/admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['hose_xml/profiles/%hose_xml_profile/add'] = array(
+    'page arguments' => array('hose_xml_ui_profile_manage_add', 2),
+  ) + $base_fields;
+  $items['hose_xml/profiles/%hose_xml_profile/wizard'] = array(
+    'title' => 'Hose XML Profile Wizard',
+    'page arguments' => array('hose_xml_ui_profile_manage_wizard', 2),
+  ) + $base_fields;
+  if (module_exists('pimport')) {
+    $items['hose_xml/profiles/%hose_xml_profile/export'] = array(
+      'title callback' => 'hose_xml_ui_title',
+      'title arguments' => array('export', 2),
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('hose_xml_ui_profile_manage_export', 2),
+      'access arguments' => array('administrate XML profiles'),
+      'file' => 'includes/export.inc',
+      'type' => MENU_CALLBACK,
+    );
+  }
+  $items['hose_xml/profiles/%hose_xml_profile/import'] = array(
+    'title callback' => 'hose_xml_ui_title',
+    'title arguments' => array('import', 2),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('hose_xml_ui_profile_manage_import', 2),
+    'access arguments' => array('administrate XML profiles'),
+    'file' => 'includes/import.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['hose_xml/profiles/%hose_xml_profile/edit/%hose_xml_profile_entry'] = array(
+    'page arguments' => array('hose_xml_ui_profile_manage_edit', 2, 4),
+  ) + $base_fields;
+  $items['hose_xml/profiles/%hose_xml_profile/delete/%hose_xml_profile_entry'] = array(
+    'page arguments' => array('hose_xml_ui_profile_manage_delete', 2, 4),
+  ) + $base_fields;
+  // ahah callbacks
+  $items['hose_xml/profiles/settings/ahah'] = array(
+    'page callback' => 'hose_xml_ui_settings_ahah',
+    'access arguments' => array('administrate XML profiles'),
+    'file' => 'includes/ahah.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['hose_xml/profiles/relies_on/ahah'] = array(
+    'page callback' => 'hose_xml_ui_relies_on_ahah',
+    'access arguments' => array('administrate XML profiles'),
+    'file' => 'includes/ahah.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['hose_xml/profiles/attributes/ahah'] = array(
+    'page callback' => 'hose_xml_ui_profile_attributes_ahah',
+    'access arguments' => array('administrate XML profiles'),
+    'file' => 'includes/ahah.inc',
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+} // hose_xml_ui_menu
+
+/**
+ * Implementation of hook_perm().
+ */
+function hose_xml_ui_perm() {
+  return array(
+    'administrate XML profiles',
+    'create export profiles',
+  );
+} // hose_xml_ui_perm
+
+/**
+ * Implementation of hook_theme().
+ */
+function hose_xml_ui_theme() {
+  return array(
+    'hose_xml_ui_profiles' => array(
+      'file' => 'includes/theme.inc',
+    ),
+    'hose_xml_ui_settings_profiles' => array(
+      'arguments' => array('form'),
+      'file' => 'includes/theme.inc',
+    ),
+    'hose_xml_ui_profile_view' => array(
+      'arguments' => array('form'),
+      'file' => 'includes/theme.inc',
+    ),
+    'hose_xml_ui_profile_config' => array(
+      'arguments' => array('profile', 'config'),
+      'file' => 'includes/theme.inc',
+    ),
+    'hose_xml_ui_ahah_form' => array(
+      'arguments' => array('form'),
+      'file' => 'includes/theme.inc',
+    ),
+  );
+} // hose_xml_ui_theme
+
+/**
+ * Implementation of hook_user().
+ */
+function hose_xml_ui_user($op, &$edit, &$account, $category = NULL) {
+  switch ($op) {
+    case 'form':
+      if (!($category == 'account')) {
+        break;
+      }
+    case 'register':
+      $form['hose_xml_ui'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Export Defaults'),
+        '#description' => t('Optional - choose a default which will be automatically selected on export pages.'),
+        '#collapsible' => TRUE,
+        '#collapsed' => FALSE,
+        '#weight' => 1,
+      );
+      $form['hose_xml_ui']['hose_xml_ui_default_profile'] = array(
+        '#type' => 'select',
+        '#title' => t('Default Export Profile'),
+        '#description' => t("Choose which profile will be selected as default for exports."),
+        '#options' => array(NULL => t('-- None --')) + hose_xml_fetch_profiles('names'),
+        '#default_value' => $account->hose_xml_ui_default_profile,
+      );
+      return $form;
+    case 'view':
+      if ($account->uid == 1 || user_access('administrate XML profiles')) {
+        if ($account->hose_xml_ui_default_profile) {
+          $account->content['summary']['hose_xml_ui_default_profile'] = array(
+            '#type' => 'user_profile_item',
+            '#title' => t('Default Export Profile:'),
+            '#value' => hose_xml_ui_fetch_profile_name($account->hose_xml_ui_default_profile),
+          );
+        }
+      }
+  }
+} // hose_xml_ui_user
+
+//----------------------------------------------------------------------------
+// Menu loader functions.
+
+function hose_xml_profile_entry_load($id) {
+  // @TODO This perhaps doesn't work as expected as both pid WITH id need to be checked??
+  // That's possibly not true as id is unique for certain tables, *MUST* check this out later...
+  return db_fetch_object(db_query("SELECT * FROM {hose_xml_profile_data} WHERE id = %d", $id));
+} // hose_xml_ui_profile_entry_load
+
+//----------------------------------------------------------------------------
+// Title callbacks for menu hook.
+
+/**
+ * Custom title callback for use with the menu hook.
+ */
+function hose_xml_ui_title($page, $profile) {
+  switch ($page) {
+    case 'view':
+      return t("Viewing profile '@profile':", array('@profile' => $profile->name));
+    case 'import':
+      return t("Import into profile '@profile'", array('@profile' => $profile->name));
+  }
+} // hose_xml_ui_title
+
+//----------------------------------------------------------------------------
+// Hose XML hooks.
+
+/**
+ * Implementation of hook_hose_xml_settings().
+ */
+function hose_xml_ui_hose_xml_settings() {
+  $form['hose_xml_ui'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Export Settings'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#group' => 'additional_settings',
+  );
+  $form['hose_xml_ui']['hose_xml_ui_default_profile'] = array(
+    '#type' => 'select',
+    '#title' => t('Default Profile'),
+    '#description' => t("If it's not set per user, choose which profile will be selected as default."),
+    '#options' => array(NULL => t('-- None --')) + hose_xml_fetch_profiles('names'),
+    '#default_value' => variable_get('hose_xml_ui_default_profile', NULL),
+  );
+  $form['hose_xml_ui']['hose_xml_ui_use_icons'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use icons'),
+    '#description' => t("Check to use icons instead of text on the export profile viewing screen."),
+    '#default_value' => variable_get('hose_xml_ui_use_icons', FALSE),
+  );
+  return $form;
+} // hose_xml_ui_hose_xml_settings
+
+//----------------------------------------------------------------------------
+// Private functions.
+
+/**
+ * Returns name of profile from (unique) profile id.
+ *
+ * @param $pid
+ *   Numeric identifier representing profile in table {hose_xml_profiles}
+ * 
+ * @return
+ *   Check plained string containing profile name
+ */
+function hose_xml_ui_fetch_profile_name($pid) {
+  return db_result(db_query("SELECT name FROM {hose_xml_profiles} WHERE pid = %d", $pid));
+} // hose_xml_ui_fetch_profile_name
+
+/**
+ * Returns (translatable text) "TRUE" if boolean true, else "FALSE" if boolean false.
+ */
+function hose_xml_ui_print_boolean($bool) {
+  if ($bool) {
+    return "TRUE";
+  }
+  return "FALSE";
+} // hose_xml_ui_print_boolean
+
+/**
+ * Returns an array of options for the 'Required' field (present to
+ * avoid repetition of translatable strings).
+ */
+function _hose_xml_required_options() {
+  return array(
+    HOSE_XML_OPTIONAL => t('Optional'),
+    HOSE_XML_REQUIRED => t('Required'),
+    HOSE_XML_RELIES_ON => t('Relies on:'),
+  );
+} // _hose_xml_required_options
+
+/**
+ * Returns profile id from given profile name (used for validation purposes).
+ *
+ * @param $name
+ *   Profile name.
+ * 
+ * @return
+ *   string Profile ID on success.
+ *   boolean FALSE on failure.
+ */
+function hose_xml_ui_profile_pid($name) {
+  if ($pid = db_result(db_query("SELECT pid FROM {hose_xml_profiles} WHERE name = '%s'", $name))) {
+    return $pid;
+  }
+  return FALSE;
+} // hose_xml_ui_profile_pid
+
+/**
+ * Selection options for boolean form fields.
+ */
+function hose_xml_ui_select_options() {
+  return array(
+    0 => t('FALSE'),
+    1 => t('TRUE'),
+  );
+} // hose_xml_ui_select_options
+
+/**
+ * 
+ * Utility function to sort cck fields by weight
+ * @param $a
+ * @param $b
+ */
+function _hose_xml_sort_cck_fields_by_weight($a, $b) {
+  if ($a['widget']['weight'] == $b['widget']['weight']) return 0;
+  else if ($a['widget']['weight'] > $b['widget']['weight']) return 1;
+  else return -1;
+} // _hose_xml_sort_cck_fields_by_weight
+
+
+/**
+ * @} End of "defgroup hose_xml_ui_mod".
+ */

@@ -1,0 +1,5 @@
+; $Id$
+name = editorspick
+description = The Module editorspick
+core = 6.x
+

@@ -1,0 +1,5 @@
+; $Id$
+name = Import Export Data
+description = The Module Imports Data From the provided excel file and then will export the details of each node in XML format
+core = 6.x
+package = ah_custom 

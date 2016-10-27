@@ -1,0 +1,65 @@
+<?php
+
+/**
+ * @file
+ * Implementation of 'date' tag type.
+ */
+
+/**
+ * @defgroup hose_xml_date Date
+ * @{
+ * Date field type plug-in.
+ *
+ * Matches only dates, displays according to date format in field setting.
+ * Returns an export error on failures such as invalid dates.
+ */
+
+/**
+ * Implementation of hook_hose_xml_field_name().
+ */
+function hose_xml_date_hose_xml_field_name() {
+  return array('date' => t('Date'));
+} // hose_xml_date_hose_xml_field_name
+
+
+/**
+ * Implementation of hook_hose_xml_field_icon().
+ */
+function hose_xml_date_hose_xml_field_icon() {
+  return drupal_get_path('module', 'hose_xml_date') .'/date.png';
+} // hose_xml_date_hose_xml_field_icon
+
+/**
+ * Implementation of hook_hose_xml_settings_information().
+ */
+function hose_xml_date_hose_xml_settings_information() {
+  return array(
+    'default' => array(
+      'title' => t('Date Format'),
+      'description' => t('Define the date format for export. For more information please see; <a href="@url">@url</a>.', array('@url' => url('http://www.php.net/date'))),
+    ),
+    'hint_date' => array(
+      'title' => t('Validation Hint'),
+      'description' => t("(Optional) Enter a validation hint, specific to this export profile which will appear instead of the generic error message on export failure."),
+    ),
+  );
+} // hose_xml_date_hose_xml_settings_information
+
+/**
+ * Implementation of hook_hose_xml_validate().
+ */
+function hose_xml_date_hose_xml_validate($data, $settings) {
+  $reason = '';
+  $process = '';
+  if (!empty($data) && !($process = format_date(strtotime($data), 'custom', $settings['default']))) {
+    $reason = $settings['hint_date'] ? $settings['hint_date'] : t('Entry is not a valid date.');
+  }
+  return array(
+    'data' => $process ? $process : $data,
+    'reason' => $reason,
+  );
+} // hose_xml_date_hose_xml_validate
+
+/**
+ * @} End of "defgroup hose_xml_date".
+ */

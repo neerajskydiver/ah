@@ -1,0 +1,5 @@
+; $Id$
+name = Query Alter View
+description = Alters Views Query
+core = 6.x
+package = Akshar

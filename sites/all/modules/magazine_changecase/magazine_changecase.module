@@ -1,0 +1,118 @@
+<?php //$ID$
+
+// $Id: magazine_changecase.module,v 1.21.2.39 2010/08/02 11:06:43 hutch Exp $
+// for D6. Version 2
+/**
+ * @file
+ * 
+ */
+
+/**
+ * Implementation of hook_help().
+ */
+function magazine_changecase_help($path, $arg) {
+	switch ($path) {
+		case 'admin/help#magazine_changecase':
+			$body = '<p>'. t('Module to override UI and Hooks for Magazine part.') .'</p>';
+			return $body;
+	}
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function magazine_changecase_perm() {
+	return array('administer magazine-changecase');
+}
+
+
+/**
+ * Implementation of hook_menu().
+ */
+function magazine_changecase_menu() {
+  $items = array();
+
+	$items['changecase/magazine'] = array(
+		'title'		=> 'Magazines changecase',
+		'page callback'		=> 'magazine_changecase',
+    'access callback' => 'node_access',
+    'access arguments' => array('view', 1),
+  	);
+		return $items;
+}
+
+ function magazine_changecase()
+{
+$type = 'article';
+$sql = "SELECT n.nid, n.title FROM {node} n WHERE n.type = '$type' and nid in (51102,51652,51474,61756)";
+
+$query = db_query($sql);
+ while ($results2 = db_fetch_object($query)) {
+	 $results1[] = $results2->filename;
+}
+$total = t('Total records:') . count($results1);
+	$headers = array(
+		array('data' => t('Before changing')),
+		array('data' => t('Changed'), 'sort' => 'asc'),
+	);
+
+  $rows = array();
+
+$count = 1000;
+$query = pager_query($sql, $count);
+
+  while ($results = db_fetch_object($query)) {
+
+$nid=$results->nid;   
+
+//$str = ucwords(strtolower($results->title));
+//echo "update node set title='$str' where type='$type' and nid=$nid";
+//$result=db_query( "update node set title='%s' where type='$type' and nid=$nid",$str);
+//$result1=db_query( "update node_revisions set title='%s' where nid=$nid",$str);
+
+  $rows[] = array(
+								l($results->title, 'node/'. $results->nid .'/edit'),
+								l($results->title, "node/{$results->nid}"),
+								
+                );
+ 
+
+
+
+
+
+}
+
+	$output = theme('table', $headers, $rows);
+	return $search_form.$output . theme('pager', $count);
+}
+/**
+ *
+ *
+ *
+ */
+function mag_case_title($title){
+//$bar = "“a Total Eclipse Of The Sonny”";
+  $find[] = '“';  // left side double smart quote
+  $find[] = '”';  // right side double smart quote
+  $find[] = '"';  // left side single smart quote
+  $find[] = "'";  // 
+  $find[] = '�';  // right side single smart quote
+  $find[] = 'â€¦';  // elipsis
+  $find[] = 'â€”';  // em dash
+  $find[] = 'â€“';  // en dash
+
+  $replace[] = '"';
+  $replace[] = '"';
+  $replace[] = '"';
+  $replace[] = "'";
+  $replace[] = "'";
+  $replace[] = "'";
+  $replace[] = "...";
+  $replace[] = "-";
+  $replace[] = "-";
+
+$text = trim(str_replace($find, $replace, $title));
+$str = ucwords(strtolower($text));
+return $str;
+}

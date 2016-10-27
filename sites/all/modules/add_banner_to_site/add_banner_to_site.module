@@ -1,0 +1,166 @@
+<?php
+// $Id$
+function add_banner_to_site_perm()
+{
+	return array("Add banner Data");
+}
+function add_banner_to_site_menu()
+{
+
+	$items = array();
+
+	$items['admin/settings/add_banner_to_site'] = array(
+	'title' => 'Add Banners To Site',
+	'description' => 'This module allows you to add banners to your site',
+	'page callback' => 'banner_help_text',
+	'access callback' => TRUE,
+	);
+
+
+	$items['admin/settings/add_banner_to_site/help'] = array(
+	'title' => 'Help',
+	'description' => 'Steps in which you add your banner to respective site',
+	'page callback' => 'banner_help_text',
+	'access callback' => TRUE,
+	'type' => MENU_LOCAL_TASK
+	);
+
+
+	$items['admin/settings/add_banner_to_site/add-banner'] = array(
+	'title' => 'banner import',
+	'page callback' => 'add_banner_to_site',
+	'access callback' => user_access,
+	'access arguments' => array('administer site configuration'),
+	'type' => MENU_LOCAL_TASK,
+	);
+
+	return $items;
+}
+
+
+function banner_help_text()
+{
+	return  (which_return_help_text_banner());
+}
+
+
+
+function which_return_help_text_banner()
+{
+	$message.= "<ul>";
+	$message.= "<li>Select the site for which you are adding banner and upload the banner file. Please upload only  (.jpg,.jpeg,.png,.gif)</li>";
+	return $message;
+}
+
+
+function add_banner_to_site()
+{
+return drupal_get_form('add_banner_to_site_form');
+}
+function add_banner_to_site_form()
+{
+
+/*
+create direcroty according to folders path given in xcl file
+*/
+$form = array();
+
+$sql = "SELECT content_type_bookmarks_sites.nid, title
+FROM `content_type_bookmarks_sites`
+INNER JOIN node ON node.nid = content_type_bookmarks_sites.`nid` order by title ASC";
+
+$result = db_query($sql);
+$option = array();
+while($obj_array = db_fetch_object($result))
+{
+	$nid = $obj_array->nid;
+	$option[$nid] = $obj_array->title;
+}
+
+$form['list-of-sites'] = array(
+'#type' => "select",
+'#title' => t('Site Title'),
+'#options' => $option,
+);
+
+$form['#attributes'] = array('enctype' => "multipart/form-data");
+  //'upload' will be used in file_check_upload()
+$form['upload_banner'] = array('#type' => 'file','#title' => t('File'));
+
+
+$form['submit'] = array(
+'#type' => "submit",
+'#value' => t('Import'),
+);
+  //'upload' will be used in file_check_upload()
+
+return $form;
+}
+
+
+function add_banner_to_site_form_submit(&$form,&$form_state)
+{
+
+
+
+ 	$nid = $form_state['values']['list-of-sites'];
+	$sql = "SELECT title from node where nid = %d";
+	$result = db_query($sql,$nid);
+
+	while($obj_array = db_fetch_object($result))
+	{
+		 $title = $obj_array->title;
+	}
+
+	$pattern = "/[^a-zA-Z0-9]/";
+	$site_name = preg_replace($pattern,"",$title);
+	$path = file_directory_path().'/Banners'.'/'.$site_name;
+	
+	if(is_dir($path))
+	{
+		$handle = opendir($path);
+		while (false !== ($file = readdir($handle))) 
+		{
+	 		if(!is_dir($file))
+ 			{
+				unlink($path."/".$file);
+			}	
+ 	    }
+		$dir = file_create_path($path);
+		$validators = array();
+		if(is_writable($path))
+		{
+			if ($file = file_save_upload('upload_banner',$validators,$dir)) {
+				db_query("delete from banner_info where nid = $nid");
+				$path .= "/".$file->filename;
+				db_query("insert into banner_info (nid,path) values ($nid,'$path')");
+			}
+		}
+		else
+		{
+			drupal_set_message("Error Creating Direcortry");
+		}	
+
+	}
+	else
+	{
+		if(mkdir($path))
+			drupal_set_message("Dirctory created");
+		else
+			drupal_set_message("Error Creating Direcortry");
+	
+		$dir = file_create_path($path);
+		$validators = array();
+		if(is_writable($path))
+		{
+			if ($file = file_save_upload('upload_banner',$validators,$dir)) {
+				$path .= "/".$file->filename;
+				db_query("insert into banner_info (nid,path) values ($nid,'$path')");
+			}
+		}
+		else
+		{
+			drupal_set_message("Error Creating Direcortry");
+		}	
+  }
+}

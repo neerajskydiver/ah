@@ -1,0 +1,63 @@
+<?php
+
+/**
+ * @file
+ * Implementation of 'special' tag type.
+ */
+
+/**
+ * @defgroup hose_xml_special Special
+ * @{
+ * Special field type plug-in.
+ *
+ * Special fields never take any input and do not give any export errors unless populated.
+ */
+
+/**
+ * Implementation of hook_hose_xml_field_name().
+ */
+function hose_xml_special_hose_xml_field_name() {
+  return array('special' => t('Special'));
+} // hose_xml_special_hose_xml_field_name
+
+/**
+ * Implementation of hook_hose_xml_field_icon().
+ */
+function hose_xml_special_hose_xml_field_icon() {
+  return drupal_get_path('module', 'hose_xml_special') .'/special.png';
+} // hose_xml_special_hose_xml_field_icon
+
+/**
+ * Implementation of hook_hose_xml_settings_information().
+ */
+function hose_xml_special_hose_xml_settings_information() {
+  return array(
+    'no_self_close' => array(
+      'title' => t("Don't self close tag"),
+      'description' => t('Tags are normally closed like html when they have no content (eg. &lt;example /&gt;) - check this box to close the tags with blank content (eg. &lt;example&gt;&lt;/example&gt;).'),
+      'type' => 'checkbox',
+    ),
+    'hint_special' => array(
+      'title' => t('Validation Hint'),
+      'description' => t("(Optional) Enter a validation hint, specific to this export profile which will appear instead of the generic error message on export failure."),
+    ),
+  );
+} // hose_xml_special_hose_xml_settings_information
+
+/**
+ * Implementation of hook_hose_xml_validate().
+ */
+function hose_xml_special_hose_xml_validate($data, $settings) {
+  $reason = '';
+  if (!empty($data)) {
+    $reason = $settings['hint_special'] ? $settings['hint_special'] : t('Special elements should not have any input except (optionally) attributes.');
+  }
+  return array(
+    'data' => $data,
+    'reason' => $reason,
+  );
+} // hose_xml_special_hose_xml_validate
+
+/**
+ * @} End of "defgroup hose_xml_special".
+ */

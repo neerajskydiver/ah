@@ -1,0 +1,121 @@
+<?php
+
+/**
+ * @file
+ * Implementation of 'attribute' tag type.
+ */
+
+/**
+ * @defgroup hose_xml_attribute Attribute
+ * @{
+ * Attribute field type plug-in.
+ *
+ * Currelty used only for importing.
+ */
+
+/**
+ * Implementation of hook_hose_xml_field_name().
+ */
+function hose_xml_attribute_hose_xml_field_name() {
+  return array('attribute' => t('Attribute'));
+} // hose_xml_attribute_hose_xml_field_name
+
+/**
+ * Implementation of hook_hose_xml_field_map_import().
+ *
+ * object $node
+ *   The semi-built node.
+ * 
+ * array $import_item
+ *   The item that is being imported.
+ *
+ * array $item_profile
+ *   Subpart of the hose_xml_profile that represents this profile.
+ */
+function hose_xml_attribute_hose_xml_field_map_import($node, $value = NULL, array &$import_item, stdClass $item_profile) {
+  if ($item_profile->type != 'attribute' || empty($item_profile->cck_match)) {
+    return;
+  }
+
+  $cck_match = $item_profile->cck_match;
+  hose_xml_set_node_field_value($node, $cck_match, $value);
+} // hose_xml_attribute_hose_xml_field_name
+
+/**
+ * Implementation of hook_hose_xml_field_icon().
+ */
+function hose_xml_attribute_hose_xml_field_icon() {
+  return drupal_get_path('module', 'hose_xml_attribute') .'/icon.png';
+} // hose_xml_attribute_hose_xml_field_icon
+
+/**
+ * Implementation of hook_hose_xml_settings_information().
+ */
+function hose_xml_attribute_hose_xml_settings_information() {
+  return array();
+} // hose_xml_attribute_hose_xml_settings_information
+
+/**
+ * Implementation of hook_hose_xml_settings_validate().
+ */
+function hose_xml_attribute_hose_xml_settings_validate($setting, $value) {
+  switch ($setting) {
+    case 'default':
+      if (!empty($value) && !preg_match("/^[0-9]+$/", $value)) {
+        return t('Character limit can be numeric only.');
+      }
+    case 'truncate':
+      if (!empty($value) && !preg_match("/^[0-9]+$/", $value)) {
+        return t('Truncate field value can be numeric only.');
+      }
+  }
+} // hose_xml_attribute_hose_xml_settings_validate
+
+/**
+ * Implementation of hook_hose_xml_validate().
+ */
+function hose_xml_attribute_hose_xml_validate($data, $settings) {
+  if (empty($data)) {
+    return array(
+      'data' => $data,
+      'reason' => '',
+    );
+  }
+  $reason = '';
+  // Character limit
+  $clean = $settings['raw'] ? $data : trim(_hose_xml_attribute_check_plain($data));
+  if (is_numeric($settings['default']) && drupal_strlen($clean) > $settings['default']) {
+    $reason = t('Entry has too many characters, the limit for this tag is @limit characters.', array('@limit' => $settings['default']));
+  }
+  if (empty($clean)) {
+    $clean = $data;
+    $reason = t('Entry contains invalid characters.');
+  }
+  // Truncate/ Word Safe/ Ellipsis
+  if (is_numeric($settings['truncate'])) {
+    $data = truncate_utf8($data, $settings['truncate'], $settings['wordsafe'], $settings['ellipsis']);
+  }
+  return array(
+    'data' => $data,
+    'reason' => $reason,
+  );
+} // hose_xml_attribute_hose_xml_validate
+
+/**
+ * Present as Drupals own check plain doesn't encode to utf-8.
+ *
+ * @param $text
+ *   Field input from node content.
+ *
+ * @return
+ *   UTF-8 compliant text.
+ *
+ * @see hose_xml_attribute_hose_xml_validate()
+ */
+function _hose_xml_attribute_check_plain($text) {
+  return drupal_validate_utf8($text) ? htmlspecialchars($text, ENT_NOQUOTES, 'UTF-8') : '';
+} // _hose_xml_attribute_check_plain
+
+/**
+ * @} End of "defgroup hose_xml_attribute".
+ */

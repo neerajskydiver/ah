@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * Uninstalling the Mobile Theme module removes the saved variable.
+ */
+function mobile_theme_uninstall() {
+  variable_del('mobile_theme_selection');
+}

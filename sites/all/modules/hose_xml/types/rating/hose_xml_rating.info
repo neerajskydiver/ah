@@ -1,0 +1,12 @@
+name = Rating
+description = "Ratings field for Hose XML module."
+package = "Red Bee Media"
+core = 6.x
+dependencies[] = hose_xml
+
+; Information added by drupal.org packaging script on 2011-09-09
+version = "6.x-1.x-dev"
+core = "6.x"
+project = "hose_xml"
+datestamp = "1315527279"
+

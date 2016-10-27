@@ -1,0 +1,532 @@
+<?php
+// $Id: ah_xml.module,v 1.21.2.39 2010/08/02 11:06:43 hutch Exp $
+// for D6. Version 2
+/**
+ * @file
+ * 
+ */
+
+/**
+ * Implementation of hook_help().
+ */
+$vid_art = 1;
+$vid_issue = 2;
+								global $pq;
+								$pq = 'odd';
+function ah_xml_help($path, $arg) {
+	switch ($path) {
+		case 'admin/help#ah_xml':
+			$body = '<p>'. t('Imports XML Data from files and adds it to article nodes.') .'</p>';
+			return $body;
+	}
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function ah_xml_perm() {
+	return array('administer ah-xml', 'use ah_xml', 'access own ah_xml', 'use public ah_xml', 'create public groups');
+}
+
+
+/**
+ * Implementation of hook_menu().
+ */
+function ah_xml_menu() {
+
+  $items = array();
+/*  $items['ah-xml'] = array(
+    'title'            => 'XML Import',
+    'page callback'    => 'ah_xml_import',
+    'access callback'  => 'user_access',
+		'access arguments' => array('administer ah-xml'),
+  );*/
+
+	$items['admin/content/ah-xml'] = array(
+		'title'		=> 'Magazines Import',
+		'page callback'		=> 'ah_dir_import',
+		'access callback'	=> 'user_access',
+		'access arguments'	=> array('administer ah-xml'),
+		'file' => 'ah_xml.page.inc',
+	);
+
+	$items['admin/content/ah-xml/import'] = array(
+			'title'	=> 'Magazines Import',
+		'page callback'			=> 'ah_dir_import',
+		'access callback'		=> 'user_access',
+		'access arguments' => array('administer ah-xml'),
+		'file' => 'ah_xml.page.inc',
+		'type' => MENU_DEFAULT_LOCAL_TASK,
+		'weight' => -10,
+	);
+	$items['admin/content/ah-xml/list'] = array(
+		'title'	=> 'Record Track',
+		'page callback'			=> 'ah_dir_import_list',
+		'access callback'		=> 'user_access',
+		'access arguments' => array('administer ah-xml'),
+		'file' => 'ah_xml.clearrecords.inc',
+		'type' => MENU_LOCAL_TASK,
+		'weight' => 10,
+	);
+/*  $items['admin/ah-xml/upload'] = array(
+    'title'            => 'Issue image upload',
+    'page callback'    => 'ah_cover_upload',
+    'access callback'  => 'user_access',
+		'access arguments' => array('administer ah-xml'),
+		'file' => 'ah_xml.upload.inc',
+		'file' => 'ah_xml.upload.inc',		
+  );*/
+	$items['admin/content/ah-xml/clear-records'] = array(
+		'title'=> 'Clear records',
+		'page callback' => 'ah_xml_clear',
+		'access callback'  => 'user_access',
+		'access arguments' => array('administer ah-xml'),
+		'file' => 'ah_xml.clearrecords.inc',
+		'type' => MENU_LOCAL_TASK,
+		'weight' => 2,
+	);
+	return $items;
+}
+function ah_xml_import($filename, $node_type, $xmlfile) {
+
+if ((!db_result(db_query("SELECT COUNT(*) FROM {ah_xml} WHERE filename = '%s';", $xmlfile))) || ($resubmit == FALSE)) {
+	
+	$file = fopen($filename,"r");
+	$data = fread($file,  filesize($filename));
+	
+	$xmlparser = xml_parser_create();
+	xml_parse_into_struct($xmlparser,$data,$values);
+	
+	xml_parser_free($xmlparser);
+	
+	$body = "";
+	global $pq;
+	$limit = count($values);
+	//echo "<h1>".$limit." : : ".$xmlfile."</h1><br/>";
+	$key = 0;
+	//foreach($values as $key=>$datum)
+	for($key; $key<=$limit; $key++)
+	{
+	$datum = $values[$key];
+		switch($datum['tag']) {
+		case 'ISSUENUMBER':
+		
+		$issue->issuenumber =$datum['value'];
+		
+		break;
+		
+		case 'YEAR':
+		
+		$issue->year = $datum['value'];
+		
+		break;
+	
+		case 'ARTICLE':
+		
+		if(($values[$key]['type'] == 'open' || $values[$key]['type'] == 'complete')) {
+	
+			$issue->articledetails = parse_article($values, $key);//$datum['value'];
+			$parent_id =$issue->articledetails['parent_id'];
+	
+/*		if (($parent_id != $xmlfile) && (!empty($parent_id))){
+			 if ((!db_result(db_query("SELECT COUNT(*) FROM {ah_xml} WHERE filename = '%s';", $parent_id)))) {
+					$filename_arr = explode('/', $filename);
+						array_pop($filename_arr);
+						array_push($filename_arr,$parent_id);
+						$parentfilename = implode('/', $filename_arr);
+					ah_xml_import($filename, $node_type, $parent_id);
+			}
+		}		
+*/	}
+		break;
+	
+		case 'ISSUENAME':
+		
+		$issue->issuename =$datum['value'];
+		
+		break;
+		
+		case 'VOLUMENUMBER':
+	
+		$issue->volumenumber = $datum['value'];
+		
+		break;
+	
+		case 'HEADLINE':
+		
+	//	$art->headline = $datum['value'];
+				$headlineobj = parse_headline($values, $key);
+				$art->headline = $headlineobj->html;
+				$key = $headlineobj->lastkey;
+				$art->headline = strip_tags($art->headline);
+				if(empty($art->headline)){
+					$art->headline = $datum['value'];
+				}
+		break;
+		
+		case 'DECK':
+		if($node_type == 'article'){
+				$deckobj = parse_type_complete($values, $key);
+				$art->deck = $deckobj->html;
+				$key = $deckobj->lastkey;
+				if(empty($art->deck)){
+					$art->deck = $datum['value'];
+				}
+		}
+	/*		$art->deck .= '<div ';
+			$attributes = $values[$key+1]['attributes'];
+			
+				if(is_array($attributes)) {
+					foreach($attributes as $attr =>$val) {
+					$art->deck .="class = '".$val."' ";
+					}
+					$art->deck .=  ' >';
+				}
+				else {
+					$art->deck .=  ">";
+				}
+				$art->deck .=  $values[$key+1]['value'];	
+				$art->deck .=  "</div>";			//echo	parse_type_complete($values, $key);*/
+	
+		break;
+	
+		case 'AUTHORNOTE':
+		if($node_type == 'article'){
+				$authornoteobj = parse_type_complete($values, $key);
+				$art->authornote  = $authornoteobj->html;
+				$key = $authornoteobj->lastkey;
+		}
+		break;
+
+		case 'SIDEBAR_REF':
+		if($node_type == 'article'){
+				$authornoteobj = parse_type_complete($values, $key);
+				$body  .= $authornoteobj->html;
+				$key = $authornoteobj->lastkey;
+		}
+		break;
+//sidebar_ref 
+		case 'SLUG':
+		
+		$art->slug = $datum['value'];
+	
+		break;
+	
+		case 'AUTHOR':
+	
+		$art->author = $datum['value'];
+	
+		break;
+	
+		case 'KEYWORD':
+	
+		$art->keywords[] = $datum['value'];
+	
+		break;
+	
+		case 'TOCENTRY':
+	
+				$attr =$datum['attributes']['TYPE'];
+							switch($attr){
+								case 'feature':
+	
+									//VIRTLOC 
+									if ($values[$key+1]['tag'] == 'VIRTLOC') {
+	
+										 $issue->features[] =  $values[$key+1]['attributes']['HREF'];
+	
+									}
+	
+								break;
+								case 'department':
+	
+									if ($values[$key+1]['tag'] == 'VIRTLOC') {
+	
+										// $issue->departments[] =  $values[$key+1]['attributes']['HREF'];
+	
+											$cnt = 2;
+											while(!($values[$key+$cnt]['tag'] =='TOCENTRY' && $values[$key+$cnt]['type']=='close')){
+												switch ($values[$key+$cnt]['tag']){
+															case 'SLUG':
+																//$slug = $values[$key+$cnt]['value'];
+	
+																$issue->departments[$values[$key+1]['attributes']['HREF']]['slug'] =  $values[$key+$cnt]['value'];
+	
+															break;
+															case 'AUTHOR':
+																//$byline = $values[$key+$cnt]['value'];
+	
+															 $issue->departments[$values[$key+1]['attributes']['HREF']]['author'] =  $values[$key+$cnt]['value'];
+	
+															break;
+															case 'DECK':
+																//$deck = $values[$key+$cnt]['value'];
+															 $issue->departments[$values[$key+1]['attributes']['HREF']]['deck'] =  $values[$key+$cnt]['value'];
+															break;
+													}
+	
+										 $cnt++;
+										 }
+									}
+								break;
+							}
+		break;
+	
+		case 'BODY':
+		if($node_type == 'article'){
+				$bodyobj = parse_type_complete($values, $key);
+				$body .= $bodyobj->html;
+				$authornote = $bodyobj->authornote;
+				$key = $bodyobj->lastkey;
+		}
+		break;
+			case 'IMG':
+				if($node_type == 'article'){
+						$bodyobj = parse_image($values, $key);
+						$key = $bodyobj->lastkey;
+						$body .= $bodyobj->html;
+
+				}
+
+				if($node_type == 'issue'){
+				$bodyobj = parse_image($values, $key);
+						if(!empty($bodyobj->src) && (trim($bodyobj->src) != NULL)) {
+				//			$issue->cover= $bodyobj->src;
+							$issue->cover_caption = $bodyobj->caption;
+						}
+				}
+
+		//echo '<pre>';		print_r($issue->cover);
+			break;
+			
+			default:
+			$body .= "";
+			break;
+		} //switch $datum['tag']
+	} //foreach
+	
+	
+	#check user or create User
+	$author = user_load(array('name' => $art->author));
+		if (!($art->author == '')){
+		//
+		//array('name' => $edit['author'])
+	
+		 if (!db_result(db_query("SELECT COUNT(*) FROM {users} WHERE name = '%s';", $art->author))) {
+				// User doesn't exist
+				$newUser = array(
+	
+					'name' => $art->author,
+					'pass' => 'password!@#$', // note: do not md5 the password
+					'mail' => $art->author.'@ah.com',
+					'status' => 1,
+				);
+	
+	
+				$author = user_save(null, $newUser);
+			} else
+			{
+					$author = user_load(array('name' => $art->author));
+			}
+		}
+		else {
+			 if (!db_result(db_query("SELECT COUNT(*) FROM {users} WHERE name = '%s';", 'ah.system'))) {
+	
+					$author = user_load(array('name' => 'ah.system'));
+				} else {
+						$newUser = array(
+			
+							'name' => $art->author,
+							'pass' => 'password!@#$', // note: do not md5 the password
+							'mail' => $art->author.'@ah.com',
+							'status' => 1,
+						);
+	
+						$author = user_save(null, $newUser);
+								
+				}
+		}
+		//user's about
+		/*	$curr_user;
+		$edit = array('profile_about_author' => "Contributed  User's Information");
+		profile_save_profile($edit, $user, 'About Me', true);*/
+	//create node
+	
+		global $myresult;
+				$node = new stdClass();
+	
+				#Common Fields
+				$node->format = 2;	
+				$node->type =  'article';
+				$edit['date'] = format_date(time(), 'custom', 'Y-m-d H:i:s O');
+	
+	
+			# Issue Fields
+			if( $node_type == 'issue') {
+			global $user;
+					$node->uid = $user->uid;
+					$node->title = $issue->issuename.' '.$issue->year;
+					$node->field_year[0]['value'] = $issue->year;
+					$node->field_issuename[0]['value'] = $issue->issuename;
+					$node->field_issuenumber[0]['value'] = $issue->issuenumber;
+					$node->field_volumenumber[0]['value'] = $issue->volumenumber;
+					$node->field_cover[0]['value'] = ''; //Cover image
+					$node->field_cover_caption[0]['value'] = $issue->cover_caption; //Cover image caption
+					$node->field_issue_xml_info[0]['value'] = "";
+					$node->field_issue_path[0]['value'] = url($filename);
+					$issue->cover = $issue->year.'.'.$issue->issuenumber.'.jpg';
+					// Image file path.
+	
+					$oldimage= file_directory_path().'/issue_cover/default/frontcover.jpg';
+					$my_img = imagecreatefromjpeg ($oldimage);
+	
+					$image_text1 = "Issue ".$issue->issuenumber;
+					$image_text2 = "Year ".$issue->year;
+					$image_text3 = $issue->issuename;
+					$text_color = imagecolorallocate( $my_img, 0, 0, 0 );
+					$image_width = 280;
+					CenterImageString($my_img, $image_width, $image_text1, 5, 95, $text_colour);
+					CenterImageString($my_img, $image_width, $image_text2, 5, 110, $text_colour);
+					CenterImageString($my_img, $image_width, $image_text3, 5, 125, $text_colour);
+	
+					imagejpeg( $my_img, file_directory_path().'/issue_cover/default/'.$issue->cover); 
+	
+					$image = file_directory_path().'/issue_cover/default/'.$issue->cover;
+					// Load up the CCK field. First parameter image field name and second parameter node type. 
+					//It can be chnaged to any field name and also and node type.
+	
+					$field= content_fields('field_cover',"issue");
+	
+					// Load up the appropriate validators
+	
+					$validators= array_merge(filefield_widget_upload_validators($field), imagefield_widget_upload_validators($field));
+	
+					// Store file path.
+					/* file_directory_path().'/issue_cover/'.$issue->cover;//*/
+					$files_path=  filefield_widget_file_path($field);
+					// dsm($files_path);
+					// Create the file object, replace existing file with new file as source and dest are the same
+	
+					$file= field_file_save_file($image, $validators, $files_path, FILE_EXISTS_REPLACE);
+	
+					// put the file into node image field.
+	
+					$node->field_cover= array( 0 => $file);
+			}
+	//					$parent_nid = db_result(db_query("SELECT ah_xml_nid FROM {ah_xml} WHERE filename = '%s';", $parent_id));
+	
+			# Article Fields
+			if( $node_type == 'article') {
+	
+					$node->uid = $author->uid;
+					$node->name = $author->name;
+					$node->title = $art->headline;
+					$node->body = $body	;
+					//$authornote = $art->authornote;
+		// Save information about user
+					set_authornote($node->uid, $authornote);
+	
+					$node->field_deck[0]['value']= $art->deck; 
+					$node->field_issue_nid[0]['nid'] = 56285;//$_SESSION['current_issue']['nid'];
+					$node->field_art_contributor[0]['uid'] = $author->uid;
+		
+					// for featured article
+					if(in_arrayi($xmlfile, $_SESSION['current_issue']['feature'])){
+							$node->field_featured[0]['value'] = '1';
+					}
+	
+					// for Department article
+					if(isset($_SESSION['current_issue']['departments'][$xmlfile])){
+							$features = $_SESSION['current_issue']['departments'][$xmlfile];
+							$node->field_department_slug[0]['value'] = $features['slug'];
+							$node->field_department_deck[0]['value'] = $features['deck'];
+							$node->field_department_byline[0]['value'] = $features['author'];
+					}
+	/*			if(!empty($parent_id)){
+						$parent_nid = db_result(db_query("SELECT ah_xml_nid FROM {ah_xml} WHERE filename = '%s';", $parent_id));
+						$node->book['bid'] = $parent_nid; //book id for article's navigations
+					}
+	*/
+					$node->field_article_path[0]['value'] = $filename;
+	
+					if(!isset($node->title)){ // if headline is blank
+						$node->title = $art->slug;
+		
+							if(!isset($node->title)){ //if slug is blank
+								$node->title = $xmlfile;	
+							}
+					}
+	
+			}
+	
+		# code for saving node
+		 if (!db_result(db_query("SELECT COUNT(*) FROM {ah_xml} WHERE filename = '%s';", $xmlfile))) {
+	
+					 $result ['nid'] = ah_xml_node_save($node);
+						$node_id = $result ['nid'];
+				$saved_node = node_load($result ['nid']);
+				drupal_set_message($xmlfile . $saved_node->title . 'is saved');
+				if(!empty($art->keywords)){
+					$terms_str = implode(',', $art->keywords);
+				}
+				$terms['tags'][7] = $terms_str;
+				taxonomy_node_save($saved_node, $terms);
+	/*		if(!($issue->articledetails['namereference'] == 'feature' || $issue->articledetails['namereference']== 'department')){
+				if(empty($parent_id) && 	!empty($issue->articledetails['namereference'])){
+						 $bid = $result ['nid'];
+						 $booknode = node_load($bid);
+						 $booknode->book['bid'] = $bid;
+	
+						node_save($booknode);
+				}
+			}*/
+		}
+		 else {
+				drupal_set_message(t('<b> 2 File @filename is already parsed </b>', array('@filename' => $xmlfile)), 'error');
+		}
+				// Keywords
+	
+		
+		// Insert track record of created node
+		ah_xml_record_track ($node_id, $node->uid, $node_type, $xmlfile);
+		
+			if( $node_type == 'issue') {
+	
+	//nid of issue
+					$_SESSION['current_issue']['nid'] = $result ['nid'];
+	// feature array
+					$_SESSION['current_issue']['feature'] = $issue->features;
+	// Departments array
+					$_SESSION['current_issue']['departments'] = $issue->departments;
+			}
+		}
+}
+
+function ah_xml_record_track ($node_id, $user_id, $node_type, $filename) {
+//ah_xml_nid, ah_xml_uid, node_type, filename
+if(!$filename){
+$filename = 'unknown';
+} else {
+		$currfilename =  end(explode('/', $filename));
+	}
+		if (!db_result(db_query("SELECT COUNT(*) FROM {ah_xml} WHERE filename = '%s';", $currfilename))) {
+			$result = db_query("INSERT INTO {ah_xml} (ah_xml_nid, ah_xml_uid, node_type, filename) VALUES (%d, %d, '%s', '%s')", $node_id, $user_id, $node_type, $filename);
+	}
+		else {
+			drupal_set_message(t('3 Record @filename is already inserted.', array('@filename' => $currfilename)), 'error');
+
+	}
+
+}
+
+/*
+  * Create a user and edit its profile
+	*
+	*/
+
+
+function set_authornote($user_id, $note) {
+	$user = user_load($user_id);
+	$edit = array('profile_authornote' => $note);
+	profile_save_profile($edit, $user, 'Profile');
+}

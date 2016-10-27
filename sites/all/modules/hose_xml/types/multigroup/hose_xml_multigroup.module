@@ -1,0 +1,177 @@
+<?php
+
+/**
+ * @file
+ * Implementation of 'multigroup' tag type.
+ */
+
+/**
+ * @defgroup hose_xml_multigroup multigroup
+ * @{
+ * multigroup field type plug-in.
+ */
+
+/**
+ * Implementation of hook_hose_xml_field_name().
+ */
+function hose_xml_multigroup_hose_xml_field_name() {
+  return array('multigroup' => t('Multigroup'));
+} // hose_xml_multigroup_hose_xml_field_name
+
+/**
+ * Implementation of hook_hose_xml_field_map_import().
+ *
+ * object $node
+ *   The semi-built node.
+ *
+ * array $import_item
+ *   The item that is being imported.
+ *
+ * array $item_profile
+ *   Subpart of the hose_xml_profile that represents this profile.
+ *   
+ * TODO: import multigroups against embedded profile fragment
+ */
+function hose_xml_multigroup_hose_xml_field_map_import($node, $value = NULL, array &$import_item, stdClass $item_profile) {
+  if ($item_profile->type != 'multigroup') {
+    return;
+  }
+
+  $profile_reference = hose_xml_get_export_config_flat($item_profile->settings['hose_xml_pid'], 0, -1, NULL, FALSE, TRUE);
+
+  // $value should be an array of arrays but when there is one element of values
+  // coming from the SOAP call we need to wrap it into an array
+  reset($value);
+  if (!is_array(current($value))) {
+    $value = array($value);
+  }
+
+  foreach($value as $sub_value) {
+    hose_xml_import_node_map_recurse($node, $sub_value, $profile_reference);
+  }
+} // hose_xml_multigroup_hose_xml_field_map_import
+
+/**
+ * Implementation of hook_hose_xml_field_icon().
+ */
+function hose_xml_multigroup_hose_xml_field_icon() {
+  return drupal_get_path('module', 'hose_xml_multigroup') .'/multigroup.png';
+} // hose_xml_multigroup_hose_xml_field_icon
+
+/**
+ * Implementation of hook_hose_xml_settings_information().
+ */
+function hose_xml_multigroup_hose_xml_settings_information() {
+  /* multigroup can use a linked profile for the sturcture of the multigroup in which case a profile
+   * must be selected
+   * or the structure in this profile contained by this element is used
+   */
+  $hose_xml_profile_options['embedded'] = t(('Use the structure contained in this element. (NOT FOR IMPORT YET)'));
+  foreach (hose_xml_fetch_profiles () as $profile_id => $profile) {
+    $hose_xml_profile_options[$profile_id] = $profile->name;
+  }
+  return array(
+    'hose_xml_pid' => array(
+      'title' => t('Hose XML Profile'),
+      'description' => t('Hose XML Profile that describes this multigroup'),
+      'type' => 'select',
+      'options' => $hose_xml_profile_options,
+    ),
+  );
+} // hose_xml_multigroup_hose_xml_settings_information
+
+/**
+ * Implementation of hook_hose_xml_validate().
+ */
+function hose_xml_multigroup_hose_xml_validate($data, $settings) {
+  $reason = '';
+  if (!empty($data)) {
+    $reason = $settings['hint_multigroup'] ? $settings['hint_multigroup'] : 
+      t('multigroups are tags that contain other tags whose values are filled from a cck multigroup.');
+  }
+  return array(
+    'data' => $data,
+    'reason' => $reason,
+  );
+} // hose_xml_multigroup_hose_xml_validate
+
+/**
+ * Implementation of hook_hose_xml_has_content
+ * 
+ * @param unknown_type $branch
+ * @param unknown_type $node
+ */
+function hose_xml_multigroup_hose_xml_has_content(&$branch, $node) {
+  return TRUE;
+}
+
+/**
+ * The module must write out XML to the $writer and or add errors to the error array
+ * 
+ * @param unknown_type $branch
+ * @param unknown_type $writer
+ * @param unknown_type $node
+ * @param unknown_type $field
+ * @param unknown_type $fids
+ * @param unknown_type $error
+ * 
+ * @see hose_xml_generate_tag()
+ */
+function hose_xml_multigroup_hose_xml_generate_tag(&$branch, &$writer, $node, $field, &$fids, &$error = array()) {
+  // get the hose profile for this reference
+  $settings = unserialize($branch->settings);
+  $pid = isset($settings['hose_xml_pid']) ? $settings['hose_xml_pid'] : FALSE;
+  if (!$pid) {
+    watchdog(
+    	'hose_xml_ref', 
+    	'No referenced profile id in profile @pid, tag @tag', 
+      array('@pid' => $branch->pid, '@tag' => $branch->tag),
+      WATCHDOG_ERROR
+    );
+    $error[] = t('No referenced profile id in profile @pid, tag @tag', 
+      array('@pid' => $branch->pid, '@tag' => $branch->tag));
+  }
+  // either we use the elements contained by this one to export the values
+  if ($pid = 'embedded') {
+    $tree = $branch->children;
+    if (empty($tree)) {
+      $error[] = t("This multigroup element has no child elements.");
+      return $error;
+    }
+    
+  }
+  // or it's a referenced profile
+  else {
+    $tree = hose_xml_get_export_config_tree($pid);
+  }
+  // create the XML using the profile and the referenced nid
+  $fids = array();
+  /* determine the fields in the sub-profile then cycle through the deltas writing the group tag
+   * out to the XMLwriter each pass
+   * We need to make a mock node which looks like it has single values for the multi value fields
+   * to fool the hose_xml_export_create_xml function into writing each group delta
+   * We can rely on the number of values being consistent amongst the fields so we are using the
+   * number of the first element
+   */
+  $num_values = count($node->{$tree[0]->cck_match});
+  for ($n=0; $n<$num_values; $n++) {
+    $temp_node = drupal_clone($node);
+    foreach ($tree as $twig) {
+      if (isset($twig->cck_match) && !empty($twig->cck_match)) {
+        $field_name = $twig->cck_match;
+        $field_array = $node->{$field_name};
+        $temp_node->{$field_name} = array(
+          $field_array[$n],
+        );
+      }
+    }
+    $writer->startElement($branch->tag);
+    hose_xml_export_create_xml($tree, $writer, $temp_node, $fids, $error, FALSE);
+    $writer->endElement();
+  }
+  return $error;
+}
+
+/**
+ * @} End of "defgroup hose_xml_multigroup".
+ */

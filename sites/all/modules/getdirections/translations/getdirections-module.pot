@@ -1,0 +1,519 @@
+# $Id: getdirections-module.pot,v 1.2.2.3.2.6 2010/10/20 22:55:41 hutch Exp $
+#
+# LANGUAGE translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  getdirections.admin.inc,v 1.3.2.2.2.7 2010/09/06 11:54:13 hutch
+#  getdirections.theme.inc,v 1.2.2.3.2.7 2010/09/07 08:20:39 hutch
+#  getdirections.module,v 1.4.2.10.2.13 2010/09/06 11:54:13 hutch
+#  getdirections.info,v 1.2.2.1 2010/03/18 20:41:17 hutch
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2010-10-20 23:51+0100\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: getdirections.admin.inc:24
+msgid "Use Googlemaps version 3"
+msgstr ""
+
+#: getdirections.admin.inc:25
+msgid "Use version 3 of the Googlemaps API instead of version 2."
+msgstr ""
+
+#: getdirections.admin.inc:38
+msgid "Your Google Maps API key"
+msgstr ""
+
+#: getdirections.admin.inc:41
+msgid "Required for version 2 of the Googlemaps API."
+msgstr ""
+
+#: getdirections.admin.inc:48
+msgid "Get directions map settings"
+msgstr ""
+
+#: getdirections.admin.inc:55
+msgid "Your Google Maps API version"
+msgstr ""
+
+#: getdirections.admin.inc:57
+msgid "The Google Maps API version to use. Cen be a specific version number or '2' for Current, '2.x' for Latest or '2.s' for Stable."
+msgstr ""
+
+#: getdirections.admin.inc:65
+msgid "Default width"
+msgstr ""
+
+#: getdirections.admin.inc:69
+msgid "The default width of a Google map, as a CSS length or percentage. Examples: <em>50px</em>, <em>5em</em>, <em>2.5in</em>, <em>95%</em>"
+msgstr ""
+
+#: getdirections.admin.inc:74
+msgid "Default height"
+msgstr ""
+
+#: getdirections.admin.inc:78
+msgid "The default height of a Google map, as a CSS length or percentage. Examples: <em>50px</em>, <em>5em</em>, <em>2.5in</em>, <em>95%</em>"
+msgstr ""
+
+#: getdirections.admin.inc:83
+msgid "Map center"
+msgstr ""
+
+#: getdirections.admin.inc:87
+msgid "The default center coordinates of Google map, expressed as a decimal latitude and longitude, separated by a comma."
+msgstr ""
+
+#: getdirections.admin.inc:92
+msgid "Zoom"
+msgstr ""
+
+#: getdirections.admin.inc:95
+msgid "The default zoom level of a Google map."
+msgstr ""
+
+#: getdirections.admin.inc:101;111;118;127;134;322
+msgid "None"
+msgstr ""
+
+#: getdirections.admin.inc:102;112
+msgid "Micro"
+msgstr ""
+
+#: getdirections.admin.inc:103
+msgid "Micro 3D"
+msgstr ""
+
+#: getdirections.admin.inc:104;113;130
+msgid "Small"
+msgstr ""
+
+#: getdirections.admin.inc:105;114;131
+msgid "Large"
+msgstr ""
+
+#: getdirections.admin.inc:106
+msgid "Large 3D"
+msgstr ""
+
+#: getdirections.admin.inc:119
+msgid "Standard"
+msgstr ""
+
+#: getdirections.admin.inc:120
+msgid "Hierarchical"
+msgstr ""
+
+#: getdirections.admin.inc:121;136
+msgid "Dropdown"
+msgstr ""
+
+#: getdirections.admin.inc:128
+msgid "Default"
+msgstr ""
+
+#: getdirections.admin.inc:129
+msgid "Android"
+msgstr ""
+
+#: getdirections.admin.inc:135
+msgid "Horizontal bar"
+msgstr ""
+
+#: getdirections.admin.inc:141
+msgid "Control type"
+msgstr ""
+
+#: getdirections.admin.inc:148
+msgid "Map Type Control selection"
+msgstr ""
+
+#: getdirections.admin.inc:171;191
+msgid "Default map type"
+msgstr ""
+
+#: getdirections.admin.inc:194;202
+msgid "Standard street map"
+msgstr ""
+
+#: getdirections.admin.inc:195;210
+msgid "Standard satellite map"
+msgstr ""
+
+#: getdirections.admin.inc:196;217
+msgid "Hybrid satellite map"
+msgstr ""
+
+#: getdirections.admin.inc:197;224
+msgid "Terrain map"
+msgstr ""
+
+#: getdirections.admin.inc:203
+msgid "The standard default street map."
+msgstr ""
+
+#: getdirections.admin.inc:206
+msgid "Enable map types"
+msgstr ""
+
+#: getdirections.admin.inc:211
+msgid "Satellite view without street overlay."
+msgstr ""
+
+#: getdirections.admin.inc:218
+msgid "Satellite view with street overlay."
+msgstr ""
+
+#: getdirections.admin.inc:225
+msgid "Map with physical data (terrain, vegetation.)"
+msgstr ""
+
+#: getdirections.admin.inc:232
+msgid "Default distance units"
+msgstr ""
+
+#: getdirections.admin.inc:233
+msgid "Units to display distances in. 'Automatic' uses the country of origin."
+msgstr ""
+
+#: getdirections.admin.inc:236
+msgid "Automatic"
+msgstr ""
+
+#: getdirections.admin.inc:237
+msgid "Metric"
+msgstr ""
+
+#: getdirections.admin.inc:238
+msgid "Imperial"
+msgstr ""
+
+#: getdirections.admin.inc:245
+msgid "Scale"
+msgstr ""
+
+#: getdirections.admin.inc:246
+msgid "Show scale"
+msgstr ""
+
+#: getdirections.admin.inc:254
+msgid "Overview map"
+msgstr ""
+
+#: getdirections.admin.inc:255
+msgid "Show overview map"
+msgstr ""
+
+#: getdirections.admin.inc:263
+msgid "Scrollwheel"
+msgstr ""
+
+#: getdirections.admin.inc:264
+msgid "Enable scrollwheel zooming"
+msgstr ""
+
+#: getdirections.admin.inc:271
+msgid "Draggable"
+msgstr ""
+
+#: getdirections.admin.inc:272
+msgid "Enable dragging on the map"
+msgstr ""
+
+#: getdirections.admin.inc:279
+msgid "Show travel mode"
+msgstr ""
+
+#: getdirections.admin.inc:280
+msgid "Enable travel mode selector."
+msgstr ""
+
+#: getdirections.admin.inc:286
+msgid "Show travel extras"
+msgstr ""
+
+#: getdirections.admin.inc:287
+msgid "Enable travel extras checkboxes."
+msgstr ""
+
+#: getdirections.admin.inc:295
+msgid "Width of From box"
+msgstr ""
+
+#: getdirections.admin.inc:298
+msgid "The width of the Get directions 'From' box."
+msgstr ""
+
+#: getdirections.admin.inc:305
+msgid "Width of To box"
+msgstr ""
+
+#: getdirections.admin.inc:308
+msgid "The width of the Get directions 'To' box."
+msgstr ""
+
+#: getdirections.admin.inc:316
+msgid "Use advanced features"
+msgstr ""
+
+#: getdirections.admin.inc:317
+msgid "Advanced features include a clickable map and waypoints."
+msgstr ""
+
+#: getdirections.admin.inc:325
+msgid "Number of waypoints"
+msgstr ""
+
+#: getdirections.admin.inc:326
+msgid "The number of waypoints to display on the map."
+msgstr ""
+
+#: getdirections.admin.inc:334
+msgid "Color of waypoint markers"
+msgstr ""
+
+#: getdirections.admin.inc:335
+msgid "The color of waypoint markers used on the map."
+msgstr ""
+
+#: getdirections.admin.inc:338
+msgid "Black"
+msgstr ""
+
+#: getdirections.admin.inc:339
+msgid "Blue"
+msgstr ""
+
+#: getdirections.admin.inc:340
+msgid "Brown"
+msgstr ""
+
+#: getdirections.admin.inc:341
+msgid "Gray"
+msgstr ""
+
+#: getdirections.admin.inc:342
+msgid "Green"
+msgstr ""
+
+#: getdirections.admin.inc:343
+msgid "Orange"
+msgstr ""
+
+#: getdirections.admin.inc:344
+msgid "Purple"
+msgstr ""
+
+#: getdirections.admin.inc:345
+msgid "Red"
+msgstr ""
+
+#: getdirections.admin.inc:346
+msgid "White"
+msgstr ""
+
+#: getdirections.admin.inc:347
+msgid "Yellow"
+msgstr ""
+
+#: getdirections.admin.inc:355
+msgid "Links back to page"
+msgstr ""
+
+#: getdirections.admin.inc:356
+msgid "Enable and format 'Return to page' links."
+msgstr ""
+
+#: getdirections.admin.inc:362;364 getdirections.theme.inc:60;62
+msgid "Return to page"
+msgstr ""
+
+#: getdirections.admin.inc:368
+msgid "Enable Page Return Link"
+msgstr ""
+
+#: getdirections.admin.inc:374
+msgid "Text of page return link"
+msgstr ""
+
+#: getdirections.admin.inc:385
+msgid "Enable User Return Link"
+msgstr ""
+
+#: getdirections.admin.inc:391
+msgid "Text of user return link"
+msgstr ""
+
+#: getdirections.admin.inc:403
+msgid "Colorbox settings"
+msgstr ""
+
+#: getdirections.admin.inc:414
+msgid "Enable Colorbox"
+msgstr ""
+
+#: getdirections.admin.inc:420
+msgid "Colorbox width"
+msgstr ""
+
+#: getdirections.admin.inc:430
+msgid "Colorbox height"
+msgstr ""
+
+#: getdirections.admin.inc:443
+msgid "Other settings"
+msgstr ""
+
+#: getdirections.admin.inc:452
+msgid "Keep original title"
+msgstr ""
+
+#: getdirections.admin.inc:453
+msgid "Use the original title when using the getdirections_direction(), getdirections_locations() and getdirections_locations_via() functions"
+msgstr ""
+
+#: getdirections.admin.inc:466
+msgid "Width of To box must be a positive number"
+msgstr ""
+
+#: getdirections.admin.inc:469
+msgid "Width of From box must be a positive number"
+msgstr ""
+
+#: getdirections.admin.inc:472;476
+msgid "Text of return link cannot be empty"
+msgstr ""
+
+#: getdirections.theme.inc:105;136 getdirections.module:385
+msgid "From"
+msgstr ""
+
+#: getdirections.theme.inc:106;139 getdirections.module:410
+msgid "To"
+msgstr ""
+
+#: getdirections.theme.inc:142
+msgid "Via"
+msgstr ""
+
+#: getdirections.theme.inc:201
+msgid "Select a country first, then type in a town.<br />You can also click on the map and move the marker."
+msgstr ""
+
+#: getdirections.theme.inc:212
+msgid "Fill in the form below."
+msgstr ""
+
+#: getdirections.module:16
+msgid "Fetches google map directions."
+msgstr ""
+
+#: getdirections.module:219;272;319;468 getdirections.info:0
+msgid "Get Directions"
+msgstr ""
+
+#: getdirections.module:350
+msgid "Country"
+msgstr ""
+
+#: getdirections.module:351
+msgid "Please select"
+msgstr ""
+
+#: getdirections.module:396
+msgid "Starting from"
+msgstr ""
+
+#: getdirections.module:399
+msgid "Enter the address, postcode and/or city from where you want to start your journey."
+msgstr ""
+
+#: getdirections.module:421
+msgid "Destination"
+msgstr ""
+
+#: getdirections.module:424
+msgid "Enter the address, postcode and/or city of your journey destination."
+msgstr ""
+
+#: getdirections.module:433
+msgid "Travel mode"
+msgstr ""
+
+#: getdirections.module:435
+msgid "Driving"
+msgstr ""
+
+#: getdirections.module:436
+msgid "Walking"
+msgstr ""
+
+#: getdirections.module:437
+msgid "Bicycling"
+msgstr ""
+
+#: getdirections.module:446
+msgid "Travel options"
+msgstr ""
+
+#: getdirections.module:448
+msgid "Avoid Highways"
+msgstr ""
+
+#: getdirections.module:449
+msgid "Avoid Tolls"
+msgstr ""
+
+#: getdirections.module:450
+msgid "Alternative routes"
+msgstr ""
+
+#: getdirections.module:459
+msgid "Next"
+msgstr ""
+
+#: getdirections.module:595;624;654;668;700;713;756;784;797;829;843;885
+msgid "getdirections"
+msgstr ""
+
+#: getdirections.module:595;654;668;756;784;843
+msgid "Lat, Lon failed for node id !nid"
+msgstr ""
+
+#: getdirections.module:624
+msgid "Lat, Lon failed for user id !uid"
+msgstr ""
+
+#: getdirections.module:700;713;797;829;885
+msgid "Lat, Lon failed for user id !nid"
+msgstr ""
+
+#: getdirections.module:49
+msgid "access gmap getdirections"
+msgstr ""
+
+#: getdirections.module:58;67;74;81;88;95;102;109;116;123;131
+msgid "Get directions"
+msgstr ""
+
+#: getdirections.module:59
+msgid "Configure Get directions"
+msgstr ""
+
+#: getdirections.info:0
+msgid "Fetches Google map directions."
+msgstr ""
+
+#: getdirections.info:0
+msgid "Other"
+msgstr ""
+

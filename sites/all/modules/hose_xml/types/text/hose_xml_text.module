@@ -1,0 +1,130 @@
+<?php
+
+/**
+ * @file
+ * Implementation of 'text' tag type.
+ */
+
+/**
+ * @defgroup hose_xml_text Text
+ * @{
+ * Text field type plug-in.
+ *
+ * Default field type, matches any given text.
+ * Includes field level settings for;
+ *  - Character Limit
+ *  - Truncate after x number of characters
+ *  - Truncate at last space within the upper limit
+ *  - Add trailing dots (ellipsis)
+ * Returns an export error on failure.
+ */
+
+/**
+ * Implementation of hook_hose_xml_field_name().
+ */
+function hose_xml_text_hose_xml_field_name() {
+  return array('text' => t('Text'));
+} // hose_xml_text_hose_xml_field_name
+
+/**
+ * Implementation of hook_hose_xml_field_icon().
+ */
+function hose_xml_text_hose_xml_field_icon() {
+  return drupal_get_path('module', 'hose_xml_text') .'/text.png';
+} // hose_xml_text_hose_xml_field_icon
+
+/**
+ * Implementation of hook_hose_xml_settings_information().
+ */
+function hose_xml_text_hose_xml_settings_information() {
+  return array(
+    'default' => array(
+      'title' => t('Character Limit'),
+      'description' => t('If this entry has a length limit - define it here.'),
+    ),
+    'raw' => array(
+      'title' => t('Use raw input'),
+      'description' => t('Do not pass entry through check_plain - IMPORTANT: use this carefully as a malicious user could use this for XSS attacks.'),
+      'type' => 'checkbox',
+    ),
+    'truncate' => array(
+      'title' => t('Truncate after xx characters'),
+      'description' => t('Truncate the text field after xx characters to keep within the maximum allowed character limit.'),
+    ),
+    'wordsafe' => array(
+      'title' => t('Wordsafe'),
+      'description' => t('Truncate at last space within the upper limit.'),
+      'type' => 'checkbox',
+    ),
+    'ellipsis' => array(
+      'title' => t('Add trailing dots (ellipsis)'),
+      'description' => t('Show ... after truncating text.'),
+      'type' => 'checkbox',
+    ),
+  );
+} // hose_xml_text_hose_xml_settings_information
+
+/**
+ * Implementation of hook_hose_xml_settings_validate().
+ */
+function hose_xml_text_hose_xml_settings_validate($setting, $value) {
+  switch ($setting) {
+    case 'default':
+      if (!empty($value) && !preg_match("/^[0-9]+$/", $value)) {
+        return t('Character limit can be numeric only.');
+      }
+    case 'truncate':
+      if (!empty($value) && !preg_match("/^[0-9]+$/", $value)) {
+        return t('Truncate field value can be numeric only.');
+      }
+  }
+} // hose_xml_text_hose_xml_settings_validate
+
+/**
+ * Implementation of hook_hose_xml_validate().
+ */
+function hose_xml_text_hose_xml_validate($data, $settings) {
+  if (empty($data)) {
+    return array(
+      'data' => $data,
+      'reason' => '',
+    );
+  }
+  $reason = '';
+  // Character limit
+  $clean = $settings['raw'] ? $data : trim(_hose_xml_text_check_plain($data));
+  if (is_numeric($settings['default']) && drupal_strlen($clean) > $settings['default']) {
+    $reason = t('Entry has too many characters, the limit for this tag is @limit characters.', array('@limit' => $settings['default']));
+  }
+  if (empty($clean)) {
+    $clean = $data;
+    $reason = t('Entry contains invalid characters.');
+  }
+  // Truncate/ Word Safe/ Ellipsis
+  if (is_numeric($settings['truncate'])) {
+    $data = truncate_utf8($data, $settings['truncate'], $settings['wordsafe'], $settings['ellipsis']);
+  }
+  return array(
+    'data' => $data,
+    'reason' => $reason,
+  );
+} // hose_xml_text_hose_xml_validate
+
+/**
+ * Present as Drupals own check plain doesn't encode to utf-8.
+ * 
+ * @param $text
+ *   Field input from node content.
+ * 
+ * @return
+ *   UTF-8 compliant text.
+ * 
+ * @see hose_xml_text_hose_xml_validate()
+ */
+function _hose_xml_text_check_plain($text) {
+  return drupal_validate_utf8($text) ? htmlspecialchars($text, ENT_NOQUOTES, 'UTF-8') : '';
+} // _hose_xml_text_check_plain
+
+/**
+ * @} End of "defgroup hose_xml_text".
+ */

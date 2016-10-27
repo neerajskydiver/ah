@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root>
+  <!-- Node 1 -->
+  <node title="Node title 1">
+    <created>2010-01-16T16:01:05</created>
+    <updated>2010-01-15T17:13:11</updated>
+
+    <!-- Node body -->
+    <description>
+      This is the
+      description of
+      the node.
+    </description>
+
+
+  <!--
+    CCK fields
+  -->
+    <textfield>Textfield value 1</textfield>
+
+    <!-- Multi valued textfield -->
+    <multitextfield>
+      <value>Multitextield value delta 1</value>
+      <value>Multitextfield value delta 2</value>
+    </multitextfield>
+
+    <!-- Nodereference -->
+    <nodereference>
+      <node title="Reference 1">
+        <textfield>abcdefgh</textfield>
+      </node>
+      <node title="Reference 2">
+        <textfield>asdfvvdsf</textfield>
+      </node>
+    </nodereference>
+  </node>
+
+  <!-- Node 2 -->
+  <node title="Node title 2">
+    <created>2010-01-17T16:01:05.6</created>
+    <updated>2010-01-16T17:13:11.5</updated>
+
+    <!-- Node body -->
+    <description>
+      This is the
+      description of
+      the node.
+    </description>
+
+
+  <!--
+    CCK fields
+  -->
+    <textfield>Textfield value 1</textfield>
+
+    <!-- Multi valued textfield -->
+    <multitextfield>
+      <value>Multitextield value delta 1</value>
+      <value>Multitextfield value delta 2</value>
+    </multitextfield>
+
+    <!-- Nodereference -->
+    <nodereference>
+      <node title="Reference 1">
+        <textfield>abcdefgh</textfield>
+      </node>
+      <node title="Reference 2">
+        <textfield>asdfvvdsf</textfield>
+      </node>
+    </nodereference>
+  </node>
+</root>
+

@@ -1,0 +1,37 @@
+<?php
+// $Id$
+
+function sort_by_perm() {
+  return array('View Block for sorting');
+}
+
+function sort_by_block($op = 'list', $delta = 0, $edit = array()) {
+ $block_content='';
+if ($op == "list") {
+$block[0]["info"] = t("Sort Block");
+return $block;
+}
+else if($op == 'view')
+{
+
+    $block_content .= "<div >";
+	$block_content.="<select name=''>";
+    $block_content.="<option value='0'>Title(A to Z)</option>";
+    $block_content.="<option value='1'>Title(Z to A)</option>";
+	$block_content.="<option value='2'>Instituation(A to Z)</option>";
+    $block_content.="<option value='3'>Instituation(Z to A)</option>";
+	$block_content.="<option value='3'>Date(Z to A)</option>";
+    $block_content.="<option value='3'>Date(Z to A)</option>";
+	$block_content .= "</select></div>";
+}
+//$block_content = theme('imagecache','colection', '2010.0005.0001.jpg','sad','asdsad','');
+
+
+
+$block['subject'] = "Sort Block";
+$block['content'] = $block_content;
+return $block;
+}
+
+}
+

@@ -1,0 +1,140 @@
+<?php
+
+/**
+ * Implementation of hook_perm().
+ */
+function bannerclick_perm() {
+  return array ('view bannerclick links', 'view bannerclick stats');
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function bannerclick_menu() {
+  $items = array();
+
+  /* $items['admin/settings/bannerclick/view'] = array(
+    'title'            => '',
+    'description' => 'Banners',
+    'page callback'    => 'bannerclick_view',
+    'access callback' => TRUE,
+    'type'             => MENU_LOCAL_TASK
+  );*/
+  $items['admin/settings/bannerclick'] = array(
+    'title'            => 'Bannerclick Tracking',
+    'description'      => 'Bannerclick tracking module',
+    'page callback'    => 'bannerclick_help_print',
+    'access callback' => TRUE,
+
+  );
+  $items['admin/settings/bannerclick/help'] = array(
+	'title' => 'Help',
+	'description' => 'Bannerclick Tracking Help',
+	'page callback' => 'bannerclick_help_print',
+	'access callback' => TRUE,
+	'type' => MENU_LOCAL_TASK
+	);
+
+  $items['admin/settings/bannerclick/reports'] = array(
+    'title'            => 'Reports',
+    'page callback'    => 'bannerclick_report',
+    'access arguments' => array('view bannerclick stats'),
+    'type'             => MENU_LOCAL_TASK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_help().
+ */
+function banners_help_text()
+{
+	$message.= "<ul>";
+	$message.= "<li>Total Count of viewed Banner on Collection Page</li></ul>";
+	return $message;
+}
+
+function bannerclick_help_print() {
+  
+      return  (banners_help_text());
+    }
+
+
+/**
+ * Menu callback; presents the settings form for bannerclick
+ */
+
+
+function bannerclick_view() {
+
+  $fmt = 'Y-m-d H:i:s';
+
+  $output = '';
+  $output.="<div><h2></h2></div><table><tr><th>Banner of Sites</th><th>Views</th></tr>";
+  $result = db_query('SELECT MAX(view) as view ,sessionid,collection_id,banner_id FROM ah_view_banner group by banner_id ');
+  while ($bannerclick = db_fetch_object($result)) {
+  $selectColl=db_query("select n.title,c.field_site_id_nid from node n inner join content_type_collection c on c.nid=n.nid where n.nid='$bannerclick->collection_id'");
+  $resultColl=db_fetch_object($selectColl);
+  if ($resultColl->field_site_id_nid!=''){
+  $SelectSitetitle=db_query("select title from node where nid ='$resultColl->field_site_id_nid'");
+  $ResultSitetitle=db_fetch_object($SelectSitetitle);
+  
+  $output.="<tr><td>$ResultSitetitle->title</td><td>".$bannerclick->view."</td></tr>";
+  }
+    }
+  $output.="</table>";
+  if(!$output) {
+  	$output = t('No bannerclicks');
+  }
+
+  return $output;
+}
+
+function bannerclick_report() {
+  $header = array( array('data' => t('Banner of Sites'),   'field' => 'title', 'sort' => 'desc'),
+      array('data' => t('Total clicks/Impressions'), 'field' => 'view')
+    );
+
+  $sql = 'SELECT n.title, MAX(c.view) as maxview,c.sessionid,c.collection_id,c.banner_id  FROM {ah_view_banner} c inner join {node} n on n.nid=c.collection_id inner join content_type_collection col on col.nid=n.nid WHERE c.collection_id = n.nid group by col.field_site_id_nid' . tablesort_sql($header);
+  $count_query = "SELECT count(*) FROM (" . $sql . ") AS count_query";
+  $result = pager_query($sql, 10, 0, $count_query);
+
+  while ($bannerclick = db_fetch_object($result)) {
+  
+  $selectColl=db_query("select n.title,c.field_site_id_nid from node n inner join content_type_collection c on c.nid=n.nid where n.nid=$bannerclick->collection_id");
+  $resultColl=db_fetch_object($selectColl);
+
+  $SelectSitetitle=db_query("select title from node where nid =$resultColl->field_site_id_nid ");
+  $ResultSitetitle=db_fetch_object($SelectSitetitle);
+  
+    
+    $rows[] = array(
+      array('data' => $ResultSitetitle->title), 
+      array('data' => $bannerclick->maxview )
+    );
+  }
+  if (!$rows) {
+    $rows[] = array(array('data' => t('No data.'), 'colspan' => '4'));
+  }
+
+  // $pager = theme('pager', NULL, 50, 0);
+
+  //if (!empty($pager)) {
+  //  $rows[] = array(array('data' => $pager, 'colspan' => '4'));
+  //}
+  $total = t('Total records:') . count($rows);
+
+  $output=theme('table', $header, $rows, t('Reports'));
+  return $output.theme('pager');
+
+}
+
+
+
+
+function _bannerclick_count($nid) {
+  // Total bannerclicks
+  return db_result(db_query('SELECT SUM(total_bannerclicks) FROM {bannerclicks} WHERE nid = %d', $nid));
+}
+

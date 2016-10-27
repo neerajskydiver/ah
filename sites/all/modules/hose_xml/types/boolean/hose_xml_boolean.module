@@ -1,0 +1,79 @@
+<?php
+
+/**
+ * @file
+ * Implementation of 'boolean' tag type.
+ */
+
+/**
+ * @defgroup hose_xml_boolean Boolean
+ * @{
+ * Boolean field type plug-in.
+ *
+ * Matches only boolean (TRUE or FALSE)
+ * and returns an export error on failure.
+ *
+ * Has a setting to convert user input to upper or lower case.
+ */
+
+/**
+ * Implementation of hook_hose_xml_field_name().
+ */
+function hose_xml_boolean_hose_xml_field_name() {
+  return array('boolean' => t('Boolean'));
+} // hose_xml_boolean_hose_xml_field_name
+
+/**
+ * Implementation of hook_hose_xml_field_icon().
+ */
+function hose_xml_boolean_hose_xml_field_icon() {
+  return drupal_get_path('module', 'hose_xml_boolean') .'/boolean.png';
+} // hose_xml_boolean_hose_xml_field_icon
+
+/**
+ * Implementation of hook_hose_xml_settings_information().
+ */
+function hose_xml_boolean_hose_xml_settings_information() {
+  return array(
+    'default' => array(
+      'title' => t('Case'),
+      'description' => t("Convert user input into the specified case."),
+      'type' => 'select',
+      'options' => array('none' => t("Don't convert"), 'upper' => t('Upper-case'), 'lower' => t('Lower-case')),
+    ),
+    'hint_boolean' => array(
+      'title' => t('Validation Hint'),
+      'description' => t("(Optional) Enter a validation hint, specific to this export profile which will appear instead of the generic error message on export failure."),
+    ),
+  );
+} // hose_xml_boolean_hose_xml_settings_information
+
+/**
+ * Implementation of hook_hose_xml_validate().
+ */
+function hose_xml_boolean_hose_xml_validate($data, $settings) {
+  $reason = '';
+  if (!empty($data)) {
+    if (!preg_match('/^(true|false)$/i', $data)) {
+      $reason = $settings['hint_boolean'] ? $settings['hint_boolean'] : t('Entry can be true or false only.');
+    }
+    else {
+      switch ($settings['default']) {
+        case 'upper':
+          $data = drupal_strtoupper($data);
+          break;
+        case 'lower':
+          $data = drupal_strtolower($data);
+          break;
+      }
+    }
+  }
+  return array(
+    'data' => $data,
+    'reason' => $reason,
+  );
+} // hose_xml_boolean_hose_xml_validate
+
+/**
+ * @} End of "defgroup hose_xml_boolean".
+ */

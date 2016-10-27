@@ -1,0 +1,6 @@
+; $Id$
+name = Mass Operations.  
+description = Process Mass Operations in batches.
+package = Developer
+version = VERSION
+core = 6.x

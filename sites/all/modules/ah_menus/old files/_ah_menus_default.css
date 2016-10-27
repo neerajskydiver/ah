@@ -1,0 +1,213 @@
+/* $Id: ah_menus_default.css,v 1.10 2010/10/09 16:58:04 add1sun Exp $ */
+/*
+  This is the default layout template for ah menus, and will provide
+  a starting point for the look of your menus. To customize, it's
+  recommended to create a custom CSS file using this file as a template,
+  then configure the module to use your custom CSS file
+  (this is done in the global settings tab of the theme administration.)
+
+  See README.txt and the handbook page (http://drupal.org/node/185543)
+  for more information on using the CSS.
+*/
+
+/******************************
+ Global CSS for ALL menu types
+******************************/
+
+ul.ah-menu,
+ul.ah-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid #ccc;
+}
+
+ul.ah-menu li {
+  border: 1px solid #ccc;
+  border-top: 0;
+  float: left; /* LTR */
+  background-color: #eee;
+}
+
+ul.ah-menu a {
+  padding: 0.3em 5px 0.3em 5px;
+}
+
+ul.ah-menu ul {
+  top: 1.8em;
+  left: -1px; /* LTR */
+  border: 0;
+  border-top: 1px solid #ccc;
+  margin-right: 0; /* LTR */
+}
+
+ul.ah-menu ul li {
+  width: 12.5em;
+}
+
+/******************************
+ VERTICAL (left/right) menus
+******************************/
+
+/* This is the default width of all vertical menus. */
+ul.ah-menu-right, ul.ah-menu-left,
+ul.ah-menu-right li, ul.ah-menu-left li {
+  width: 12.5em;
+}
+
+/* VERTICAL menus where submenus pop RIGHT (default). */
+ul.ah-menu-right ul {
+  width: 12.5em;
+  left: 12.5em;
+  top: -1px;
+}
+
+ul.ah-menu-right ul ul {
+  width: 12.5em;
+  left: 12.5em;
+  top: -1px;
+}
+
+ul.ah-menu-right li.menuparent,
+ul.ah-menu-right li li.menuparent {
+  background: #eee url(arrow-right.png) right center no-repeat;
+}
+
+ul.ah-menu-right li.menuparent:hover,
+ul.ah-menu-right li li.menuparent:hover {
+  background: #ccc url(arrow-right.png) right center no-repeat;
+}
+
+/* VERTICAL menus where submenus pop LEFT. */
+ul.ah-menu-left li ul {
+  width: 12.5em;
+  left: -12.65em;
+  top: -1px;
+}
+
+ul.ah-menu-left li ul li ul {
+  width: 12.5em;
+  left: -12.65em;
+  top: -1px;
+}
+
+ul.ah-menu-left li.menuparent,
+ul.ah-menu-left li li.menuparent {
+  background: #eee url(arrow-left.png) left center no-repeat;
+}
+
+ul.ah-menu-left li.menuparent:hover,
+ul.ah-menu-left li li.menuparent:hover {
+  background: #ccc url(arrow-left.png) left center no-repeat;
+}
+
+ul.ah-menu-left a, ul.ah-menu-left ul a {
+  padding-left: 14px;
+}
+
+/******************************
+ HORIZONTAL (down) menus
+******************************/
+
+ul.ah-menu-down {
+  float: left; /* LTR */
+  border: 0;
+}
+
+ul.ah-menu-down li {
+  border-top: 1px solid #ccc;
+}
+
+ul.ah-menu-down li li {
+  border-top: 0;
+}
+
+ul.ah-menu-down ul {
+  left: 0; /* LTR */
+}
+
+ul.ah-menu-down ul li {
+  clear: both;
+}
+
+ul.ah-menu-down li ul li ul {
+  left: 12.5em; /* LTR */
+  top: -1px;
+}
+
+ul.ah-menu-down .menuparent a {
+  padding-right: 15px; /* LTR */
+}
+
+ul.ah-menu-down li.menuparent {
+  background: #eee url(arrow-down.png) right center no-repeat; /* LTR */
+}
+
+ul.ah-menu-down li.menuparent:hover {
+  background: #ccc url(arrow-down.png) right center no-repeat; /* LTR */
+}
+
+ul.ah-menu-down li li.menuparent {
+  background: #eee url(arrow-right.png) right center no-repeat; /* LTR */
+}
+
+ul.ah-menu-down li li.menuparent:hover {
+  background: #ccc url(arrow-right.png) right center no-repeat; /* LTR */
+}
+
+/******************************
+ Garland-specific CSS
+******************************/
+
+/**
+ * Global CSS for ALL menu types
+ */
+ul.ah-menu li {
+  margin: 0;
+  padding-left: 0; /* LTR */
+  background-image: none;
+}
+
+#header-region ul.ah-menu li {
+  margin: 0;
+  /* Padding rules are needed to deal with Garland's header line-height. */
+  padding-top: 0.1em;
+  padding-bottom: 0.1em;
+  background: #eee;
+}
+
+#header-region ul.ah-menu ul {
+  top: 1.8em;
+  left: -1px; /* LTR */
+  border: 0;
+  border-top: 1px solid #ccc;
+  margin-right: 0; /* LTR */
+}
+
+#header-region ul.ah-menu ul {
+  top: 1.7em;
+}
+
+/**
+ * HORIZONTAL (down) menus
+ */
+#header-region ul.ah-menu-down li ul li ul {
+  left: 12.5em; /* LTR */
+  top: -1px;
+}
+
+#header-region ul.ah-menu-down li.menuparent {
+  background: #eee url(arrow-down.png) right center no-repeat; /* LTR */
+}
+
+#header-region ul.ah-menu-down li.menuparent:hover {
+  background: #ccc url(arrow-down.png) right center no-repeat; /* LTR */
+}
+
+#header-region ul.ah-menu-down li li.menuparent {
+  background: #eee url(arrow-right.png) right center no-repeat; /* LTR */
+}
+
+#header-region ul.ah-menu-down li li.menuparent:hover {
+  background: #ccc url(arrow-right.png) right center no-repeat; /* LTR */
+}

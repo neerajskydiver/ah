@@ -1,0 +1,5 @@
+; $Id$
+name = Add Banner To Collection
+description = This Module Add's Banner to the site
+core = 6.x
+package = American Heritage

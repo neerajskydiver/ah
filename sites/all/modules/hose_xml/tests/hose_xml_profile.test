@@ -1,0 +1,161 @@
+<?php
+
+// Require HoseXMLWebTestCase class definition.
+require_once(dirname(__FILE__) .'/hose_xml.test.inc');
+
+class HoseXMLProfileTestCase extends HoseXMLWebTestCase {
+
+  /**
+   * Implementation of getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Test Hose XML Export'),
+      'description' => t('Hose  XML Export.'),
+      'group' => t('Hose XML'),
+    );
+  } // getInfo
+
+  /**
+   * Implementation of setUp().
+   */
+  function setUp() {
+    parent::setUp();
+
+    // Create and login user
+    $this->loginWithPermissions();
+    $this->hose_content_type = 'simpletest'. rand(0, 100);
+  } // setUp
+
+  // Create an export profile
+  function testHoseXMLCreateProfile() {
+    $xml = simplexml_load_file($this->assetPath('test.xml'));
+
+    $fields = array(
+      'integer1' => 'number_integer',
+      'textfield1' => 'text',
+      'multitextfield' => array(
+        'type' => 'text',
+        'settings' => array(
+          'multiple' => 1,
+        ),
+      ),
+      'noderef' => array(
+        'type' => 'nodereference',
+        'settings' => array(
+          'multiple' => 1,
+          'referenceable_types[page]' => 1,
+          'referenceable_types['. $this->hose_content_type .']' => 1,
+        ),
+      ),
+    );
+
+    // Create content type.
+    $this->newContentType($this->hose_content_type, $fields);
+
+    // make multitextfield support multiple values
+    $updated = $this->updateField(array(
+      'field_name' => 'field_multitextfield',
+      'type_name' => $this->hose_content_type,
+      'multiple' => 1,
+    ));
+//
+    // create some page nodes
+    $page_nids = array();
+    // create some page nodes
+    for($i = 0; $i <=2; $i++) {
+      $page_node = $this->drupalCreateNode();
+      $page_nids[] = $page_node->nid;
+    }
+
+    $hose_node = array(
+      'type' => $this->hose_content_type,
+      'title' => (string) $xml->title,
+      'body' => (string) $xml->body,
+      'field_integer1' => array(array('value' => (string) $xml->integerfield)),
+      'field_textfield1' => array(array('value' => (string) $xml->textfield1)),
+      'field_multitextfield' => array(
+        array('value' => (string) $xml->multitextfield->value[0]),
+        array('value' => (string) $xml->multitextfield->value[1]),
+      ),
+      'field_noderef' => array(
+        array('nid' => array_pop($page_nids)),
+        array('nid' => array_pop($page_nids)),
+        array('nid' => array_pop($page_nids)),
+      ),
+    );
+
+    $hose_node = $this->drupalCreateNode($hose_node);
+    $hose_node = node_load($hose_node->nid, NULL, TRUE);
+    $this->drupalGet('node/' . $hose_node->nid);
+
+    $profile = $this->createHoseProfile(array('types[]' => $this->hose_content_type));
+
+    $mappings = array(
+      array(
+        '#title' => 'node',
+        '#type' => 'text',
+        '#tag' => 'node',
+        '#attribute[0][attribute-attribute]' => 'title',
+        '#attribute[0][attribute-value]' => '[title-raw]',
+        array(
+          '#title' => 'title',
+          '#type' => 'text',
+          '#tag' => 'title',
+          '#cck_match' => 'title',
+          '#attribute[0][attribute-attribute]' => 'title',
+          '#attribute[0][attribute-value]' => '[title-raw]',
+        ),
+        array(
+          '#title' => 'Text Field 1',
+          '#type' => 'text',
+          '#tag' => 'textfield1',
+          '#cck_match' => 'field_textfield1',
+        ),
+        array(
+          '#title' => 'Multitextfield',
+          '#type' => 'raw',
+          '#tag' => 'multitextfield',
+          array(
+            '#title' => 'Multitextfield',
+            '#type' => 'text',
+            '#tag' => 'value',
+            '#cck_match' => 'field_multitextfield',
+          ),
+        ),
+        array(
+          '#title' => 'Integer 1',
+          '#type' => 'text',
+          '#tag' => 'integerfield',
+          '#cck_match' => 'field_integer1',
+        ),
+        array(
+          '#title' => 'Body',
+          '#type' => 'text',
+          '#tag' => 'body',
+          '#cck_match' => 'body',
+        ),
+      ),
+    );
+    $this->hoseProfileAddMappings($profile->pid, $mappings);
+    $export_output = hose_xml_export_XML($profile, $hose_node, NULL, FALSE);
+
+    $export_xml = simplexml_load_string($export_output);
+    $this->assertEqual((string) $export_xml->title, (string) $xml->title, 'Imported XML title value equals the exported value');
+    $this->assertEqual((string) $export_xml->body, (string) $xml->body, 'Imported XML body value equals the exported value');
+    $this->assertEqual((string) $export_xml->integerfield, (string) $xml->integerfield, 'Imported XML integerfield value equals the exported value');
+    $this->assertEqual((string) $export_xml->textfield1, (string) $xml->textfield1, 'Imported XML textfield1 value equals the exported value');
+    $this->assertEqual((string) $export_xml->multitextfield->value[0], (string) $xml->multitextfield->value[0], 'Imported XML multitextfield value 1 equals the exported value');
+    $this->assertEqual((string) $export_xml->multitextfield->value[1], (string) $xml->multitextfield->value[1], 'Imported XML multitextfield value 2 equals the exported value');
+
+    // let's delete the profile
+    $this->deleteHoseProfile($profile->pid);
+
+    $import_xml_debug = nl2br(htmlspecialchars($xml->asXML(), ENT_QUOTES, 'UTF-8', FALSE));
+    debug($import_xml_debug, 'Imported XML');
+
+    $export_output_debug = nl2br(htmlspecialchars($export_output, ENT_QUOTES, 'UTF-8', FALSE));
+    debug($export_output_debug, "Exported XML by Hose");
+  }
+}
+

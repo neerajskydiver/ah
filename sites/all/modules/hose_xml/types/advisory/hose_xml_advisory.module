@@ -1,0 +1,100 @@
+<?php
+
+/**
+ * @file
+ * Implementation of 'advisory' tag type.
+ */
+
+/**
+ * @defgroup hose_xml_advisory Advisory
+ * @{
+ * Advisory field type plug-in.
+ *
+ * Matches only specified (in setting) Advisory Board option
+ * and returns an export error on failure.
+ */
+
+/**
+ * Implementation of hook_hose_xml_field_name().
+ */
+function hose_xml_advisory_hose_xml_field_name() {
+  return array('advisory' => t('Advisory'));
+} // hose_xml_advisory_hose_xml_field_name
+
+/**
+ * Implementation of hook_hose_xml_field_icon().
+ */
+function hose_xml_advisory_hose_xml_field_icon() {
+  return drupal_get_path('module', 'hose_xml_advisory') .'/advisory.png';
+} // hose_xml_advisory_hose_xml_field_icon
+
+/**
+ * Implementation of hook_hose_xml_settings_information().
+ */
+function hose_xml_advisory_hose_xml_settings_information() {
+  return array(
+    'default' => array(
+      'title' => t('Advisory Code'),
+      'description' => t("Enter a valid Advisory board (e.g. au-tv)."),
+    ),
+    'hint_advisory' => array(
+      'title' => t('Validation Hint'),
+      'description' => t("(Optional) Enter a validation hint, specific to this export profile which will appear instead of the generic error message on export failure."),
+    ),
+  );
+} // hose_xml_advisory_hose_xml_settings_information
+
+/**
+ * Implementation of hook_hose_xml_settings_validate().
+ */
+function hose_xml_advisory_hose_xml_settings_validate($setting, $value) {
+  $check = array(
+    'au-tv', 'us-tv', 'us-cable',
+  );
+  if (!empty($value) && !in_array($value, $check)) {
+    return t('Please enter a valid Advisory board.');
+  }
+} // hose_xml_advisory_hose_xml_settings_validate
+
+/**
+ * Implementation of hook_hose_xml_validate().
+ */
+function hose_xml_advisory_hose_xml_validate($data, $settings) {
+  $reason = '';
+  $advisory = _hose_xml_advisory_ratings($settings['default']);
+  if (!empty($data) && !in_array($data, $advisory)) {
+    $reason = $settings['hint_advisory'] ? $settings['hint_advisory'] : t('Entry is not a valid advisory code for this region.');
+  }
+  return array(
+    'data' => $data,
+    'reason' => $reason,
+  );
+} // hose_xml_advisory_hose_xml_validate
+
+/**
+ * Helper function which maps regions to their valid advisory codes.
+ *
+ * @param $settings
+ *   String containing Advisory Board.
+ *
+ * @return
+ *   Array containing valid options for specified Advisory Board.
+ * 
+ * @see hose_xml_advisory_hose_xml_validate()
+ */
+function _hose_xml_advisory_ratings($settings) {
+  switch ($settings) {
+    case 'au-tv':
+      return array('A', 'L', 'S', 'H', 'D', 'N', 'V', 'SN', 'M', 'W', 'B');
+    case 'us-tv':
+      return array('FV', 'S', 'V', 'L', 'D');
+    case 'us-cable':
+      return array('V', 'MV', 'GV', 'AL', 'GL', 'AC', 'SC', 'N');
+    default:
+      return array();
+  }
+} // _hose_xml_advisory_ratings
+
+/**
+ * @} End of "defgroup hose_xml_advisory".
+ */

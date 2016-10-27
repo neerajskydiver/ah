@@ -1,0 +1,202 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body ol, li, a, p, form, h1, h2, h3, h4, h5. h6 {
+  font-size: 100%;
+}
+
+body h1 {
+  margin: 0;
+  padding: 0;
+  font-family: times, serif;
+  font-size: 170%;
+  color: #590714;
+  font-weight: 100;
+  border-bottom: 1px solid #590714;
+}
+
+body p, a {
+  margin: 5px 0;
+  padding: 0;
+  line-height: 1.1;
+  font-size: 88%;
+  font-family: arial, sans-serif;
+  line-height: 1.2;
+}
+
+body p {
+  color: #333;
+}
+
+body a {
+  color: darkblue;
+}
+
+
+
+
+body form {
+  font-size: 82%;
+}
+
+body legend {
+  font-size: 110%;
+}
+
+
+
+body label {
+  margin-left: 2px;
+  margin-right: 10px;
+}
+
+ol, ul {
+	list-style: none;
+}
+
+/* Basics */
+
+#container {
+  width: 1024px;
+  background-color: white;
+  text-align: center;
+  margin: auto;
+}
+
+#top {
+  height: 100px;
+  background-color: #ddd;
+  margin-bottom: 5px;
+}
+
+#header {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  border-bottom: 4px solid white;
+}
+
+
+
+#prim_nav ul {
+  background-color: #062d4d;
+  height: 30px;
+  text-align: left;
+}  
+
+#prim_nav ul li {
+  margin: 0;
+  padding: 0;
+  display: inline;
+  background-color: #062d4d;
+  padding: 0px 15px;
+  border-right: 2px solid white;
+}
+
+#prim_nav ul li:hover {
+  background-color: white;
+}
+
+#prim_nav ul li a {
+  color: white;
+  text-decoration: none;
+  text-transform: uppercase;
+  
+}
+
+#prim_nav ul li a:hover {
+  color: black;
+}
+
+#wrapper {
+  margin-bottom: 10px;
+}
+
+#right {
+  width: 300px;
+  background-color: #ddd;
+  float: right;
+  border: 1px solid black;
+  height: 200px;
+  
+}
+
+#left {
+  width: 180px;
+  background-color: #ddd;
+  float: left;
+  border: 1px solid black;
+  height: 200px;
+  
+}
+
+
+#main {
+  margin-right: 305px;
+  margin-left: 185px;
+  text-align: left;
+}
+
+
+
+#footer {
+  height: 100px;
+  background-color: #ddd;
+  clear: both;
+}
+
+
+
+
+
+
+
+.breadcrumb a {
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+.under_title {
+  font-style: italic;
+}
+  
+
+
+.applet {
+  margin: 10px 0;
+}
+
+.applet_help {
+  float: right;
+}
+
+.applet_help a {
+  text-decoration: none;
+}
+
+.applet_help a:hover {
+  text-decoration: underline;
+}
+
+.applet input {
+  border: 1px solid black;
+}
+
+.applet fieldset {
+  border: 1px dotted #590714;
+  padding: 20px;
+}
+
+.applet legend {
+  background-color: #590714;
+  padding: 4px;
+  color: white;
+}
+  
+
+
+

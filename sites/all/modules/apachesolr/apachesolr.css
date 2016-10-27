@@ -1,0 +1,8 @@
+@charset "utf-8";
+/* CSS Document */
+
+tr.apachesolr-servers-active-server td {
+font-weight: bold;
+color: #ffffff; 
+background-color: #bbbbbb;
+} 

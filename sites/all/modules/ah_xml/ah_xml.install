@@ -1,0 +1,62 @@
+<?php
+// $Id: ah_xml.install,v 1.10.4.4 2009/06/17 15:03:07 njt1982 Exp $
+
+/**
+ * @file
+ * The install file for Page Title allows the module to install (and uninstall) itself. This is required as this module uses its own table.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function ah_xml_install() {
+  drupal_install_schema('ah_xml');
+}
+
+
+/**
+ * Implementation of hook_schema().
+ */
+function ah_xml_schema() {
+
+$schema['ah_xml'] = array(
+  'description' => t('Keeps track of imported xml files and their node Ids'),
+  'fields' => array(
+    'ah_xml_nid' => array(
+      'description' => t('Issue or Article node nid'),
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+    'ah_xml_uid' => array(
+      'description' => t('User id of the node created from Imported xml File'),
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+    'node_type' => array(
+      'description' => t('Node type (Article or Issue) of imported file'),
+      'type' => 'varchar',
+      'length' => '20',
+      'not null' => TRUE,
+    ),
+    'filename' => array(
+      'description' => t('File name of imported file'),
+      'type' => 'varchar',
+      'length' => '100',
+      'not null' => TRUE,
+    ),
+  ),
+  'primary key' => array('filename'),
+);
+  return $schema;
+}
+
+
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function ah_xml_uninstall() {
+  drupal_uninstall_schema('ah_xml');
+}

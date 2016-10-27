@@ -1,0 +1,5 @@
+; $id$
+
+name = Blogs Block
+description =  Blogs Left sidebar.
+core =  6.x

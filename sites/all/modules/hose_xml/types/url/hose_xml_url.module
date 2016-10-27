@@ -1,0 +1,64 @@
+<?php
+
+/**
+ * @file
+ * Implementation of 'url' tag type.
+ */
+
+/**
+ * @defgroup hose_xml_url URL
+ * @{
+ * URL field type plug-in.
+ *
+ * Matches URLs (simple matching)
+ * and returns an export error on failure.
+ */
+
+/**
+ * Implementation of hook_hose_xml_field_name().
+ */
+function hose_xml_url_hose_xml_field_name() {
+  return array('url' => t('URL'));
+} // hose_xml_url_hose_xml_field_name
+
+/**
+ * Implementation of hook_hose_xml_field_icon().
+ */
+function hose_xml_url_hose_xml_field_icon() {
+  return drupal_get_path('module', 'hose_xml_url') .'/url.png';
+} // hose_xml_url_hose_xml_field_icon
+
+/**
+ * Implementation of hook_hose_xml_settings_information().
+ */
+function hose_xml_url_hose_xml_settings_information() {
+  return array(
+    'default' => array(
+      'title' => t('Absolute'),
+      'description' => t('Whether the URL is absolute (beginning with a scheme such as "http:").'),
+      'type' => 'checkbox',
+    ),
+    'hint_url' => array(
+      'title' => t('Validation Hint'),
+      'description' => t("(Optional) Enter a validation hint, specific to this export profile which will appear instead of the generic error message on export failure."),
+    ),
+  );
+} // hose_xml_url_hose_xml_settings_information
+
+/**
+ * Implementation of hook_hose_xml_validate().
+ */
+function hose_xml_url_hose_xml_validate($data, $settings) {
+  $reason = '';
+  if (!empty($data) && !valid_url($data, drupal_strtoupper($settings['default']) == 'TRUE' ? TRUE : FALSE)) {
+    $reason = $settings['hint_url'] ? $settings['hint_url'] : t('URL is not valid.');
+  }
+  return array(
+    'data' => $data,
+    'reason' => $reason,
+  );
+} // hose_xml_url_hose_xml_validate
+
+/**
+ * @} End of "defgroup hose_xml_url".
+ */

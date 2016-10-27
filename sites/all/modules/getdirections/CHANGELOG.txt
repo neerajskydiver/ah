@@ -1,0 +1,138 @@
+// $Id: CHANGELOG.txt,v 1.4.2.9.2.23 2011/01/12 17:19:29 hutch Exp $
+// $Name: DRUPAL-6--2-2 $
+
+Get Directions for D6 in D-6--2, 2011-01-12
+------------------------------------
+by hutch, added togglefromto
+
+Get Directions for D6 in D-6--2, 2010-12-28
+------------------------------------
+by hutch, added trafficinfo
+
+Get Directions for D6 in D-6--2, 2010-12-27
+------------------------------------
+by hutch, added total distance calculation, 
+  added support for multiple locations in views
+
+Get Directions for D6 in D-6--2, 2010-12-13
+------------------------------------
+by hutch, added location_id as in #994882
+
+Get Directions for D6 in D-6--2, 2010-12-08
+------------------------------------
+by hutch, added getdirections_latlon
+
+Get Directions for D6 in D-6--2, 2010-10-20
+------------------------------------
+by hutch, updated translations
+
+Get Directions for D6 in D-6--2, 2010-09-07
+------------------------------------
+by hutch, fixed jquery_update bug
+
+Get Directions for D6 in D-6--2, 2010-09-06
+------------------------------------
+by hutch, added colorbox support
+
+Get Directions for D6 in D-6--2, 2010-09-03
+------------------------------------
+by hutch, fixed getdirections_help
+
+Get Directions for D6 in D-6--2, 2010-08-26
+------------------------------------
+by hutch, added keep title feature #893162
+
+Get Directions for D6 in D-6--2, 2010-08-24
+------------------------------------
+by hutch, added sanity checks for lat,lon
+
+Get Directions for D6 in D-6--2, 2010-08-22
+------------------------------------
+by hutch, added advanced features.
+
+Get Directions for D6 in D-6--2, 2010-08-15
+------------------------------------
+by hutch, fixed bug trailing comma #882582
+
+Get Directions for D6 in D-6--2, 2010-06-21
+------------------------------------
+by hutch, fixed bug in form, reset value elements
+to hidden, required for js.
+Moved prefix and suffix from form to theme.
+Added more t() to form. Fixed some defaults in admin
+
+Get Directions for D6 in D-6--2, 2010-06-21
+------------------------------------
+by hutch, added user return link option
+  fixed bug in getdirections_user view
+  fixed bug in initial default settings
+
+Get Directions for D6 in D-6--2, 2010-06-20
+------------------------------------
+by hutch, added page return link option
+  added validation of admin settings form
+  replaced hidden form elements with value
+
+Get Directions for D6 in D-6--2, 2010-06-19
+------------------------------------
+by hutch, added menu access callback,
+  replaced split with explode
+  fixed update bug
+  improved documentation
+
+Get Directions for D6 in D-6--2, 2010-06-15
+------------------------------------
+by hutch, fixed revisions bug
+
+Get Directions for D6 in D-6--1, 2010-04-22
+------------------------------------
+by hutch, improved countries dropdown
+
+Get Directions for D6 in D-6--1, 2010-04-09
+------------------------------------
+by hutch, fixed bug with api_version in defaults
+
+Get Directions for D6 in D-6--1, 2010-03-24
+------------------------------------
+by hutch, added more combinations of user and node locations
+
+Get Directions for D6 in D-6--1, 2010-03-23
+------------------------------------
+by hutch, integrated getdirections_views_block into Views,
+  added support for location_user
+
+Get Directions for D6 in D-6--1, 2010-03-22
+------------------------------------
+by hutch, added support for Googlemaps API version 3
+
+Get Directions for D6 in D-6--1, 2010-03-19
+------------------------------------
+by hutch, added config for To and From box width
+
+Get Directions for D6 in D-6--1, 2010-03-17
+------------------------------------
+by hutch, added support for loadFromWaypoints, added contribs folder with views example
+
+Get Directions for D6 in HEAD, 2010-03-08
+------------------------------------
+by hutch, fixed bug reported in issue #736148
+
+Get Directions for D6 in HEAD, 2010-2-4
+------------------------------------
+by hutch, general cleanup in preparation for stable release
+
+Get Directions for D6 in HEAD, 2009-12-1
+------------------------------------
+by hutch, moved api version storage into getdirections_default
+
+Get Directions for D6 in HEAD, 2009-11-29
+------------------------------------
+by hutch, improved location functionality
+
+Get Directions for D6 in HEAD, 2009-11-27
+------------------------------------
+by hutch, added location functionality
+
+Get Directions for D6 in HEAD, 2009-11-22
+------------------------------------
+by hutch, initial import to cvs

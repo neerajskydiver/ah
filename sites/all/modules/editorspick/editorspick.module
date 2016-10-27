@@ -1,0 +1,780 @@
+<?php
+// $Id$
+function editorspick_perm()
+{
+	return array("Editors Picks");
+}
+function editorspick_block_menu() {
+
+	$items['editorspick-block'] = array(
+		'title'	=> 'Editor Sidebar',
+		'page callback'=> 'leftside_editorspick',
+		'access callback'=> 'user_access',
+		'access arguments' => array('administer Blog Block'),
+	);
+       $items['editorspick-block2'] = array(
+		'title'	=> 'Editor Sidebar2',
+		'page callback'=> 'image_editorspick',
+		'access callback'=> 'user_access',
+		'access arguments' => array('administer Blog Block'),
+	);
+
+	return $items;
+}
+
+
+function editorspick_menu()
+{
+
+	$items = array();
+
+	$items['admin/settings/editorspick'] = array(
+	'title' => 'Editors Picks Selection',
+	'description' => 'This module allows you to add sites/collection/articles ',
+	'page callback' => 'editorspick_help_text',
+	'access arguments' => array('administer site configuration'),
+	);
+
+
+	$items['admin/settings/editorspick/help'] = array(
+	'title' => 'Help',
+	/* 'description' => 'Steps in which you add your sites/collection/articles ',
+	'page callback' => 'editorspick_help_text',
+	'access arguments' => array('administer site configuration'),
+	'type' => MENU_LOCAL_TASK, */
+       'type' => MENU_DEFAULT_LOCAL_TASK,
+       'weight' => 5,
+	);
+
+
+	$items['admin/settings/editorspick/add-sites'] = array(
+	'title' => 'Sites',
+	'page callback' => 'editorspick_sites',
+	'access callback' => user_access,
+	'access arguments' => array('administer site configuration'),
+	'type' => MENU_LOCAL_TASK,
+       'weight' => 2,
+	);
+     
+	 $items['admin/settings/editorspick/add-collection'] = array(
+	'title' => 'Collection',
+	'page callback' => 'editorspick_collection',
+	'access callback' => user_access,
+	'access arguments' => array('administer site configuration'),
+	'type' => MENU_LOCAL_TASK,
+	'weight' => 3,
+	);
+
+    $items['admin/settings/editorspick/add-articles'] = array(
+	'title' => 'Articles',
+	'page callback' => 'editorspick_articles',
+	'access callback' => user_access,
+	'access arguments' => array('administer site configuration'),
+	'type' => MENU_LOCAL_TASK,
+	'weight' => 4,
+	);
+	
+	/*$items['admin/settings/editorspick/result'] = array(
+	'title' => 'Result',
+	'page callback' => 'editorspick_result_call',
+	'access callback' => user_access,
+	'access arguments' => array('administer site configuration'),
+	'type' => MENU_LOCAL_TASK,
+	);*/
+
+	$items['editorspick_site/autocomplete'] = array(
+    	'page callback' => 'editorspick_site_autocomplete',
+    	'access arguments' => array('access test pages'),
+    	'type' => MENU_CALLBACK,
+  	);
+	
+       $items['editorspick_coll/autocomplete'] = array(
+    	'page callback' => 'editorspick_coll_autocomplete',
+    	'access arguments' => array('access test pages'),
+    	'type' => MENU_CALLBACK,
+  	);
+
+       $items['editorspick_art/autocomplete'] = array(
+    	'page callback' => 'editorspick_art_autocomplete',
+    	'access arguments' => array('access test pages'),
+    	'type' => MENU_CALLBACK,
+  	);
+
+       $items['admin/settings/editorspick/disable'] = array(
+	'title' => 'Delete Record',
+	'description' => 'Steps in which you delete record from Editor Picks list',
+	'page callback' => 'editorspick_record',
+	
+	'type' => MENU_LOCAL_TASK,
+       'access arguments' => array('administer site configuration'),
+
+	);
+
+       $items['editorspick/js'] = array(
+       'page callback' => 'editorspick_js',
+       'access arguments' => array('access content'),
+       'type' => MENU_CALLBACK,
+       );
+
+
+    
+	return $items;
+}
+
+/* Help Text display */
+function return_help_text()
+{
+	$message.= "<ul>";
+	$message.= "<li>To submit Article, select Article from Articles field and click on Submit button. </li>";
+	$message.= "<li>To submit Collection, select Collection from Collections field and click on Submit button. </li>";
+	$message.= "<li>To submit Site, select Site from Sites field and click on Submit button.</li>";
+	$message.= "<li>Selected data will be displayed in Editors Picks Section on Homepage.</li></ul>";
+
+	return $message;
+}
+
+
+function editorspick_result_call()
+{
+	return (editorspick_result_form());
+}
+
+function editorspick_help_text()
+{
+	return  (return_help_text());
+}
+
+/* Help Text display */
+
+/* Call form */
+function editorspick_collection()
+{
+return drupal_get_form('editorspick_coll_form');
+}
+function editorspick_sites()
+{
+return drupal_get_form('editorspick_site_form');
+}
+function editorspick_articles()
+{
+return drupal_get_form('editorspick_art_form');
+}
+/* Call form */
+
+/* Forms to dipaly  */
+function editorspick_site_form()
+{
+/* --- Coded added by akshay : Added the .js file --- */
+	drupal_add_js(drupal_get_path('module', 'editorspick') .'/editorspick.js');
+	/* ---- END ---- */
+$form = array();
+
+$form['list-of-sites'] = array(   
+    '#type' => 'textfield',
+    '#title'=>t('Sites'), 
+    '#autocomplete_path' => 'editorspick_site/autocomplete' 
+    ); 
+$form['list-of-sites']['#description'] = t('Enter an initial letter of Site');
+
+
+$form['submit1'] = array(
+'#type' => "submit",
+'#value' => t('Submit'),
+'#weight'=>2,
+);
+  
+
+return $form;
+}
+
+
+function editorspick_coll_form() {
+
+	/* --- Coded added by akshay : Added the .js file --- */
+	drupal_add_js(drupal_get_path('module', 'editorspick') .'/editorspick.js');
+	/* ---- END ---- */
+
+$form = array();
+
+$form['list-of-collections'] = array(   
+    '#type' => 'textfield',   
+    '#title'=>t('Collections'),  
+    '#autocomplete_path' => 'editorspick_coll/autocomplete' 
+    ); 
+$form['list-of-collections']['#description'] = t('Enter an initial letter of Collection');
+
+$form['submit2'] = array(
+'#type' => "submit",
+'#value' => t('Submit'),
+'#weight'=>2,
+);
+  
+return $form;
+}
+
+function editorspick_art_form() {
+
+/* --- Coded added by akshay : Added the .js file --- */
+	drupal_add_js(drupal_get_path('module', 'editorspick') .'/editorspick.js');
+	/* ---- END ---- */
+$form = array();
+
+$form['list-of-articles'] = array( 
+    '#title'=>t('Articles'),  
+    '#type' => 'textfield', 
+    '#autocomplete_path' => 'editorspick_art/autocomplete' 
+    ); 
+$form['list-of-articles']['#description'] = t('Enter an initial letter of Article');
+
+
+$form['submit3'] = array(
+'#type' => "submit",
+'#value' => t('Submit'),
+'#weight'=>2,
+);
+  
+return $form;
+}
+
+/* Forms to dipaly  */
+/* Autocomplete Form */
+function editorspick_site_autocomplete($string = ''){
+ $sql = "select DISTINCT(nid), title from {node} where status='1' and type='bookmarks_sites'  and lower(title) like lower('%s%%') order by title asc";
+
+  // query the database
+  $resource = db_query_range($sql, $string, 0, 10);
+
+  // loop through the results and create an associative array
+  $results = array();
+  while ($row = db_fetch_array($resource)) $results[$row['title']] = check_plain($row['title']);
+
+  // output the results in javascript
+  print drupal_to_js($results);
+
+  // exit, to prevent your results form hitting the theme layer
+  exit();
+}
+
+
+function editorspick_coll_autocomplete($string = ''){
+ $sql = "select DISTINCT(nid), title from {node} where status='1' and type='collection' and lower(title) like lower('%s%%') order by title asc";
+ 
+  // query the database
+  $resource = db_query_range($sql, $string, 0, 10);
+
+  // loop through the results and create an associative array
+  $results = array();
+  while ($row = db_fetch_array($resource)) $results[$row['title']] = check_plain($row['title']);
+
+  // output the results in javascript
+  print drupal_to_js($results);
+
+  // exit, to prevent your results form hitting the theme layer
+  exit();
+}
+
+
+function editorspick_art_autocomplete($string = ''){
+ $sql = "select DISTINCT(nid), title from {node} where status='1' and type='article' and lower(title) like lower('%s%%') order by title asc";
+
+  // query the database
+  $resource = db_query_range($sql, $string, 0, 10);
+
+  // loop through the results and create an associative array
+  $results = array();
+  while ($row = db_fetch_array($resource)) $results[$row['title']] = check_plain($row['title']);
+
+  // output the results in javascript
+  print drupal_to_js($results);
+
+  // exit, to prevent your results form hitting the theme layer
+  exit();
+}
+
+/* Autocomplete Form */
+/* Validate Functions */
+function  editorspick_site_form_validate(&$form,&$form_state)
+{
+	if($_POST['list-of-sites'] == "")
+	{
+		drupal_set_message(t('Please select site.'));
+	}
+}
+
+function  editorspick_coll_form_validate(&$form,&$form_state)
+{
+	if($_POST['list-of-collections'] == "")
+	{
+		drupal_set_message(t('Please select collection.'));
+	}
+}
+
+function  editorspick_art_form_validate(&$form,&$form_state)
+{
+	if($_POST['list-of-articles'] == "")
+	{
+		drupal_set_message(t('Please select article.'));
+	}
+}
+
+/* Validate Functions */
+/* Submit functions */
+
+function editorspick_site_form_submit(&$form,&$form_state)
+{
+ $sitenid=$_POST['list-of-sites'];
+       
+
+ if ($sitenid!='')
+ {
+
+ 
+ $titleQuery1=db_query("select title,type,nid from node where title like binary '%s' and type='bookmarks_sites' limit 0,1",$sitenid);
+ while($resulttitle1=db_fetch_array($titleQuery1))
+ {
+ $rowtitle1=$resulttitle1['title'];
+ $rowtype=$resulttitle1['type'];
+ $rownid=$resulttitle1['nid'];
+    
+       $queryTest = "SELECT count(edit_id) as id from ah_editors_pick where type='bookmarks_sites'and edit_id=$rownid ";
+      	$resultTest = db_query($queryTest);
+       $rowTest=db_result($resultTest);
+       if ($rowTest==0){ 
+   	$result=db_query("insert into ah_editors_pick (edit_id,type,flag) values('$rownid','$rowtype','1')");
+       }
+       else{$result=db_query("update ah_editors_pick set edit_id='$rownid' where type='bookmarks_sites' and edit_id=$rownid");}
+
+  }   
+  if ($result != FALSE) { drupal_set_message(t('The Site added successfully.')); }
+  
+ }
+}
+
+function editorspick_coll_form_submit(&$form,&$form_state)
+{
+ $collectionnid=$_POST['list-of-collections'];
+ if ( $collectionnid!=''){
+  $titleQuery1=db_query("select title,type,nid from node where title like binary '%s' and type='collection' limit 0,1", $collectionnid);
+ while($resulttitle1=db_fetch_array($titleQuery1)){
+ $rowtitle1=$resulttitle1['title'];
+ $rowtype=$resulttitle1['type'];
+ $rownid=$resulttitle1['nid'];
+
+	$queryTest = "SELECT count(edit_id) as id from ah_editors_pick where type='collection' and edit_id=$rownid ";
+      	$resultTest = db_query($queryTest);
+       $rowTest=db_result($resultTest);
+       if ($rowTest==0){ 
+   	$result=db_query("insert into ah_editors_pick (edit_id,type,flag) values('$rownid','$rowtype','1')");
+       }
+       else{$result=db_query("update ah_editors_pick set edit_id='$rownid' where type='collection' and edit_id=$rownid");}
+ }
+ if ($result != FALSE) {
+ drupal_set_message(t('The Collection added successfully.'));
+ }
+ }
+}
+
+
+function editorspick_art_form_submit(&$form,&$form_state)
+{
+ $articlenid=$_POST['list-of-articles'];
+ if ($articlenid!=''){
+ $titleQuery1=db_query("select title,type,nid from node where title like binary  '%s' and type='article' limit 0,1",$articlenid);
+ while($resulttitle1=db_fetch_array($titleQuery1))
+ {
+ $rowtitle1=$resulttitle1['title'];
+ $rowtype=$resulttitle1['type'];
+ $rownid=$resulttitle1['nid'];
+
+
+	$queryTest = "SELECT count(edit_id) as id from ah_editors_pick where type='article' and edit_id=$rownid ";
+      	$resultTest = db_query($queryTest);
+       $rowTest=db_result($resultTest);
+       if ($rowTest==0){ 
+   	$result=db_query("insert into ah_editors_pick (edit_id,type,flag) values('$rownid','$rowtype','1')");
+       }
+       else{$result=db_query("update ah_editors_pick set edit_id='$rownid' where type='article' and edit_id=$rownid");}
+
+
+ }
+ if ($result != FALSE) {
+ drupal_set_message(t('The Article added successfully.'));
+ }
+ }
+}
+/* Submit functions */
+
+/* Block Print */
+function leftside_editorspick()
+{
+ $SelectQuery=db_query("select DISTINCT(n.title), n.nid from ah_editors_pick e inner join node n on n.nid=e.edit_id WHERE n.status = 1 AND e.flag=1  order by e.id desc limit 0,5 ");
+ $c=1;
+ $output="<div id='leftHome2'><ol>";
+ while($ResultQuery=db_fetch_array($SelectQuery)){
+ $title= $ResultQuery['title'];
+ $nid= $ResultQuery['nid'];
+	
+	/*
+	if ($nid!=''){
+	$selectPath=db_query("select dst from url_alias where src='node/$nid'");
+	$resultPath=db_fetch_array($selectPath);
+	$recordPath=$resultPath['dst'];
+	}*/
+ $title = truncate_utf8($title, 50, FALSE, TRUE);
+ $output.="<li><span class='title'>".l($title, 'node/'.$nid)."</span></li>";
+ $c=$c+1;
+ }
+ $output.="</ol><hr /></div>";
+ return $output; 
+}
+
+/* Test code for delete */
+
+function editorspick_result_form()
+{
+
+$SelectQuery=db_query("select DISTINCT(n.title),e.type from ah_editors_pick e inner join node n on n.nid=e.edit_id ");
+
+$output="<table><tr><td>Select</td><td>Title</td><td>Type</td></tr>";
+while($ResultQuery=db_fetch_array($SelectQuery)){
+$title= $ResultQuery['title'];
+$type= $ResultQuery['type'];
+$output.="<tr><td><input type='checkbox' name='flag' value='1'></td><td>".$title."</td><td>".$type."</td></tr>";
+}
+$output.="<tr><td><input type='submit' name='flag_submit' value='Delete'></td><td></td></tr>";
+
+$output.="</table>";
+
+return $output; 
+}
+
+/* coding for editor picks with images*/
+function image_editorspick()
+{
+ $SelectQuery=db_query("select DISTINCT(n.title),n.nid,nr.body from node n inner join node_revisions nr on nr.nid=n.nid where n.type='collection'  and n.nid in (62398,62506,62399,62534,50579,903,40846) order 
+ by n.nid DESC");
+ $c=1;
+ $output="<div  id='righthome-2'><h2>Editors Picks</h2>";
+ while($ResultQuery=db_fetch_array($SelectQuery))
+ {
+// $title= $ResultQuery['title'];
+ $arr_old[] = ($ResultQuery['nid']);
+
+ }
+ $new_arr=array();
+ $new_arr[1] = $arr_old[3];
+ $new_arr[3] = $arr_old[1];
+  
+ unset($arr_old[3]);
+ unset($arr_old[1]);
+ 
+ $arr_old[3] = $new_arr[3];
+ $arr_old[1] = $new_arr[1];
+//print_r($arr_old);
+for($i=0;$i<count($arr_old);$i++)
+{
+    $value=$arr_old[$i];
+    $nid=$value;
+ $nodevalue=node_load($nid);
+ $title=$nodevalue->title;
+  if ($title==''){$title='Collection';}else{$title=$title;}
+
+if ($nid=='50579'){
+ $desc= "Did this 15th Century cannon  change the course of history when used by Spanish conquistadors to conquer the Aztecs? ";
+ 
+ }
+ if ($nid=='62534'){
+ $desc= "Where can you see the oldest steel warship and only surviving ship from the Spanish American War?";
+
+ }
+ if ($nid=='62399'){
+ $desc= "Did Shakespeare's friend lose this ring in the New World?";
+
+ }
+ if ($nid=='903'){
+ $desc= "Was this love letter found after Gettysburg  the last thing James Cariker ever read?";
+ }
+ if ($nid=='40846'){
+ $desc= "What did Jimi Hendrix's patchwork leather coat have to do with Native Americans?";
+ 
+ }
+ if ($nid=='62506'){
+ $desc= "Where can you see the only World War II PT boat in a museum?";
+
+ }
+ if ($nid=='62398'){
+ $desc= "How did Aztec pottery end up in Florida in 1559?";
+ //$desc = truncate_utf8($desc, 70, FALSE, TRUE);
+ }
+
+
+ $selectfile="select f.filepath,f.filename,c.field_site_id_nid from content_type_collection c inner join files f on f.fid=c.field_image_fid where c.nid=$nid";
+ $resultfile=db_query($selectfile);
+ $rowfile=db_fetch_object($resultfile);
+ $path=$rowfile->filepath;
+ $sitenid=$rowfile->field_site_id_nid;
+ $filename=$rowfile->filename;
+
+ 
+ $selectSite=db_query("select title from node where nid=$sitenid");
+ $resultSite=db_fetch_object($selectSite);
+ $SiteTitle= $resultSite->title;
+
+ /* URL Alias
+ if ($nid!=''){
+	$selectPath=db_query("select dst from url_alias where src='node/$nid'");
+	$resultPath=db_fetch_array($selectPath);
+	$recordPath=$resultPath['dst'];
+	}
+ if ($sitenid!=''){
+	$selectPath1=db_query("select dst from url_alias where src='node/$sitenid'");
+	$resultPath1=db_fetch_array($selectPath1);
+	$recordPath1=$resultPath1['dst'];
+	}
+ $recordPath1=$recordPath1;
+ */
+
+ 
+ if ($rowfile->filepath==''){
+  $filename="no_record.png"; 
+ }
+ elseif (!file_exists($path))
+ {
+ $filename="no_record.png"; 
+ 
+ }
+ else if (file_exists($path) && is_file($path)) {
+ $filename=$rowfile->filename;
+
+ }
+ $imagecache_image=theme('imagecache','colection', $path, $title , $title);
+ $image_site="node/".$nid;
+ $options1 = array('query' => array('nid' => $sitenid)); 
+
+ 
+ $output.="<div  class='record'>";
+ $output.=l($imagecache_image, $image_site, $options = array('html' => TRUE));
+ $output.="<ul><li ='collection'>".l($title, 'node/'.$nid)."</li>";
+ $output.="<li class='title'>".$desc."</li>";
+ $output.="<li class='collection'>".l($SiteTitle,'node/'.$sitenid,$options1)."</li>";
+ $output.="</ul></div>";
+
+ 
+
+ $c=$c+1;
+ }
+ $output.="</div>";
+ return $output; 
+}
+
+
+
+
+
+/* Block code to display */
+
+function editorspick_block($op='list', $delta=0) {
+  $block = array();
+ 
+switch ($op) {
+case 'list':
+      	$block[0]["info"] = t('editorspick Sidebar');
+     	$block[1]["info"] = t('editorspick Image');
+      	return $block;break;
+case 'view':
+switch ($delta) {
+case 0:
+	 $block_content = leftside_editorspick();
+     $block['subject'] = '';
+     if ($block_content == ''){$block['content'] = '';}
+     else {$block['content'] = $block_content; }
+     break;
+case 1:
+	 $block_content = image_editorspick();
+     $block['subject'] = '';
+     if ($block_content == '') {$block['content'] = '';}
+     else {$block['content'] = $block_content; }
+    break;
+     
+}	
+ 
+ 				return $block;
+				}
+}
+
+
+
+/******************************************************************************************/
+
+function editorspick_record() {
+  // Include a nice Javascript which makes the settings easier
+  drupal_add_js(drupal_get_path('module', 'editorspick') .'/helper.js');
+ 
+     $config['sites'] = editorspick_get_site();
+	$set= $config['sites'][0];
+    $config['collection'] = editorspick_get_collection($set);
+    $output = drupal_get_form('editorspick_form', $uid, $cid, $config);
+
+  return $output;
+}
+
+
+/**
+ * Return a new place selection box based on the country selection
+ */
+function editorspick_js() {
+  // Get the current selected country for the new places
+  $form_state = array('values' => $_POST);
+  
+  $new_places = editorspick_get_collection($form_state['values']['site']);
+
+  if (is_array($new_places)){$new_places=$new_places;}
+  else{
+  $new_places=' '; 
+  drupal_set_message(t('No records exists for '.$form_state['values']['site']));
+    }
+     // Get form from cache and store modified place selection
+
+  $form = form_get_cache($_POST['form_build_id'], $form_state);
+
+  $form['collection'] = array(
+    '#type' => 'select',
+    '#title' => t('Result'),
+    '#description' => t('Select one or more collection.'),
+    '#options' => $new_places,
+    '#default_value' => $new_places,
+    '#multiple'=>TRUE,
+
+  );
+  form_set_cache($_POST['form_build_id'], $form, $form_state);
+  $form += array(
+    '#post' => $_POST,
+    '#programmed' => FALSE,
+  );
+
+  // Rebuild the form.
+  $form_state = array('submitted' => FALSE);
+  $form = form_builder('editorspick_form', $form, $form_state);
+
+
+  // Render the new output.
+  $output = theme('status_messages') . drupal_render($form['collection']);
+
+  // Don't call drupal_json(). ahah.js uses an iframe and
+  // the header output by drupal_json() causes problems in some browsers.
+  print drupal_to_js(array('status' => TRUE, 'data' => $output));
+
+
+  
+ 
+  exit;
+}
+
+
+
+/**
+ * Construct the configuration form for a featuredrecord
+ */
+function editorspick_form($dummy, $uid, $cid, $config) {
+  // set up a selection box with all countries
+  drupal_add_js(drupal_get_path('module', 'editorspick') . '/submit.js');
+
+  $form['site'] = array(
+    '#type' => 'select',
+    '#title' => t('Select'),
+    '#description' => t('Select any option from the list.'),
+    '#options' => drupal_map_assoc($config['sites']),
+    '#ahah' => array(
+      'path' => 'editorspick/js',
+      'wrapper' => 'edit-collection-wrapper',
+    ),
+  );
+  
+  
+  // set up a selection box with all place names of the selected country
+  $form['collection'] = array(
+    '#type' => 'select',
+    '#title' => t('Result'),
+    '#description' => t('Select one or more option.'),
+    '#multiple'=>TRUE,
+    '#options' => $config['collection'],
+	'#default_value' =>$config['collection'],
+    
+  );
+
+ 
+
+$form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Delete'),
+
+  );
+
+  return $form;
+}
+
+function editorspick_form_submit(&$form,&$form_state){
+
+ $typename=$_POST['site'];
+$collnid=$_POST['collection'];
+ if ($typename!='' && count($collnid)!=0)
+ {
+ $value=implode(",",$collnid); 
+ $titleQuery1=db_query("select title,type,nid from node where nid in ($value) and type='$typename'");
+ while($resulttitle1=db_fetch_array($titleQuery1))
+ {
+ $rowtitle1=$resulttitle1['title'];
+ $rowtype=$resulttitle1['type'];
+ $rownid=$resulttitle1['nid'];
+ $result=db_query("delete from ah_editors_pick where type='$rowtype' and edit_id=$rownid");
+ }
+ if ($result != FALSE)
+ {
+ drupal_set_message(t('Deleted Successfully.'));
+ }
+}
+ 
+}
+
+
+function editorspick_get_site() {
+
+  //$sql = "SELECT DISTINCT(type) from node where type in ('bookmarks_sites','collection','article') GROUP BY type ORDER BY type DESC";
+  $sql = "SELECT DISTINCT(type) from  ah_editors_pick GROUP BY type ORDER BY type DESC";
+  $result = db_query($sql);
+
+  while ($row = db_fetch_array($result)) {
+    $sites[] = $row['type'];
+  }
+ if (count($sites)!=0){
+  return $sites;
+ }
+else{$sites[]='No Records';  return $sites;}
+
+}
+
+
+function editorspick_get_collection($site) {
+
+$SiteData =$site;
+$sql = "SELECT n.title,n.nid from ah_editors_pick a inner join node n on n.nid=a.edit_id where n.title!='' and a.type ='$SiteData' ORDER BY n.title ASC";
+ 
+  $result = db_query($sql);
+  while ($row = db_fetch_array($result)) {
+   $collection[$row['nid']] = $row['title'];
+      }
+	if(!$collection){
+		$collection[] ="";
+		//drupal_set_message('No Record Exist');
+              
+		return $collection;
+	}else{
+		return $collection;
+  	}
+
+}
+
+
+
+
+

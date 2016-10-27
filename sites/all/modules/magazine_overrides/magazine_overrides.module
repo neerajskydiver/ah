@@ -1,0 +1,434 @@
+<?php
+// $Id: magazine_overrides.module,v 1.21.2.39 2010/08/02 11:06:43 hutch Exp $
+// for D6. Version 2
+/**
+ * @file
+ * 
+ */
+
+/**
+ * Implementation of hook_help().
+ */
+function magazine_overrides_help($path, $arg) {
+	switch ($path) {
+		case 'admin/help#magazine_overrides':
+			$body = '<p>'. t('Module to override UI and Hooks for Magazine part.') .'</p>';
+			return $body;
+	}
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function magazine_overrides_perm() {
+	return array('administer magazine-overrides');
+}
+
+
+/**
+ * Implementation of hook_menu().
+ */
+function magazine_overrides_menu() {
+  $items = array();
+
+	$items['latest/magazine'] = array(
+		'title'		=> 'Magazines Import',
+		'page callback'		=> 'magazine_homepage',
+    'access callback' => 'node_access',
+    'access arguments' => array('view', 1),
+  	);
+
+	$items['article/teasers'] = array(
+		'title'		=> 'Magazines Teasers',
+		'page callback'		=> 'magazine_teasers',
+    'access callback' => 'user_access',
+    'access arguments' => array('administer magazine-overrides'),
+  	);
+		return $items;
+}
+
+
+/**
+  * To set Magazine "Current Issue" as homepage
+	* Implementation of hook_user()
+	*/
+function magazine_homepage() {
+  $result = db_query(db_rewrite_sql("SELECT n.nid FROM {node} n WHERE n.type = 'issue' AND n.status = 1 ORDER BY n.sticky DESC, n.created DESC LIMIT 1"));
+  $node = db_fetch_object($result);
+  $output = '';
+  while ($node = db_fetch_object($result)) {
+//    $output = node_view(node_load($node->nid), FALSE, TRUE, TRUE);
+$output .= node_view($node->nid);
+  }
+//print_r($output);
+
+  return $output;
+//node_view($node, $teaser = FALSE, $page = FALSE, $links = TRUE)
+}
+
+/**
+  * For changing the weight of user profile Picture
+	* Implementation of hook_user()
+	*/
+
+function magazine_overrides_user($type, &$edit, &$account, $category = NULL) {
+  if ($type == 'view') {
+		// for hiding "History:" from Contributors profile
+		unset( $account->content['summary']);
+  }
+}
+
+/**
+ *  @desc   Implementation of hook_link()
+ */
+function _magazine_overrides_link($type, $object, $teaser = false)  {
+/* $title = '';
+    $links['pagination-showall'] = array(
+      'title'       =>  $title,
+      'attributes'  =>  array(
+        'title' => $title,
+      ),
+    );
+
+    return $links;
+*/}
+
+/**
+ * Implementation of hook_nodeapi().
+ *
+ * Auto Fill Contributor field in Article content type 
+ * modifies "Show full page" Link an prints new link in body
+ */
+function magazine_overrides_nodeapi(&$node, $op, $teaser, $page) {
+    switch ($op) {
+       case 'view':
+        if ($node->type == 'article' && !$teaser){
+/*
+          $pg     =&  Pagination::getInstance();
+          $page   =   $pg->getPageVar();
+          $paging =   $pg->getValue($node->type);
+          $style  =   $pg->getStyle($node->type);
+          $ignore =   array_map('trim', explode(',', variable_get('pagination_ignore', '') ) );
+          $build  =   $node->build_mode == NODE_BUILD_NORMAL;
+
+          if (!$teaser and $paging and $page !== 'show' and $build and !in_array($node->nid, $ignore, true) )    {
+            $pg->paginate($node->content['body']['#value'], $paging);
+            $node->content['body']['#value'] = $pg->getPage($page);
+          $href = isset($node->path) ? $node->path : 'node/'.$node->nid;
+          $url = url($href, array('query' => $query,'absolute' => TRUE));
+          $title = 'Single Page';
+          $show_full = '<div class ="fullpage">' . l($title, $url) . '</div>';
+            if ($style < PAGINATION_TOC)  {
+              $show_full = theme('links', pagination_link($node->type, $node, $teaser), array('class' => 'pagination'));
+
+                $node->content['pagination_sushil'] = array(
+                  '#weight' =>  module_exists('content') ? content_extra_field_weight($node->type, 'pagination_pager') : 50,
+                  '#value'  =>  '<div class="panel pagination">' . $show_full . $pg->getPager() . '</div>',
+                );
+
+            }
+          }
+*/
+        }
+        elseif ($node->type == 'article' && $teaser && !$node->teaser)
+        {
+         // magazine_teasers($node);
+        }
+        break;
+	      case 'presave':
+/*
+ * For Contributor's field in content type Article '
+ */
+          if ($node->type == 'article'){
+            if(!empty($node->field_art_contributor[0]['uid'])){
+              $node->uid = $node->field_art_contributor[0]['uid'];// = $author->uid;
+            }
+          }
+      break;
+  }
+}
+
+function magazine_overrides_link_alter(&$links, $node, $comment = NULL) {
+    global $base_url;
+    global $base_path;
+$show_article_links = 1;
+  if($node->type == 'article' || $node->type == 'blog'){
+  foreach ($links as $module => $link) {
+    if(strstr($module, 'service-links')) {
+      $show_article_links = $show_article_links + $show_article_links;
+    }
+    if (strstr($module, 'taxonomy')) {
+      return FALSE;
+    }
+    if (strstr($module, 'comment_reply')) {
+      return FALSE;
+    }
+  }
+  if($show_article_links > 1) {
+      drupal_add_js(drupal_get_path('module', 'magazine_overrides') . "/js/text.js");
+    $links_new = array();
+    $links['print_rss']['title'] = '<img style = "width: 20px" src="' . $base_url .'/sites/all/modules/magazine_overrides/icons/rss.png" alt="RSS" title="RSS Feed"/>';
+    $links['print_rss']['href'] = 'rss.xml';
+    $links['txt_size']['title'] = '<a title="Reduce Text Size" id="minus" href="#magazine"><img style="width:20px;" src="' . $base_url .'/sites/all/modules/magazine_overrides/icons/minus.png" alt="-" /></a><a title="Increase Text Size" id="plus" href="#magazine"><img src="' . $base_url .'/sites/all/modules/magazine_overrides/icons/plus.png" alt="+" /></a>';
+    $links['print_rss']['html'] = TRUE;
+    $links['txt_size']['html'] = TRUE;
+    //$links['txt_size_plus']['href'] = $links['txt_size_minus']['href'] = '';
+
+// if($links['print_mail']){
+//   $links_new['print_mail'] = $links['print_mail'];
+// }
+if(!empty($links['comment_add'])){
+    $links_new['comment_add'] = $links['comment_add'];
+    $links_new['comment_add']['title'] ='<img style = "width: 20px;" src="' . $base_url .'/sites/all/modules/magazine_overrides/icons/comment.png" alt="Comment" />';
+}
+else{
+  if (user_access('post comments')) {
+    $links_new['comment_add']['title'] ='<a title="Comment" href="#comment-form" id="comment-a"><img style = "width: 20px;" src="' . $base_url .'/sites/all/modules/magazine_overrides/icons/comment.png" alt="Comment" /></a>';
+        $links_new['comment_add']['html'] = TRUE;
+  }
+  else{
+    $links_new['comment_add']['title'] ='<span title="Login/Register to post comments"><a href="' . $base_url . '/user/login" title="Login/Register to post comments"><img style = "width: 20px;" src="' . $base_url .'/sites/all/modules/magazine_overrides/icons/comment.png" alt="Register to post comments" /></a></span>';
+        $links_new['comment_add']['html'] = TRUE;
+  }
+
+}
+if($links['print_rss']){
+    $links_new['print_rss'] = $links['print_rss'];
+}
+// if($links['print_html']){
+//    $links_new['print_html'] = $links['print_html'];
+// }
+if($links['txt_size']){
+    $links_new['txt_size'] = $links['txt_size'];
+}
+
+if ($node->type != 'blog')
+{
+
+    $links_new['service-links-delicious'] = $links['service-links-delicious'];
+    $links_new['service-links-stumbleupon'] = $links['service-links-stumbleupon'];
+
+}
+    $links_new['service-links-twitter'] = $links['service-links-twitter'];
+    $links_new['service-links-facebook'] = $links['service-links-facebook'];
+
+    $links_new['txt_size']['attributes']['class'] = 'text-size';
+    $links_new['service-links-facebook']['attributes']['class'] = 'service-links-facebook service-links';
+    $links_new['service-links-twitter']['attributes']['class'] = 'service-links-twitter service-links';
+    $links_new['service-links-delicious']['attributes']['class'] = 'service-links-delicious service-links';
+    $links_new['service-links-stumbleupon']['attributes']['class'] = 'service-links-stumbleupon service-links';
+
+    $links_new['service-links-facebook']['attributes']['title'] = 'Facebook';
+    $links_new['service-links-twitter']['attributes']['title'] = 'Twitter';
+    $links_new['service-links-delicious']['attributes']['title'] = 'Delicious';
+    $links_new['service-links-stumbleupon']['attributes']['title'] = 'Stumbleupon';
+
+
+   // $links_new['print_mail']['title'] = '<img style = "width: 20px;" src="' . $base_url .'/sites/all/modules/magazine_overrides/icons/mail.png" alt="Email" />Mail';
+
+
+    //$links_new['print_html']['title'] = '<img style = "width: 20px;" src="' . $base_url .'/sites/all/modules/magazine_overrides/icons/print.png" alt="Print" />Print';
+
+  //  $links_new['print_mail']['html'] = TRUE;
+    $links_new['comment_add']['html'] = TRUE;
+  //  $links_new['print_html']['html'] = TRUE;
+
+
+    unset($links['print_mail'], $links['comment_add'], $links['print_html'], $links['service-links-facebook'], $links['service-links-twitter'],  $links['service-links-delicious'], $links['service-links-stumbleupon'], $links['txt_size_plus'], $links['txt_size_minus'], $links['print_rss']);
+    //<li><<img src="/sites/all/modules/magazine_overrides/icons/plus.png" alt="+" /></a></li>
+    //$links_new = array_merge($links_new, $links);
+    $links = $links_new;
+    unset($links['pagination-showall'], $links['comment_forbidden']);
+/*
+ * echo "<pre style='display:none'>"; print_r($links);
+ * echo "</pre>";
+ */
+return $links;
+  }
+ }
+}
+
+/**
+ * Homepage Search button Override
+ */
+
+function magazine_overrides_form_alter(&$form, $form_state, $form_id) {
+	switch($form_id){
+		case 'print_mail_form':
+/*
+ *Print form cancel Button fix (to remove cancel button validation)
+ */
+  	 $form['btn_cancel'] = array(
+      '#type' => 'button',
+      '#value' => 'Cancel',
+      '#attributes' => array(
+        'onclick' => "javascript:history.go(-1); return false;",
+        ),
+    );
+    break;
+
+    case 'article_node_form':
+      
+      //dsm($form);
+    break;
+    case 'contact_mail_page':
+		  $form['#validate'][] = 'email_validate_new';
+    break;
+  }
+	switch($form['#id']){
+		case 'views-exposed-form-home-page-search-page-1':
+		    $form['submit']['#value'] = t('Find');
+		break;
+  }
+
+}
+
+/**
+ *
+ * Email validate re-worked
+ */
+function email_validate_new($form,&$form_state){
+  $email_address =  $form_state['values']['mail'];
+
+  if (strlen(trim($email_address)) > 0) {
+
+  if (!eregi("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$", $email_address))
+
+  form_set_error('mail', t('Your email address is not valid.'));
+
+  };
+}
+
+
+/**
+ * 
+ * Implementation of node_teaser
+ * To generate Teasers for Articles
+ * - Sushyl
+ */
+
+function magazine_teasers($node){
+//$nid = 61817;
+//$node = node_load($nid);
+$output = $node->body;
+$output = removeTag($output,'img-block','<div','</div>');
+$output = removeTag($output,'image-attributes','<div','</div>');
+$node->teaser = t(node_teaser($output, isset($node->format) ? $node->format : NULL));
+node_save($node);
+
+//return t($node->teaser);
+//.'hi';// . '<br /> ' . t($node->teaser);
+//$output = drupal_get_form('magazine_teasers_form');
+//return $output;//check_plain($nid);//;
+}
+
+/**
+ *
+ *
+ */
+function extractTag($str,$id,$start_tag,$end_tag)
+{
+     //str - string to search
+     //id - text to search for
+     //start_tag - start delimiter
+    //end_tag - end delimiter
+ 
+    if($id)
+    {
+        $pos_srch = strpos($str,$id);
+        //extract string up to id value
+        $beg = substr($str,0,$pos_srch);
+ 
+        //get position of start delimiter
+        $pos_start_tag = strrpos($beg,$start_tag);
+    }
+    else
+       $pos_start_tag = strpos($str,$start_tag); //if no id value get first tag found
+ 
+    //get position of end delimiter
+    $pos_end_tag = strpos($str,$end_tag,$pos_start_tag);
+    //length of end deilimter
+    $end_tag_len = strlen($end_tag);
+    //length of string to extract
+    $len = ($pos_end_tag+$end_tag_len)-$pos_start_tag;
+    //Extract the tag
+    $tag = substr($str,$pos_start_tag,$len);
+ 
+    return $tag;
+}
+/**
+ *
+ * //Will remove all hr tags of page-break class from $html string
+ */
+$parseStr = removeTag($html,'page-break','<hr','/>');
+ 
+function removeTag($str,$id,$start_tag,$end_tag)
+ {
+    //str - string to search
+    //id - text to search for
+    //start_tag - start delimiter to remove
+   //end_tag - end delimiter to remove
+ 
+ //find position of tag identifier. loops until all instance of text removed
+ while(($pos_srch = strpos($str,$id))!==false)
+ {
+     //get text before identifier
+     $beg = substr($str,0,$pos_srch);
+     //get position of start tag
+     $pos_start_tag = strrpos($beg,$start_tag);
+     //echo 'start: '.$pos_start_tag.'<br>';
+     //extract text up to but not including start tag
+     $beg = substr($beg,0,$pos_start_tag);
+     //echo "beg: ".$beg."<br>";
+ 
+     //get text from identifier and on
+     $end = substr($str,$pos_srch);
+ 
+     //get length of end tag
+     $end_tag_len = strlen($end_tag);
+     //find position of end tag
+     $pos_end_tag = strpos($end,$end_tag);
+     //extract after end tag and on
+     $end = substr($end,$pos_end_tag+$end_tag_len);
+ 
+     $str = $beg.$end;
+ }
+ 
+ //return processed string
+ return $str;
+ }
+
+
+function magazine_teasers_form(&$node, $form_state){
+  $form['selectbox'] = array(
+    '#type' => 'select', 
+    '#title' => t('Select box'), 
+    '#default_value' => $node->selectbox, 
+    '#options' => array(
+      1 =>  'single',
+      2 => 'multiple',
+    ),
+    '#description' => t('Please choose an option.'),
+  );
+$form['nids'] = array(
+    '#type' => 'textfield', 
+    '#title' => t('Number of nodes to be parsed'), 
+    '#default_value' => $node->field1, 
+    '#maxlength' => 127,
+  );
+  $form['submit'] = array(
+    '#type' => 'submit', 
+    '#title' => t('Number of nodes to be parsed'), 
+    '#value' => 'go->', 
+    '#maxlength' => 127,
+  );
+ return $form;
+
+}
+
+function magazine_teasers_submit($form, &$form_state) {
+echo "hi";//($form_state);
+
+}
+
+

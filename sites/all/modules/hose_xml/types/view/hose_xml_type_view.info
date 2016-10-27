@@ -1,0 +1,12 @@
+; $Id: hose_xml_sandwich.info,v 1.1 2010/11/15 15:19:44 rayvaughn Exp $
+name = Hose Type View
+description = "Loopable container field for Hose XML module."
+package = "Hose XML"
+core = 6.x
+dependencies[] = hose_xml
+; Information added by drupal.org packaging script on 2011-09-09
+version = "6.x-1.x-dev"
+core = "6.x"
+project = "hose_xml"
+datestamp = "1315527279"
+

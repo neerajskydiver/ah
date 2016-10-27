@@ -1,0 +1,30 @@
+/*  ------------ Code written by akshay for Blog Section  ------------- */
+.blogEntry  .blog_body{
+	
+}
+.blogEntry p {
+	font-size: 12px;
+	font-weight: 100;
+	line-height: 1.3;
+}
+.blogEntry  .blog_body img {
+	padding:0 10px;
+}
+.blogEntry h2.blogh2 {
+	color: #062D4D;
+	font-size: 200%;
+	font-weight: 900;
+	letter-spacing: 0.01em;
+}
+.blogEntry h2.blogh2 a {
+	color: #062D4D;
+	text-decoration:none;
+}
+.blogEntry .blog_body .blogEntryImage {
+	float: left;
+	margin-right: 15px;
+}
+.blogEntry .blogTimeStamp, .blogEntry .blogTimeStamp a {
+	color:#000000;
+	text-decoration:none;
+}

@@ -1,0 +1,112 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Process Mass Operations in batches.
+ */
+
+ 
+/**
+ * Implementation of hook_perm().
+ */
+function mass_operations_perm() {
+  return array('administer process batch');
+}
+
+
+/**
+ * Implementation of hook_menu().
+ */
+function mass_operations_menu() {
+  $items['admin/settings/mass-operations'] = array(
+    'title' => t('Mass Operations Settings'),
+    'description' => t('Mass Operations Settings.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mass_operations_form'),
+    'access arguments' => array('administer process batch'),
+  );
+  return $items;
+}
+
+
+function mass_operations_form_submit($form, &$form_state) {
+  mass_operations_execute($form_state);
+  $num_times = $form_state['values']['num_times'];
+
+    //return $nid;
+}
+
+/** 
+ *
+ * Write here your code to be executed in batches. 
+ */
+function _mass_operations_operation($code, &$context = NULL) {
+  //include_once('/cron.php');
+  //eval($code);
+  //dsm($code);
+ $context['results']['name']= t('Cron run');
+
+ drupal_cron_run();
+ sleep(2);
+
+ $context['results']['num_times'] ++;
+}
+
+function mass_operations() {
+  drupal_get_form('mass_operations_form');
+}
+
+/**
+ * Implementation of hook_form().
+ */
+
+function mass_operations_form() {
+  $form['execute']['num_times'] = array(
+  '#title' => 'Number of Iterations',
+  '#type' => 'textfield',
+  );
+  $form['execute']['code'] = array(
+  '#title' => 'Code to execute',
+  '#type' => 'textarea',
+  );
+
+  $form['submit'] = array('#type' => 'submit', '#value' => t('Execute'));
+  return $form;
+}
+
+/**
+ * Functions called from FAPI:
+ */
+
+function mass_operations_execute($form_state) {
+  $operations = array();
+
+  // Setup the batch operations and save the variables.
+  for ($num = 0; $num < $form_state['values']['num_times']; $num ++) {
+    $operations[] = array('_mass_operations_operation', array($form_state['values']['code']));
+  }
+  // start the batch
+  $batch = array(
+    'title' => t('Process Batch Operations'),
+    'operations' => $operations,
+    'finished' => 'mass_operations_batch_finished',
+    'error_message' => t('The Operation has encountered an error.'),
+  );
+  batch_set($batch);
+}
+
+/**
+ *
+ * Function to be executed after all operations in batch are finished
+ */
+function mass_operations_batch_finished($success, $results, $operations) {
+  if ($success) {
+    $message = t('Finished! Process "@name" processed  @num_times times successfully.', array('@num_times' => $results['num_times'], '@name' => $results['name'] ));
+  }
+  else {
+    $message = t('Finished with an error.');
+  }
+  drupal_set_message($message);
+}
+

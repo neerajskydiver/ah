@@ -1,0 +1,96 @@
+<?php
+
+/**
+ * @file
+ * Implementation of 'raw' tag type.
+ */
+
+/**
+ * @defgroup hose_xml_raw Raw
+ * @{
+ * Raw field type plug-in.
+ *
+ * Allows insertion of raw XML.
+ */
+
+/**
+ * Implementation of hook_hose_xml_field_name().
+ */
+function hose_xml_raw_hose_xml_field_name() {
+  return array('raw' => t('Raw XML'));
+} // hose_xml_raw_hose_xml_field_name
+
+/**
+ * Implementation of hook_hose_xml_field_icon().
+ */
+function hose_xml_raw_hose_xml_field_icon() {
+  return drupal_get_path('module', 'hose_xml_raw') .'/raw.png';
+} // hose_xml_raw_hose_xml_field_icon
+
+/**
+ * Implementation of hook_hose_xml_settings_information().
+ */
+function hose_xml_raw_hose_xml_settings_information() {
+  return array(
+    'validate' => array(
+      'title' => t('Validate raw XML'),
+      'description' => t('Confirm that the XML is valid before inserting.'),
+      'type' => 'checkbox',
+    ),
+  );
+} // hose_xml_raw_hose_xml_settings_information
+
+/**
+ * Implementation of hook_hose_xml_validate().
+ */
+function hose_xml_raw_hose_xml_validate($data, $settings) {
+  $reason = '';
+  // nothing there?
+  if (empty($data)) {
+    return array(
+      'data' => $data,
+      'reason' => '',
+    );
+  }
+  
+  // Validate encoding
+  $clean = drupal_validate_utf8(trim($data));
+  if (!$clean) {   
+    $reason = t('Entry contains invalid characters.');
+  }
+  
+  if (empty($reason) && $settings['validate']) {
+    // validate the XML
+    $reason = '';
+    libxml_use_internal_errors(TRUE);
+  
+    $doc = new DOMDocument('1.0', 'utf-8');
+    // add a dummy tag round the content for the validation
+    $doc->loadXML("<raw>$data</raw>");
+  
+    $errors = libxml_get_errors();
+    if (!empty($errors)) {
+      $error = $errors[0];
+      if ($error->level > 2) {
+        $lines = explode("r", $data);
+        $line = $lines[($error->line) - 1];
+      }
+      $reason = t("@message at line @line:<br />!output",
+        array(
+          '@message' => $error->message,
+          '@line' => $error->line,
+          '!output' => htmlentities($line),
+        )
+      );
+    }
+  }
+  return array(
+    'data' => $data,
+    'reason' => $reason,
+  );
+} // hose_xml_raw_hose_xml_validate
+
+
+/**
+ * @} End of "defgroup hose_xml_raw".
+ */

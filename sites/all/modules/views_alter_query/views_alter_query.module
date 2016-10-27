@@ -1,0 +1,349 @@
+<?php
+// $Id$
+/*
+Implementaion of hook_perm
+*/
+
+function views_alter_query_perm() {
+  return array('Alter View Query');
+}
+
+
+function views_alter_query_menu() {
+
+  $items = array();
+  $items['admin/view_alter'] = array(
+    'title' => 'View Query ALter', 
+    'description' => 'Listing of blogs.', 
+    'page callback' => 'views_alter_query_views_query_alter', 
+    'access callback' => TRUE,
+    'access arguments' => array('Alter View Query'),
+    'type' => MENU_CALLBACK
+  );
+ return $items;
+}
+
+
+function views_alter_query_views_query_alter (&$view,&$query)
+{
+
+//$nodeId = $_SESSION['nodeID'];
+	
+$nodeId = $_GET['nid'];
+
+
+
+	//$var = node_load($nodeId);
+
+	
+	if ($view->name == 'Search_landing_page' && $view->current_display == 'page_1') {
+			$var = node_load($nodeId);
+
+
+		$clause_unset =  count($query->where[0][clauses]);
+		$args_unset =  count($query->where[0][args]);
+
+
+		$clause = $clause_unset - 1;
+		$args = $args_unset - 1;
+		unset($query->where[0][clauses][$clause]);
+		unset($query->where[0][args][$args]);
+		
+		
+		if(($_GET['term1'] == 1))
+		{
+		}
+		else
+		{
+			$clause_whr = $clause_unset-2;
+			$args = $args_unset -2;
+			unset($query->where[0][clauses][$clause_whr]);
+			unset($query->where[0][args][$args]);
+		}
+
+			
+			$view->query->add_where('Search_landing_page', "node_data_field_site_id.field_site_id_nid = %d",$nodeId); 
+/*			unset($query->where[0][clauses][2]);
+			unset($query->where[0][args][1]);
+			
+			dsm($query);
+*/	}// IF//
+	if ($view->name == 'volume_list' && $view->current_display == 'page_1') {
+	//	$view->display['page_1']->handler->handlers['argument']['field_year_value']->options['title'] = arg(1);
+		
+				drupal_set_title(arg(1));
+	}// IF//
+
+		if ($view->name == 'home_page_search') {
+		if($_GET[type])
+		{
+			$cnt_args = (count($query->where[0][args]));	
+			$cnt_where = (count($query->where[0][clauses]));	
+			unset($query->where[0][args][$cnt_args-1]);
+			unset($query->where[0][args][$cnt_args-2]);
+			unset($query->where[0][args][$cnt_args-3]);
+			unset($query->where[0][clauses][$cnt_where-1]);
+		}
+	}	
+
+
+}
+
+/**
+ * Implementation of hook_nodeapi().
+ *
+ * Appends book navigation to all nodes in the book, and handles book outline
+ * insertions and updates via the node form.
+ */
+
+function views_alter_query_nodeapi(&$node, $op, $teaser, $page) {
+//function views_alter_query_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+
+	/* 
+   		echo "<div style='display:none'><pre>";
+		echo "</pre></div>";
+	*/
+    switch ($op) {
+     case 'load':
+      if ($node->type == 'collection'){
+        $old_keywords = $node->field_keywords[0]['value'];
+        $key_array = explode(',', $old_keywords);
+		    if(!(empty($key_array[0])))
+		    {
+             foreach($key_array as $datum){
+                if($datum!=' '){
+                $new_array[] = "<a href='#'>".trim($datum)."</a>";
+              }
+             }
+            $new_keywords = implode(',', $new_array);
+           
+            $node->field_keywords[0]['value'] = $new_keywords;
+        }
+      }
+	break;
+
+	case 'view':
+	break;
+	  }
+} 
+
+
+
+function views_alter_query_exit($destination = NULL)
+{
+
+  drupal_bootstrap(DRUPAL_BOOTSTRAP_PATH);
+
+	
+	if ((arg(0) == 'node') && is_numeric(arg(1)) && arg(2) == '') 
+	{
+	$nid = arg(1);
+	$sql = "select type from node where nid =".$nid;
+	$res = db_query($sql);
+	$type = db_fetch_object($res); 	
+		if($type->type == "collection")
+		{
+		//echo $nid;
+		global $user;
+		$sid = session_id();
+		$uid = $user->uid;
+		$time = time();
+		$title = strip_tags(drupal_get_title());
+			if($uid != 1)
+			{
+				db_query("insert into {viewed_count} (nid,node_title,node_path,session_id,timestamp,user_id) values ('%d','%s','%s','%s','%d','%d')",$nid,$title,$_GET['q'],$sid,$time,$user->uid);
+			}
+		}
+	}
+}
+
+function views_alter_query_form_alter(&$form, $form_state, $form_id)
+{
+	/*	--------- START - Code added by akshay :- For NEXT and PREV Pagination -----	*/	
+	
+			if(arg(0) == 'node' && (arg(1)!='')){ 
+				$loaded_node_id = arg(1);				
+				$loaded_node_details = node_load($loaded_node_id);				
+			}else{
+				$loaded_node_id = $_GET['node_id'];
+				$loaded_node_details = node_load($loaded_node_id);				
+			}
+
+	if($loaded_node_details->type == 'collection'){
+						
+		 if ($form['#id'] == "comment-form") 
+		 {
+			$http_referer = $_SERVER['HTTP_REFERER'];
+			if($_REQUEST['ref']){
+				$first_index = $_REQUEST['ref'];
+			}else{
+				if(strpos($http_referer,"navy-museum")){
+					$first_index = "navy-museum";
+				}else if(strpos($http_referer,"search-national-parks")){
+					$first_index = "search-national-parks";
+				}else if(strpos($http_referer,"search-landing-page")){
+					$first_index = "search-landing-page";
+				}else if(strpos($http_referer,"search-collections")){
+					$first_index = "search-collections";
+				}
+			}
+			
+			if($_GET['md'] != ''){
+				$md_val = $_GET['md'];
+			}else{
+				if($_SERVER['HTTP_REFERER']){
+					$md_val = md5($_SERVER['HTTP_REFERER']);
+				}		
+			}
+			
+			if($md_val != '' && $first_index != ""){
+				$action_url = $form['#action'];
+				$action_url_arr = explode('#',$action_url);
+				$action_url_arr[0] .="?md=".$md_val."&ref=".$first_index."&node_id=".$loaded_node_id;
+				$action_url_final = implode('#',$action_url_arr);					
+				$form['#action'] = $action_url_final;
+			}
+			$form['#submit'][] = 'comment_new_submit';
+		}
+	 
+		if ($form['#id'] == "comment-confirm-delete"){
+			
+			$form['#submit'][] = 'comment_delete_submit';
+
+			$cancel_url			= $form['actions']['cancel']['#value'];	
+			$cancel_url 		= str_replace("<"," ",$cancel_url);
+			$cancel_url 		= str_replace(">"," ",$cancel_url);
+			$cancel_url_arr1 	= explode('href="',$cancel_url);
+			$changed_url_1 		= $cancel_url_arr1[1];
+			$cancel_url_arr2 	= explode('"',$changed_url_1);
+			$changed_url_2 		= $cancel_url_arr2 [0];
+			$changed_url_2 		= '<a href="'.$changed_url_2.'?md='.$_GET['md'].'&ref='.$_GET['ref'].'">Cancel</a>';
+			$form['actions']['cancel']['#value'] = $changed_url_2;
+		}
+	}
+	/*	--------- END -----	*/
+
+	switch($form['#id']){
+		case 'views-exposed-form-search-national-parks-page-1':
+		    $form['submit']['#value'] = t('Find');
+		break;
+		case 'views-exposed-form-search-page-1':
+		    $form['submit']['#value'] = t('Find');
+		break;
+		case 'views-exposed-form-Search-landing-page-page-1':
+		    $form['submit']['#value'] = t('Find');
+		break;
+		case 'views-exposed-form-search-navy-museums-page-1':
+		    $form['submit']['#value'] = t('Find');
+		break;
+		case 'views-exposed-form-search-smithsonian-museums-page-1':
+		    $form['submit']['#value'] = t('Find');
+		break;
+		case 'views-exposed-form-search-civilwar-museums-page-1':
+		    $form['submit']['#value'] = t('Find');
+		break;
+		case 'user-register':
+			$form['#validate'][] = 'validate_historic_sites_validate';
+			$form['#redirect'] = array('#value' => "user");
+		break;
+		case 'views-exposed-form-search-page-1':
+			$form['keys']["#maxlength"] = 25;
+		break;
+		case 'views-exposed-form-New-heritage-sites-page-1':
+	    $form['submit']['#value'] = t('Find');
+/*		$form['reset'] = array(
+			'#type' => 'markup',
+			'#value' => '<input class="form-button" type="reset" value="Reset" onClick="javascript:void(0);" />',
+		);
+*/
+		$current_display = $form_state['view']->current_display;
+		$form['reset'] = array(
+		'#type' => 'markup',
+		'#value' => '<input '. drupal_attributes(array('type' => 'button', 'value' => t('Reset') )) .'class="form-submit" onClick="window.location = \'' .url($form_state['view']->display[$current_display]->display_options['path']) .'\';" />',
+		);
+		break;
+		case 'user-profile-form':
+		$form['#validate'][] = 'user_profile_image_validate';
+		break;
+
+	}
+}
+
+
+function validate_historic_sites_validate($form,&$form_state)
+{
+	$email = $form_state['values']['mail'];
+	if(!empty($form_state['values']['mail']))
+	{
+		if(!eregi("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$", $email)) 
+		{
+		  form_set_error("","Invalid email address.");
+		}
+	}
+}
+
+
+function user_profile_image_validate($form,&$form_state) {
+
+		
+		$del = $form_state['values']['picture_delete'];
+		$file = $_FILES['files']['name']['picture_upload'];
+		
+		if($del == 1 && $file != "")
+		  form_set_error("","Please do not upload a new file and delete your current image simultaneously.");
+
+
+}
+
+	/*	--------- START - Code added by aksahy :- For NEXT and PREV Pagination -----	*/	
+function comment_new_submit($form,&$form_state) {
+	if($_GET['md'] != "" && $_GET['ref'] != "" && $form_state['redirect'][0] !=""){
+		drupal_goto ($form_state['redirect'][0],"md=".$_GET['md']."&ref=".$_GET['ref']."#".$form_state['redirect'][2]."");
+	}
+}
+
+
+function comment_delete_submit($form,&$form_state) {
+	if(is_array($yes)){
+		if($_GET['md'] != "" && $_GET['ref'] != "" && $form_state['redirect'][0] !=""){
+			drupal_goto ($form_state['redirect'][0],"md=".$_GET['md']."&ref=".$_GET['ref']."#".$form_state['redirect'][2]."");
+		}
+	}else{
+		if($_GET['md'] != "" && $_GET['ref'] != "" && $form_state['redirect'] !=""){
+			drupal_goto ($form_state['redirect'],"md=".$_GET['md']."&ref=".$_GET['ref']);
+		}
+	}
+}
+
+function views_alter_query_link_alter(&$links, $node, $comment = NULL) {
+	if($node->type == "collection"){
+		$http_referer = $_SERVER['HTTP_REFERER'];
+		if($_REQUEST['ref']){
+			$first_index = $_REQUEST['ref'];
+		}else{
+			if(strpos($http_referer,"navy-museum")){
+				$first_index = "navy-museum";
+			}else if(strpos($http_referer,"search-national-parks")){
+				$first_index = "search-national-parks";
+			}else if(strpos($http_referer,"search-landing-page")){
+				$first_index = "search-landing-page";
+			}else if(strpos($http_referer,"search-collections")){
+				$first_index = "search-collections";
+			}
+		}
+		if($_GET['md'] != ''){
+			$md_val = $_GET['md'];
+		}else{
+			if($_SERVER['HTTP_REFERER']){
+				$md_val = md5($_SERVER['HTTP_REFERER']);
+			}		
+		}
+		
+		if($md_val != '' && $first_index != ""){
+			$links['comment_delete']['query'] = array('md'=>$md_val,'ref'=>$first_index,'node_id'=>$node->nid);
+			$links['comment_edit']['query']   = array('md'=>$md_val,'ref'=>$first_index,'node_id'=>$node->nid);
+			$links['comment_reply']['query']  = array('md'=>$md_val,'ref'=>$first_index,'node_id'=>$node->nid);
+		}
+	}
+}
+	/*	--------- END -----	*/		 	 

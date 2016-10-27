@@ -1,0 +1,118 @@
+/* code commented on 04-07-2016 by Samrat Aher
+from here
+
+.ui-dialog #cnt {
+  text-align: center;
+}
+
+.ui-dialog #clr {
+  color: #5f9dfd;
+}
+.ui-dialog #ui-id-1{
+	border: #ffffff;
+	background: #ffffff;
+}
+.ui-dialog .form-item label {
+    display: inline; 
+}
+.ui-dialog .ui-widget-header {
+    border: 1px solid #ffffff;
+    background: #ffffff ;
+    color: #ffffff;
+    font-weight: bold;
+}
+.ui-dialog #edit-mail{
+	width: 400px;
+	height: 20px;
+	font-size: 20px;
+}
+.ui-dialog #edit-submit{  background-color:#5f9dfd; color: white; height: 50px;  width: 150px; display: inline;
+				border: none;	}
+.ui-dialog .description { display: none; }				
+.block-formblock-user_register{ visibility: hidden; }	
+
+fieldset { border: none; }
+
+till here
+*/	
+
+
+ /* New code 04/07/2016 Samrat Aher*/
+#mymodal #cnt {
+  text-align: center;
+}
+
+#mymodal #clr {
+  color: #5f9dfd;
+}
+#mymodal #ui-id-1{
+  border: #ffffff;
+  background: #ffffff;
+}
+#mymodal .form-item label {
+    display: inline; 
+}
+
+#mymodal #edit-mail{
+  width: 250px;
+  font-size: 20px;
+  display: inline;
+}
+#mymodal #edit-submit{  background-color:#5f9dfd; color: white; height: 38px;  width: 145px; display: inline;
+        border: none; }
+        
+
+
+/* new code for java script*/
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1000; /* Sit on top */
+    /*padding-top: 100px;*/ /* Location of the box */
+    left: 180px;
+    top: 100px;
+    width: 70%; /* Full width */
+    height: 64%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: #ffffff; /* Fallback color */
+    background-color: #ECE5E5; /* Black w/ opacity */
+    border: 5px solid #000000;
+}
+
+
+/* Modal Content */
+.modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+}
+
+/* The Close Button */
+#mymodal .close {
+    color: #FF0000;
+    float: right;
+   padding-top: 1px;
+   padding-right: 1px;
+}
+
+#close_btn{
+  font-weight: bold;
+  background: #D3D3D3;
+  border: none;
+  height:20px;
+  width:15px
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#normal_reg{display: none;}
+
+/*Nwe code ends here 04/07/2016
+*/

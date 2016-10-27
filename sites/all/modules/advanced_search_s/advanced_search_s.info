@@ -1,0 +1,5 @@
+; $Id$
+name =  Custom Advanced Search
+description = A module that adds additional filters to seach page on collection landing page
+core = 6.x
+package = Akshar

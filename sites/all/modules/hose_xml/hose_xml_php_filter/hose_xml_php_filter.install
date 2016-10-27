@@ -1,0 +1,48 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Install file for hose_xml PHP Filter module.
+ * 
+ * @ingroup hose_xml_php_filter
+ * @{
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function hose_xml_php_filter_install() {
+  drupal_install_schema('hose_xml_php_filter');
+} // hose_xml_php_filter_install
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function hose_xml_php_filter_uninstall() {
+  drupal_uninstall_schema('hose_xml_php_filter');
+} // hose_xml_php_filter_uninstall
+
+/**
+ * Implementation of hook_schema().
+ */
+function hose_xml_php_filter_schema() {
+  $schema['hose_xml_php_filter'] = array(
+    'description' => 'Holds which hose_xml profiles have enabled this modules functionality.',
+    'fields' => array(
+      'pid' => array(
+        'description' => t('Unique profile identifier.'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('pid'),
+  );
+  return $schema;
+} // hose_xml_php_filter_schema
+
+/**
+ * @} End of "ingroup hose_xml_php_filter".
+ */

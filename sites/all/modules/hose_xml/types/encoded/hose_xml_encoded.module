@@ -1,0 +1,156 @@
+<?php
+// $Id: hose_xml_text.module,v 1.1 2010/11/15 15:19:44 rayvaughn Exp $
+
+/**
+ * @file
+ * Implementation of 'json' tag type.
+ */
+
+/**
+ * @defgroup hose_xml_json Text
+ * @{
+ * JSON field type plug-in.
+ *
+ * Default field type, matches any given text.
+ * Includes field level settings for;
+ *  - Character Limit
+ *  - Truncate after x number of characters
+ *  - Truncate at last space within the upper limit
+ *  - Add trailing dots (ellipsis)
+ * Returns an export error on failure.
+ */
+
+/**
+ * Implementation of hook_hose_xml_field_name().
+ */
+function hose_xml_encoded_hose_xml_field_name() {
+  return array('encoded' => t('Encoded'));
+} // hose_xml_json_hose_xml_field_name
+
+/**
+ * Implementation of hook_hose_xml_field_map_import().
+ *
+ * object $node
+ *   The semi-built node.
+ *
+ * array $import_item
+ *   The item that is being imported.
+ *
+ * array $item_profile
+ *   Subpart of the hose_xml_profile that represents this profile.
+ */
+function hose_xml_encoded_hose_xml_field_map_import($node, $value = NULL, array &$import_item, stdClass $item_profile) {
+  if ($item_profile->type != 'encoded' || empty($item_profile->cck_match)) {
+    return;
+  }
+  //watchdog('php','value '.print_r($value,true));
+  $cck_match = $item_profile->cck_match;
+  // standard node fields
+  if (in_array($cck_match, array('title', 'body', 'teaser'))) {
+    $node->$cck_match = $value;
+  }
+  else {
+    if (!isset($node->$cck_match)) {
+      $node->$cck_match = array();
+    }
+     
+    $node->{$cck_match}[] = array(
+      'value' =>  json_encode($value),
+    );
+  }
+    
+} // hose_xml_json_hose_xml_field_map_import
+
+/**
+ * Implementation of hook_hose_xml_field_icon().
+ */
+function hose_xml_encoded_hose_xml_field_icon() {
+  return drupal_get_path('module', 'hose_xml_text') .'/text.png';
+} // hose_xml_json_hose_xml_field_icon
+
+/**
+ * Implementation of hook_hose_xml_settings_information().
+ * @todo - add some example XML in the description
+ */
+function hose_xml_encoded_hose_xml_settings_information() {
+  return array(
+    'wsdl_global' => array(
+      'title' => t('Global WSDL Definition'),
+      'description' => t('Define any global WSDL data, this will appear at the top of the chema and can be used to define complex types.'),
+      'type' => 'textarea',
+    ),  
+    'wsdl' => array(
+      'title' => t('WSDL Definition'),
+      'description' => t('Define the WSDL definition which will be exposed for this field.'),
+      'type' => 'textarea',
+    ),
+  );
+} // hose_xml_text_hose_xml_settings_information
+
+/**
+ * Implementation of hook_hose_xml_settings_validate().
+ * 
+ * @todo - we need to validate that if xml is being set here, it is valid, and that it meets some basic
+ * requirements, e.g. global xml should be a complex type.
+ */
+function hose_xml_encoded_hose_xml_settings_validate($setting, $value) {
+  switch ($setting) {
+    case 'default':
+      if (!empty($value) && !preg_match("/^[0-9]+$/", $value)) {
+        return t('Character limit can be numeric only.');
+      }
+    case 'truncate':
+      if (!empty($value) && !preg_match("/^[0-9]+$/", $value)) {
+        return t('Truncate field value can be numeric only.');
+      }
+  }
+} // hose_xml_text_hose_xml_settings_validate
+
+/**
+ * Implementation of hook_hose_xml_validate().
+ */
+function hose_xml_encoded_hose_xml_validate($data, $settings) {
+  if (empty($data)) {
+    return array(
+      'data' => $data,
+      'reason' => '',
+    );
+  }
+  $reason = '';
+  // Character limit
+  $clean = $settings['raw'] ? $data : trim(_hose_xml_text_check_plain($data));
+  if (is_numeric($settings['default']) && drupal_strlen($clean) > $settings['default']) {
+    $reason = t('Entry has too many characters, the limit for this tag is @limit characters.', array('@limit' => $settings['default']));
+  }
+  if (empty($clean)) {
+    $clean = $data;
+    $reason = t('Entry contains invalid characters.');
+  }
+  // Truncate/ Word Safe/ Ellipsis
+  if (is_numeric($settings['truncate'])) {
+    $data = truncate_utf8($data, $settings['truncate'], $settings['wordsafe'], $settings['ellipsis']);
+  }
+  return array(
+    'data' => $data,
+    'reason' => $reason,
+  );
+} // hose_xml_text_hose_xml_validate
+
+/**
+ * Present as Drupals own check plain doesn't encode to utf-8.
+ * 
+ * @param $text
+ *   Field input from node content.
+ * 
+ * @return
+ *   UTF-8 compliant text.
+ * 
+ * @see hose_xml_text_hose_xml_validate()
+ */
+function _hose_xml_encoded_check_plain($text) {
+  return drupal_validate_utf8($text) ? htmlspecialchars($text, ENT_NOQUOTES, 'UTF-8') : '';
+} // _hose_xml_text_check_plain
+
+/**
+ * @} End of "defgroup hose_xml_text".
+ */

@@ -1,0 +1,58 @@
+<?php
+
+/**
+ * @file
+ * Simpletest file for Hose XML module.
+ *
+ * These are simple add and delete profiles for;
+ *  - Import profiles
+ *  - Export profiles
+ *  - Buckets
+ * 
+ * @ingroup hose_xml_core
+ * @{
+ */
+
+class HoseXMLExportProfile extends DrupalWebTestCase {
+  /**
+   * Implementation of getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Export profile test'),
+      'description' => t('Add and delete export profile.'),
+      'group' => t('Hose XML'),
+    );
+  } // getInfo
+
+  /**
+   * Implementation of setUp().
+   */
+  function setUp() {
+    parent::setUp('hose_xml', 'hose_xml_ui');
+    // Create and login user
+    $this->admin_user = $this->drupalCreateUser(array('administrate XML profiles', 'create XML profiles'));
+    $this->drupalLogin($this->admin_user);
+  } // setUp
+
+  // Create an export profile
+  function testHoseXMLCreateExportProfile() {
+    $edit = array();
+    $edit['name'] = $this->randomName(32);
+    $edit['desc'] = $this->randomName(64);
+    // Create an export profile.
+    $this->drupalPost('hose_xml/profiles/add', $edit, t('Confirm'));
+    $this->assertText(t("Profile '@profile' created.", array('@profile' => $edit['name'])), t('Export profile successfully created.'));
+    // Check profile exists...
+    $pid = db_result(db_query("SELECT pid FROM {hose_xml_profiles} WHERE name = '%s'", $edit['name']));
+    // ...and report.
+    $this->assertNotNull($pid, t("Export profile '@pid' found in database", array('@pid' => $pid)));
+    // Delete profile.
+    $this->drupalPost("hose_xml/profiles/delete/$pid", array(), t('Delete'));
+    $this->assertText(t("Profile '@profile' has been deleted.", array('@profile' => $edit['name'])), t('Export profile successfully deleted.'));
+  }
+} // HoseXMLExportProfile
+
+/**
+ * @} End of "ingroup hose_xml_core".
+ */

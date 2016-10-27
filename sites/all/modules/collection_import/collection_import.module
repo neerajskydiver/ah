@@ -1,0 +1,715 @@
+<?php
+// $Id$
+function collection_import_perm()
+{
+	return array("View Collection Import");
+}
+function collection_import_menu()
+{
+
+	$items = array();
+
+	$items['admin/settings/collection_import'] = array(
+	'title' => 'Import Collection',
+	'description' => 'Import collection data related to museums',
+	'page callback' => 'help_text_test',
+	'access arguments' => array('administer site configuration'),
+	);
+
+
+	$items['admin/settings/collection_import/help'] = array(
+	'title' => 'Help',
+	'description' => 'Import collection data related to museums',
+	'page callback' => 'help_text_test',
+	'access callback' => user_access,
+	'access arguments' => array('administer site configuration'),
+	'type' => MENU_LOCAL_TASK,
+	);
+
+
+	$items['admin/settings/collection_import/list'] = array(
+	'title' => 'Import Collection Form',
+	'page callback' => 'import_collection_museum',
+	'access callback' => user_access,
+	'access arguments' => array('administer site configuration'),
+
+	'type' => MENU_LOCAL_TASK,
+	);
+
+	return $items;
+}
+
+function help_text_test()
+{
+
+
+	return  (which_return_help_text());
+
+}
+
+
+
+function which_return_help_text()
+{
+	$message.= "<ul>";
+	$message.= "<li>Here is the standard format of the excel file in which we are excpecting data.<a href=\"/sites/default/files/records.xlsx\">Click Here For Standard Format.</a> </li>";
+	$message.= "<li>The upload form will only accept (.csv) files, Also there are some steps that need to be followed while saving the file as .csv file.</li>";
+	$message.= "<li>Below are the steps listed to save file as .csv file.</li>";
+	$message.= "<li>Before saving the excel file as .csv file make sure the excel does not contain blank rows.</li>";
+	$message.= "<li><b>In Excel, choose CSV (*.csv) as the file type and save as that type.</b> </li>";
+	$message.= "<li> <b>open the saved .csv file in Notepad</b>.</li>";
+	$message .= "<li><b>Then choose -> Save As..and at the bottom of the \"save as\" box, there is a select box labelled as \"Encoding\". Select UTF-8 . After selecting UTF-8, then save the file to a slightly different file name from the original.</b></li>";
+	$message.= "<li><b> Upload the newly saved file.</b></li>";
+
+	//$message.= "<li>Remove the first row which contains title of the columns</li>";
+	$message.= "<li>When the import is completed succesfully a directory is created on the server with the name of the site under which the collections are imported.</li>";
+	$message.= "<li>Upload the image folder onto the server in the respective site directory's Images folder.</li>";
+	$message.= "<li>Now, the import is completed successfully . </li>";
+	return $message;
+}
+
+
+function import_collection_museum()
+{
+	return drupal_get_form('import_collection_form');
+}
+function import_collection_form()
+{
+
+drupal_add_js(drupal_get_path('module', 'collection_import') .'/collection_import.js');
+drupal_add_js(drupal_get_path('module', 'collection_import') .'/jquery.validate.js');
+drupal_add_js(drupal_get_path('module', 'collection_import') .'/jquery.metadata.js');
+
+
+
+/*
+create direcroty according to folders path given in xcl file
+*/
+$form = array();
+$form['#attributes'] = array('enctype' => "multipart/form-data");
+  //'upload' will be used in file_check_upload()
+$form['upload'] = array('#type' => 'file','#title' => t('File'));
+
+$sql = "SELECT content_type_bookmarks_sites.nid, title
+FROM `content_type_bookmarks_sites`
+INNER JOIN node ON node.nid = content_type_bookmarks_sites.`nid` order by title ASC";
+
+$result = db_query($sql);
+$option = array();
+	$nid = -1;
+	//$nid = "";
+	$option[$nid] = "--Select--";
+
+while($obj_array = db_fetch_object($result))
+{
+	$nid = $obj_array->nid;
+	$option[$nid] = $obj_array->title;
+}
+
+
+
+$array_new = array(a=>'1',b=>'2',c=>'3',d=>'4',e=>'5');
+
+$form['natl_park'] = array(
+'#type' => "checkbox",
+'#title' => t('National Park'),
+'#return_value' => 1,
+);
+
+
+$form['navy_museum'] = array(
+'#type' => "checkbox",
+'#title' => t('Navy Museum'),
+'#return_value' => 1,
+);
+
+$form['maritime'] = array(
+'#type' => "checkbox",
+'#title' => t('Maritime Museum'),
+'#return_value' => 1,
+);
+
+$form['civil'] = array(
+'#type' => "checkbox",
+'#title' => t('Civil War'),
+'#return_value' => 1,
+);
+
+
+$form['Smithsonian'] = array(
+'#type' => "checkbox",
+'#title' => t('Smithsonian Museum'),
+'#return_value' => 1,
+);
+
+
+$form['select_list'] = array(
+'#type' => "select",
+'#title' => t('Site Title'),
+'#options' => $option,
+);
+
+$form['submit'] = array(
+'#type' => "submit",
+'#value' => t('Import'),
+);
+  //'upload' will be used in file_check_upload()
+
+return $form;
+}
+
+function import_collection_form_validate(&$form,&$form_state)
+{
+	if($_FILES['files']['name']['upload'] == "")
+	{
+		form_set_error('upload',"Please upload a file");
+	}
+}
+
+function import_collection_form_submit(&$form,&$form_state)
+{
+/*
+create direcroty according to folders path given in xcl file
+*/
+
+$module_list[]= "filefield_paths";
+
+module_disable($module_list);
+
+
+$path = file_directory_path().'/'.uploaded_files;
+$dir = file_create_path($path);
+//$limits = array('extensions'=>'csv');
+
+//  $validators = array('file_validate_extensions' => array($limits['extensions']),);
+ $validators = array( 'file_validate_extensions' => array( 'csv' ) );
+
+  $is_writable = file_check_directory($dir, 1);
+    if($is_writable) {
+		if ($file = file_save_upload('upload',$validators,$dir)) {
+		$err = file_validate_extensions_aj($file,'csv');
+		form_set_error('upload',$err[0]);
+//		$path_csv = file_directory_path().'/'.uploaded_files.'/'.$file->filename;
+		$path_csv = $file->destination;
+			if(!$err[0])
+			{
+			   drupal_set_message(t('The Uploaded File has been saved successfully.'));
+			}
+			else
+			{
+				file_delete($path_csv);
+			}
+        } else {
+          file_delete($file->filepath);
+          drupal_set_message('Uploaded file does not appear to be a valid image file. Please try again.');
+        }
+    }
+
+// call the function , that creates collection nodes
+
+if(!$err[0])
+{
+
+$var  = logic_for_collection_import($form_state['values']['select_list'],$path_csv,$form_state['values']['natl_park'],$form_state['values']['navy_museum'],$form_state['values']['maritime'],$form_state['values']['civil'],$form_state['values']['Smithsonian']);
+if($var)
+{
+
+	drupal_set_message(t("All collections Imported Succesfully"));
+}
+else
+{
+	drupal_set_message(t("collections Importing Failed"));
+}
+}
+}
+
+function file_validate_extensions_aj($file, $extensions) {
+  global $user;
+
+  $errors = array();
+
+  // Bypass validation for uid  = 1.
+    $regex = '/\.('. ereg_replace(' +', '|', preg_quote($extensions)) .')$/i';
+    if (!preg_match($regex, $file->filename)) {
+ //     $errors[] = t('Only files with the following extension is allowed: %files-allowed.', array('%files-allowed' => $extensions));
+     $errors[] = t("Only file with .csv extension is allowed");
+
+    }
+  return $errors;
+}
+
+
+function logic_for_collection_import($nid,$path_csv,$natl_park_y_n,$navy_museum,$maritime,$civil,$smithsonian)
+{
+	$sql = "SELECT title from node where nid = %d";
+	$result = db_query($sql,$nid);
+
+	while($obj_array = db_fetch_object($result))
+	{
+		$title = $obj_array->title;
+	}
+
+	$pattern = "/[^a-zA-Z0-9]/";
+
+	$collection_name = preg_replace($pattern,"",$title);
+//	$collection_name = str_replace(" ","",$title);
+////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+	$sql_location = "select field_phy_addr_value,field_state_nid,field_city_value,field_zip_value from content_type_bookmarks_sites where nid= %d";
+	$result_location = db_query($sql_location,$nid);
+	while($obj_array_location = db_fetch_object($result_location))
+	{
+		 $phy_addr = $obj_array_location->field_phy_addr_value;
+		 $state_id = $obj_array_location->field_state_nid;
+		 $city = $obj_array_location->field_city_value;
+		 $zip = $obj_array_location->field_zip_value;
+
+	}
+
+	if(!empty($state_id))
+	{
+		$sql_state = "select title from node where nid = %d";
+		$result_state = db_query($sql_state,$state_id);
+
+		while($obj_array_state = db_fetch_object($result_state))
+		{
+			 $state_name = $obj_array_state->title;
+		}
+	}
+
+	if(!empty($phy_addr))
+	{
+		$location .= $phy_addr;
+		$phy_ad_present = true;
+	}
+
+	if($phy_ad_present && !empty($state_name))
+	{
+		$location .= ",".$state_name;
+		$previos_exist =  true;
+	}
+	else if(!empty($state_name))
+	{
+		$previos_exist =  true;
+		$location .= $state_name;
+	}
+
+	if($previos_exist && !empty($city))
+	{
+		$location .= ",".$city;
+		$city_exists = true;
+	}
+	else if(!empty($city))
+	{
+		$location .= $city;
+ 		$city_exists = true;
+	}
+
+	if($previos_exist && $city_exists && !empty($zip))
+	{
+		$location .= ",".$zip;
+	}
+	else if(!empty($zip))
+	{
+		$location .= $zip;
+	}
+
+/*	$sql_institution = "select title from node where nid= %d";
+	$result_institution = db_query($sql_institution,$nid);
+
+	while($obj_array_institution = db_fetch_object($result_institution))
+	{
+		$institution_correct = $obj_array_institution->title;
+	}
+*/
+
+
+	if($title == "Gettysburg National Military Park")
+	{
+		$collection_name = "Gattesburg";
+	}
+	if($title == "Ah Tah Thi Ki Museum")
+	{
+		$collection_name = "ahtahki";
+	}
+	if($title == "Sandy Spring Museum")
+	{
+		$collection_name = "SandySpring";
+	}
+	if($title == "USS Constellation Museum")
+	{
+		$collection_name = "USSConstellation";
+	}
+	if($title == "Richmond National Battlefield Park")
+	{
+		$collection_name = "richmond";
+	}
+	if($title == "Pamplin Historical Park")
+	{
+		$collection_name = "pamplin";
+	}
+	if($title == "Manassas National Battlefield Park")
+	{
+		$collection_name = "manassas";
+	}
+	if($title == "Fort Monroe Casemate Museum")
+	{
+		$collection_name = "fortmanoure";
+	}
+	if($title == "Appomattox Court House National Park")
+	{
+		$collection_name = "appotomox";
+	}
+	if($title == "Fort Sumter National Monument")
+	{
+		$collection_name = "fortsummernatlmonupark";
+	}
+	if($title == "Valley Forge National Historic Park")
+	{
+		$collection_name = "valleyforge";
+	}
+	if($title == "Eisenhower National Historic Site")
+	{
+		$collection_name = "eisenhover";
+	}
+	if($title == "New York Historical Society")
+	{
+		$collection_name = "newyork";
+	}
+	if($title == "Vicksburg National Military Park")
+	{
+		$collection_name = "vicksburg";
+	}
+	if($title == "Hampton National Historic Site")
+	{
+		$collection_name = "hompton";
+	}
+	if($title == "Clara Barton National Historic Site")
+	{
+		$collection_name = "carlra";
+	}
+	if($title == "Maryland Historical Society")
+	{
+		$collection_name = "maryland";
+	}
+	if($title == "Fort Pulaski National Monument")
+	{
+		$collection_name = "fortpulaskinatlmaonupark";
+	}
+	if($title == "Kennesaw Mountain National Battlefield Park")
+	{
+		$collection_name = "keensawnatalmountainbattelfiles";
+	}
+	if($title == "U.S. Navy Museum")
+	{
+		$collection_name = "natlmuseumofusnavy";
+	}
+	if($title == "National Museum of the American Indian")
+	{
+		$collection_name = "smithsonian_natl_museum_of_american_indian_temp";
+	}
+	if($title == "Library of Congress")
+	{
+		$collection_name = "libraryofcongress";
+	}
+	if($title == "Frederick Douglass National Historic Site")
+	{
+		$collection_name = "ferdricdouglas";
+	}
+	if($title == "Arlington House, The Robert E. Lee Memorial")
+	{
+		$collection_name = "arlington";
+	}
+	if($title == "U.S. Army Artillery Museum")
+	{
+		$collection_name = "us_army_filed_arttiler_museum";
+	}
+	if($title == "American Heritage Archives")
+	{
+		$collection_name = "americanheritagesitesarchive";
+	}
+	if($title == "Boston National Historical Park")
+	{
+		$collection_name = "boston";
+	}
+	if($title == "Maryland State House")
+	{
+		$collection_name = "marylandhouseofstate";
+	}
+	if($title == "Smithsonian's National Portrait Gallery")
+	{
+		$collection_name = "smithsoniannationalportraitgallery";
+	}
+	if($title == "Lincoln Home National Historic Site")
+	{
+		$collection_name = "Lincolnhome";
+	}
+	if($title == "Smithsonian's National Museum of American History")
+	{
+		$collection_name = "smitsoniannationbalmuseumofamericanhistory";
+	}
+	if($title == "Manzanar National Historic Site")
+	{
+		$collection_name = "manazar";
+	}
+	if($title == "Manzanar National Historic Site")
+	{
+		$collection_name = "manazar";
+	}
+	if($title == "Ford's Theatre National Historic Site")
+	{
+		$collection_name = "fordstheater";
+	}
+	if($title == "Smithsonian National Air and Space Museum")
+	{
+		$collection_name = "smithsonian_natl_museum_of_air_and_space_temp";
+	}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////// Main Collection Directory /////////////////////////////////////////////////////
+
+	$dir = file_directory_path().'/'.$collection_name;
+	if(is_dir($dir))
+	{
+		drupal_set_message(t("Site(".$collection_name.") Direcotory alreday exists, no new directory created"));
+		//drupal_set_message(t("Please upload the images under sites/default/files/".$collection_name));
+	}
+	else
+	{
+		if(mkdir($dir))
+		{
+			//drupal_set_message(t("Site Directory created")); First mesage
+			drupal_set_message(t("Site(".$collection_name.") Directory created"));
+			//drupal_set_message(t("Please upload the images under sites/default/files/".$collection_name));
+
+		}
+		else
+		{
+			drupal_set_message(t("Site Directory creation Failed"));
+		}
+	}
+
+/////////////////////////////// Main Collection Directory /////////////////////////////////////////////////////
+
+/////////////////////////////// Internbal Directory For Images /////////////////////////////////////////////////////
+
+	$dir = file_directory_path().'/'.$collection_name.'/'.'Images';
+
+	if(is_dir($dir))
+	{
+		//drupal_set_message(t("Images Direcotory alreday exists, no new directory created"));
+		drupal_set_message(t("Images Direcotory alreday exists under $collection_name."));
+		drupal_set_message(t("Please upload the images under sites/default/files/".$collection_name."/images, under appropriate subdirectory"));
+
+	}
+	else
+	{
+		if(mkdir($dir))
+		{
+//		drupal_set_message(t("Images Direcotory created"));
+		drupal_set_message(t("Images Direcotory created under $collection_name"));
+		drupal_set_message(t("Please upload the images under sites/default/files/".$collection_name."/images, under appropriate subdirectory"));
+
+		}
+		else
+		{
+		drupal_set_message(t("Images Direcotory creation failed"));
+		}
+	}
+
+/////////////////////////////// Internbal Directory For Images /////////////////////////////////////////////////////
+
+
+	/*
+	$directory = "marylandhouseofstate/Images";
+	*/
+	$handle = fopen($path_csv, "r");
+	$cnt = 1;
+	$skip_first_rec = 0;
+	global $user;
+	while (($data = fgetcsv($handle,10000, ",")) !== FALSE) {
+
+	// Retrive all information from csv file, to be saved to the node
+	if($skip_first_rec > 0)
+	{
+
+	$ttile  = $data[0];
+	$creator  = $data[1];
+	$contributor = $data[2];
+	$date = $data[3];
+	$contnet_decs = $data[4];
+	$physical_desc = $data[5];
+ 	$institution = $data[6];
+//	$institution = $institution_correct;
+	$item_group = $data[7];
+	$subjects = $data[8];
+	$categroy = $data[9];
+	$identifier = $data[10];
+	$image_path = $data[11];
+	$credits = $data[12]; // added on 10th_Jan ..refer mail dated 10 jan 2011
+
+	if(empty($ttile) && empty($creator) && empty($contributor) && empty($date) && empty($contnet_decs) && empty($physical_desc) && empty($institution) && empty($item_group) && empty($subjects) && empty($categroy) && empty($identifier) && empty($image_path) && empty($credits))
+	{
+
+	}
+	else
+	{
+
+
+	// logic for attaching taxonmoy terms dynamically
+	$create_dir_var =  explode("/",$image_path);
+	if(!empty($image_path))
+	{
+		if(!(strpos($create_dir_var[0],".")))
+		{
+			foreach($create_dir_var as $indivisula_dir)
+			{
+				if(!(strpos($indivisula_dir,".")))
+				{
+					if(!is_dir(file_directory_path().'/'.$collection_name.'/Images/'.$indivisula_dir))
+					{
+						$_SESSION['last_dir'] = $indivisula_dir;
+						if(mkdir(file_directory_path() .'/'. $collection_name .'/Images/'. $indivisula_dir))
+							$image_final = file_directory_path() .'/'. $collection_name .'/Images/'. $indivisula_dir.'/';
+					}
+					else if(is_dir(file_directory_path().'/'.$collection_name.'/Images/'.$indivisula_dir))
+					{
+						$_SESSION['last_dir'] = $indivisula_dir;
+						$image_final = file_directory_path() .'/'. $collection_name .'/Images/'. $indivisula_dir.'/';
+					}
+				}
+				else
+				{
+				$image_final = file_directory_path() .'/'. $collection_name .'/Images/'.$_SESSION['last_dir'].'/';
+				}
+			}
+		}
+		else
+		{
+				$image_final = file_directory_path() .'/'. $collection_name .'/Images' ;
+
+		}
+	}
+	else
+	{
+				$image_final = file_directory_path() .'/'. $collection_name .'/Images' ;
+	}
+
+
+
+	$node = new stdclass();
+	$node->title = $ttile;
+	$node->body = $contnet_decs;
+	$node->type = 'collection';
+
+
+	$tmp_filepath = file_directory_path().'/'."2010.0005.0023.jpg";
+
+	//creating image from jpeg
+	$my_img = imagecreatefromjpeg ($tmp_filepath);
+
+	$image_path = $data[11];
+
+	if(!empty($image_path))
+	{
+		$explode_for_temp = explode("/",$image_path);
+		if(strpos($explode_for_temp[0],"."))
+		{
+		imagejpeg($my_img,file_directory_path().'/aj/default/'.$explode_for_temp[0]);
+		$image = file_directory_path().'/aj/default/'.$explode_for_temp[0];
+		}
+		else
+		{
+		imagejpeg($my_img,file_directory_path().'/aj/default/'.$explode_for_temp[1]);
+		$image = file_directory_path().'/aj/default/'.$explode_for_temp[1];
+		}
+	}
+	else
+	{
+	$tmp_filepath_png = file_directory_path().'/'."no_record.png";
+	$my_img_png = imagecreatefrompng($tmp_filepath_png);
+	$image = file_directory_path().'/no_record.png';
+	}
+
+
+
+	$field = content_fields('field_image',"collection");
+	$validators = array_merge(filefield_widget_upload_validators($field), imagefield_widget_upload_validators($field));
+	$files_path=  filefield_widget_file_path($field);
+	$file = field_file_save_file($image,$validators,$image_final);
+	$node->field_image = array (0 => $file);
+
+
+    $node->uid = $user->uid;
+	$node->field_creator[0][value] = $creator;
+	$node->field_contributor[0][value] = $contributor;
+	$node->field_date[0][value] = $date;
+	$node->field_description_physical[0][value] = $physical_desc;
+	$node->field_institution[0][value] = $institution;
+	$node->field_identifier[0][value] = $identifier;
+	$node->field_site_id[0][nid] =  $nid;
+	$node->field_keywords[0][value] = $subjects;
+	$node->field_location[0][value] = $location;
+	$node->field_credits[0][value] = $credits;
+
+	
+	if(!empty($node->field_keywords[0][value]))
+	{
+		$node->taxonomy['tags'] = array('12' => $node->field_keywords[0][value]);
+	}
+
+	
+	if(!empty($categroy))
+	{
+		$get_term_id_sql = "select tid from term_data where name like '$categroy%'";
+		$result = db_query($get_term_id_sql);
+		$record = db_fetch_array($result);
+		$tid = $record[tid];
+		$node->taxonomy[] = $tid;
+
+	}
+
+
+	if($natl_park_y_n == 1)
+	{
+		$node->taxonomy[] = 4445;
+	}
+
+	if($navy_museum == 1)
+	{
+		$node->taxonomy[] = 4451;
+	}
+
+
+	if($maritime == 1)
+	{
+		$node->taxonomy[] = 4452;
+	}
+
+	if($civil == 1)
+	{
+		$node->taxonomy[] = 5085;
+	}
+
+	if($smithsonian == 1)
+	{
+		$node->taxonomy[] = 5084;
+	}
+
+	$var = node_save($node);
+
+	}
+
+
+	} // IF
+$skip_first_rec++;
+}//while
+
+$module_list[]= "filefield_paths";
+
+module_enable($module_list);
+
+return true;
+}

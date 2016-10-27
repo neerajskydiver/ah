@@ -1,0 +1,144 @@
+<?php
+
+// Require HoseXMLWebTestCase class definition.
+require_once(drupal_get_path('module', 'hose_xml') .'/tests/hose_xml.test.inc');
+
+class HoseXMLImportTestCase extends HoseXMLWebTestCase {
+
+  /**
+   * Implementation of getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Test HoseXML Import'),
+      'description' => t('Import XML data with Hose XML and feeds.'),
+      'group' => t('Hose XML'),
+    );
+  } // getInfo
+
+  /**
+   * Implementation of setUp().
+   */
+  function setUp() {
+    parent::setUp('ctools', 'job_scheduler', 'feeds', 'feeds_ui', 'hose_xml_reference', 'hose_xml_import');
+
+    // Create and login user
+    $this->loginWithPermissions('administer feeds');
+    $this->hose_content_type = 'simpletest'. rand(0, 100);
+  } // setUp
+
+
+  // Create an export profile
+  function testHoseXMLImportXML() {
+    $fields = array(
+      'textfield' => 'text',
+      'multitextfield' => array(
+        'type' => 'text',
+        'settings' => array(
+          'multiple' => 1,
+        ),
+      ),
+      'nodereference' => array(
+        'type' => 'nodereference',
+        'settings' => array(
+          'multiple' => 1, // this doesn't seem to be working so we do it again below
+          'referenceable_types[page]' => 1,
+          'referenceable_types['. $this->hose_content_type .']' => 1,
+        ),
+      ),
+    );
+
+    // Create content type.
+    $this->newContentType($this->hose_content_type, $fields);
+
+//    $this->drupalGet("admin/content/node-type/{$this->hose_content_type}/fields/field_multitextfield");
+
+    $profile = $this->createHoseProfile(array('types[]' => $this->hose_content_type));
+
+    $mappings = array(
+      array(
+        '#title' => 'root',
+        '#type' => 'raw',
+        '#tag' => 'root',
+        array(
+          '#title' => 'title',
+          '#type' => 'text',
+          '#tag' => 'node',
+          '#cck_match' => 'title',
+          '#attribute[0][attribute-attribute]' => 'title',
+          '#attribute[0][attribute-value]' => 'title',
+          array(
+            '#title' => 'Text Field',
+            '#type' => 'text',
+            '#tag' => 'textfield',
+            '#cck_match' => 'field_textfield',
+          ),
+          array(
+            '#title' => 'Multitextfield',
+            '#type' => 'raw',
+            '#tag' => 'multitextfield',
+            array(
+              '#title' => 'Multitextfield',
+              '#type' => 'text',
+              '#tag' => 'value',
+              '#cck_match' => 'field_multitextfield',
+            ),
+          ),
+          array(
+            '#title' => 'Body',
+            '#type' => 'text',
+            '#tag' => 'description',
+            '#cck_match' => 'body',
+          ),
+        ),
+      ),
+    );
+    $this->hoseProfileAddMappings($profile->pid, $mappings);
+
+
+        // Create and configure importer.
+    $this->createImporterConfiguration('XML Importer', 'xmlimporter');
+    $this->setSettings('xmlimporter', NULL, array('content_type' => '','import_period' => FEEDS_SCHEDULE_NEVER,));
+
+    $this->drupalGet('admin/build/feeds/edit/xmlimporter/parser');
+
+    $this->setPlugin('xmlimporter', 'FeedsFileFetcher');
+    $this->setPlugin('xmlimporter', 'HoseXMLParser');
+    $this->setSettings('xmlimporter', 'HoseXMLParser', array(
+      'rows_parent_path' => 'root',
+    ));
+
+    $this->setPlugin('xmlimporter', 'HoseXMLProcessor');
+    $this->setSettings('xmlimporter', 'HoseXMLProcessor', array(
+      'content_type' => $this->hose_content_type,
+      'hosexml_profile' => $profile->pid,
+    ));
+    $this->importFile('xmlimporter', $this->assetPath('test.xml'));
+    $this->assertText('Created');
+
+    $current_nid = $this->getLastNid();
+
+    $this->drupalGet("node/$current_nid");
+    $this->assertText('Node title 2', 'Node title found on page');
+    $this->assertText("This is the", 'Description found on page');
+    $this->assertText('Textfield value 1', 'Value of textfield found on page');
+    $this->assertText('Multitextield value delta 1', 'Multitextfield value 1 found on page');
+    $this->assertText('Multitextfield value delta 2', 'Multitextfield value 2 found on page');
+    debug(node_load($current_nid));
+
+    $current_nid = $this->getLastNid($current_nid);
+    $this->drupalGet("node/$current_nid");
+    $this->assertText('Node title 1', 'Node title found on page');
+    $this->assertText("This is the", 'Description found on page');
+    $this->assertText('Textfield value 1', 'Value of textfield found on page');
+    $this->assertText('Multitextield value delta 1', 'Multitextfield value 1 found on page');
+    $this->assertText('Multitextfield value delta 2', 'Multitextfield value 2 found on page');
+  }
+
+  /**
+   * Get the absolute directory path of the hose_xml_import module.
+   */
+  public function absolutePath() {
+    return  $this->absolute() .'/'. drupal_get_path('module', 'hose_xml_import');
+  }
+}

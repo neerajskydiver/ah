@@ -1,0 +1,25 @@
+; $Id: garland.info,v 1.5 2007/07/01 23:27:32 goba Exp $
+name = Heritage Sites
+description = Tableless, recolorable, multi-column, fluid width theme (default).
+version = VERSION
+core = 6.x
+engine = phptemplate
+stylesheets[all][] = original.css
+stylesheets[all][] = override.css
+stylesheets[print][] = print.css
+
+
+regions[header] = Header
+regions[left] = Left sidebar
+regions[right] = Right sidebar
+regions[topleft] = left content
+regions[topright] = right content
+regions[footer] = Footer
+regions[accordion] = Accordion
+
+
+; Information added by drupal.org packaging script on 2010-08-11
+version = "6.19"
+project = "drupal"
+datestamp = "1281559292"
+

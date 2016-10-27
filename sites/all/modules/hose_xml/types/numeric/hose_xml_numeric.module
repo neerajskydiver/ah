@@ -1,0 +1,87 @@
+<?php
+
+/**
+ * @file
+ * Implementation of 'numeric' tag type.
+ */
+
+/**
+ * @defgroup hose_xml_numeric Numeric
+ * @{
+ * Numeric field type plug-in.
+ *
+ * Matches only numeric input
+ * and returns an export error on failure.
+ *
+ * Has optional field level settings for upper and lower limits.
+ */
+
+/**
+ * Implementation of hook_hose_xml_field_name().
+ */
+function hose_xml_numeric_hose_xml_field_name() {
+  return array('numeric' => t('Numeric'));
+} // hose_xml_numeric_hose_xml_field_name
+
+/**
+ * Implementation of hook_hose_xml_field_icon().
+ */
+function hose_xml_numeric_hose_xml_field_icon() {
+  return drupal_get_path('module', 'hose_xml_numeric') .'/numeric.png';
+} // hose_xml_numeric_hose_xml_field_icon
+
+/**
+ * Implementation of hook_hose_xml_settings_information().
+ */
+function hose_xml_numeric_hose_xml_settings_information() {
+  return array(
+    'default' => array(
+      'title' => t('Upper'),
+      'description' => t('(Optional) Set an upper limit.'),
+    ),
+    'lower' => array(
+      'title' => t('Lower'),
+      'description' => t('(Optional) Set a lower limit.'),
+    ),
+  );
+} // hose_xml_numeric_hose_xml_settings_information
+
+/**
+ * Implementation of hook_hose_xml_settings_validate().
+ */
+function hose_xml_numeric_hose_xml_settings_validate($setting, $value) {
+  switch ($setting) {
+    case 'default':
+      if (!empty($value) && !is_numeric($value)) {
+        return t('Upper limit field can be numeric only.');
+      }
+    case 'lower':
+      if (!empty($value) && !is_numeric($value)) {
+        return t('Lower limit field can be numeric only.');
+      }
+  }
+} // hose_xml_numeric_hose_xml_settings_validate
+
+/**
+ * Implementation of hook_hose_xml_validate().
+ */
+function hose_xml_numeric_hose_xml_validate($data, $settings) {
+  $reason = '';
+  if (!empty($data) && !is_numeric($data)) {
+    $reason = t('Entry must be numeric only.');
+  }
+  if (is_numeric($data) && !empty($settings['default']) && $data > $settings['default']) {
+    $reason = t('Entry must be equal to or less than @number.', array('@number' => $settings['default']));
+  }
+  if (is_numeric($data) && !empty($settings['lower']) && $data < $settings['lower']) {
+    $reason = t('Entry must be equal to or greater than @number.', array('@number' => $settings['lower']));
+  }
+  return array(
+    'data' => $data,
+    'reason' => $reason,
+  );
+} // hose_xml_numeric_hose_xml_validate
+
+/**
+ * @} End of "defgroup hose_xml_numeric".
+ */

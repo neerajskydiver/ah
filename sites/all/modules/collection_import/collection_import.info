@@ -1,0 +1,5 @@
+; $Id$
+name = Imports Collection Data
+description = The Module Imports Collection Data
+core = 6.x
+package = Akshar 

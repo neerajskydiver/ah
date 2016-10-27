@@ -1,0 +1,16 @@
+9
+
+dir
+0
+http://192.168.0.18/svn/sites/all/libraries/getid3/getid3/!delete%20any%20module%20you%20don't%20like,%20but%20check%20dependencies.txt
+http://192.168.0.18/svn
+add
+
+
+
+
+
+
+
+svn:special svn:externals svn:needs-lock
+

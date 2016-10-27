@@ -1,0 +1,10 @@
+; $id$
+
+name = Magazine Overrides
+description =  Theme and hooks overrids  for Magazines
+package = "American Heritage"
+dependencies[] = content
+dependencies[] = pagination
+dependencies[] = views_ui
+dependencies[] = service_links
+core =  6.x

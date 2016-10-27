@@ -1,0 +1,86 @@
+<?PHP
+// $Id: phpids.install,v 1.5.4.2.2.10 2009/11/17 12:42:14 gos77 Exp $
+
+/**
+ * Implementation of hook_requirements().
+ */
+function phpids_requirements($phase) {
+  $t = get_t();
+  
+  if ($phase == 'install') {
+    $requirements['phpids'] = array(
+      'title' => $t('PHPIDS'),  
+      'value' => $t('Found PHPIDS package'),
+    );
+
+    // Test current PHP version for PHPIDS install
+	if (version_compare(PHP_VERSION, '5.1.6', '<')) {
+      $requirements['phpids']['value'] = $t('Unsupported PHP version found');
+      $requirements['phpids']['description'] = $t('To use PHPIDS your webhost must running with PHP 5.1.6 or higher. Your current PHP version: ' . PHP_VERSION);
+      $requirements['phpids']['severity'] = REQUIREMENT_ERROR;
+    }
+  } else if ($phase == 'runtime') {
+    $requirements['phpids'] = array(
+      'title' => $t('PHPIDS'),  
+      'value' => $t('Found PHPIDS package and PHP-IDS Temp is writable'),
+    );
+
+    // Test PHPIDS package from http://www.php-ids.org install
+    if (!file_exists(variable_get('phpids_path',realpath(dirname(__FILE__))). '/IDS/Config/Config.ini.php') && !file_exists(variable_get('phpids_path',realpath(dirname(__FILE__))). '/IDS/Config/Config.ini')) {
+      $requirements['phpids']['value'] = $t('No PHPIDS package found');
+      $requirements['phpids']['description'] = $t('You must dowload the latest <a href="http://www.php-ids.org" target="_blank">PHPIDS package</a> and place in a php searchable path or the phpids module folder. Current configured PHPIDS path: '. variable_get('phpids_path',realpath(dirname(__FILE__))));
+      $requirements['phpids']['severity'] = REQUIREMENT_ERROR;
+      return $requirements;
+    }
+
+    // Test PHPIDS-Temp directory exits
+    if (!file_exists(variable_get('phpids_tmppath',ini_get('upload_tmp_dir'). 'phpids'))) {
+      $requirements['phpids']['value'] = $t('PHP-IDS Temp directory not found');
+      $requirements['phpids']['description'] = $t('Please check if their exists the configured PHP-IDS Temp directory. Current configured PHPIDS-Temp path: '. variable_get('phpids_tmppath',ini_get('upload_tmp_dir'). 'phpids'));
+      $requirements['phpids']['severity'] = REQUIREMENT_ERROR;
+      return $requirements;
+    }
+
+    // Test PHPIDS-Temp directory is writable
+    if (!is_writable(variable_get('phpids_tmppath',ini_get('upload_tmp_dir'). 'phpids'))) {
+      $requirements['phpids']['value'] = $t('PHP-IDS Temp is not writable');
+      $requirements['phpids']['description'] = $t('Please check if the configured PHP-IDS Temp directory is writable. Current configured PHPIDS-Temp path: '. variable_get('phpids_tmppath',ini_get('upload_tmp_dir'). 'phpids'));
+      $requirements['phpids']['severity'] = REQUIREMENT_ERROR;
+      return $requirements;
+    }
+
+  }
+  return $requirements;
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function phpids_install() {
+  variable_set('phpids_path',realpath(dirname(__FILE__)));
+  variable_set('phpids_tmppath',ini_get('upload_tmp_dir'). 'phpids');
+  variable_set('phpids_maillevel',9);
+  variable_set('phpids_warnlevel',27);
+  variable_set('phpids_mail','');
+  variable_set('phpids_authenticated',2);
+  variable_set('phpids_anonymous',2);
+  variable_set('phpids_html_fields','');
+  variable_set('phpids_json_fields','');
+  variable_set('phpids_excl_fields','');
+}
+
+/**
+ *  Implementation of hook_uninstall().
+ */
+function phpids_uninstall() {
+  variable_del('phpids_path');
+  variable_del('phpids_tmppath');
+  variable_del('phpids_maillevel');
+  variable_del('phpids_warnlevel');
+  variable_del('phpids_mail');
+  variable_del('phpids_authenticated');
+  variable_del('phpids_anonymous');
+  variable_del('phpids_html_fields');
+  variable_del('phpids_json_fields');
+  variable_del('phpids_excl_fields');
+}

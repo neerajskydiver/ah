@@ -1,0 +1,6 @@
+; $id$
+
+name = Magazine Import
+description =  XML files Parsing for Magazine Articles and Issues.
+package = "American Heritage"
+core =  6.x

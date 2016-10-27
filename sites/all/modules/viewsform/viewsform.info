@@ -1,0 +1,11 @@
+; $Id: ad.info,v 1.1.2.2.2.1 2008/08/11 21:15:26 jeremy Exp $
+name = viewsform
+package = American Heritage
+description =Alter views form for landing page.
+core = 6.x
+; Information added by drupal.org packaging script on 2010-07-11
+version = "6.x-2.x-dev"
+core = "6.x"
+project = "viewsform"
+datestamp = "1278833319"
+

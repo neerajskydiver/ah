@@ -1,0 +1,283 @@
+<?php // $id
+
+/**
+ * @file full Code.
+ */
+
+
+
+/**
+ * Implementation of hook_perm().
+ */
+function mag_block_perm() {
+	return array('administer Magazine Block', 'use clear Records module');
+}
+
+
+/**
+ * Implementation of hook_menu().
+ */
+function mag_block_menu() {
+
+	$items['mag-block'] = array(
+		'title'	=> 'Sidebar Preview',
+		'page callback'			=> 'build_sidebar',
+		'access callback'		=> 'user_access',
+		'access arguments' => array('administer Magazine Block'),
+	);
+	return $items;
+}
+	
+	
+/**
+	*	To  build array for Sidebar menu Items 
+	*/
+
+function build_sidebar($lowest = NULL, $upperlimit = NULL) {
+
+	//$lowest = 1954;
+	$clow = $lowest;
+//	$upperlimit = date('Y');//2010;
+	$i = 0;
+	$j = 0;
+	$year_arr[$i]['low'] = $lowest;
+		do {	
+			if($clow % 10 == 0){
+					$year_arr[$i]['high'] = $clow-1; // for upper year like		1999
+					//$year_arr[$i]['mid'] = array_reverse($year_arr[$i]['mid']);
+					$i++;
+					$year_arr[$i]['low'] = $clow; // for lower year like		2000
+							$year_arr[$i]['mid'][$j] = $clow; // for lower year like		2002-2009
+			}
+			else{
+							$year_arr[$i]['mid'][$j] = $clow; // for lower year like		2002-2009
+			}
+					$j++;
+					$clow++;
+		}
+		while($clow <= $upperlimit);
+/*		  echo '<div class="views-label-field-image-fid"><pre>';
+		  print_r($year_arr);
+		  echo '</pre></div>';
+*/
+		foreach ($year_arr as $key => $value)
+		{
+		$year_arr[$key]['mid'] = array_reverse($year_arr[$key]['mid']);
+/*
+		  echo '<div class="views-label-field-image-fid"><pre>';
+		  print_r($value);
+		  //print_r($key);
+		  $value['mid'] = array_reverse($value['mid']);
+		  print_r($value);
+		  echo '</pre></div>';
+*/
+		}
+
+		$year_rev = array_reverse($year_arr);
+		$output = sidebar_html($year_rev);
+
+		 
+	return $output;
+}
+
+
+/**
+	*	To  Generate Html for Sidebar menu.
+*/
+
+function sidebar_html($menu_arr) {
+drupal_add_js(drupal_get_path('module', 'mag_block') . '/mag_block.js');
+//l($links->title, 'node/'.$links->nid)
+
+	$output .= '	<div class="left_mag" style="">
+	<dl>';
+
+	foreach($menu_arr as $datum) {
+		if($datum['low'] || $datum['high']){
+
+				//for Lower year
+				$output .= '	<dt><a href="#"> '.$datum['low'].' &mdash; ';
+				
+				//condition for Current decade. (i.e. till present)
+				
+				if(empty($datum['high'])){
+					$output .= ' Present </a></dt>';
+				}
+				else {
+					$output .= $datum['high'] . ' </a></dt>';
+				}
+		}
+		if($datum['mid']) {
+					$output .= '	<dd><ul>	';
+			foreach($datum['mid'] as $mid_i => $mid_val) {
+					//		<li><a href="#">
+//field_year_value	field_issuenumber_value
+//return t('SELECT nid FROM {content_type_issue} WHERE field_year_value	= %d', array('%d' => $mid_val));
+$result = db_query('SELECT field_volumenumber_value FROM {content_type_issue} WHERE field_year_value	= %d AND field_year_value <= %d', $mid_val,  date('Y'));
+//.' ORDER BY field_year_value ASC'
+  while ($item = db_fetch_object($result)) {
+        $items[] = $item->field_volumenumber_value;
+      }
+
+			if(count($items)){
+				$max =  max($items);
+			}
+			if(count($items)) {
+			$min =  min($items);
+		}
+			unset($items);//
+
+//				$output .= '		<li><a href="#">' . $mid_val . '&ndash; Vols '.$min.'-'.$max.' </li></a>';
+				if (arg(1) == $mid_val){
+						$attributes = "class=active";
+				}
+				elseif (arg(0) == 'node' && is_numeric(arg(1))) {
+				  $article_nid = arg(1);
+				  $article_node = node_load($article_nid);
+				  	if($article_node->type=='issue'){
+              			if($article_node->field_year[0]['value']== $mid_val){
+    						$attributes = "class=active";
+             					 }
+					  }
+							if($article_node->type=='article'){
+							$issueNid=$article_node->field_issue_nid[0]['nid'];
+							$Issue_node = node_load($issueNid);
+							$yearIssue= $Issue_node->field_year[0]['value'];	
+							if($yearIssue== $mid_val){
+							$attributes = "class=active";
+							}
+				  			}
+
+
+				}
+      if($max!=$min){
+      $volumenumbers = $min.'-'.$max;
+      }
+      else{
+      $volumenumbers = $min;
+      }
+				if($min){
+				$output .= '		<li '.$attributes.'>' . l($mid_val . ' - Vols '. $volumenumbers , 'volume/'. $mid_val.'/year')	.'</li>';
+			}
+				unset($min, $max, $attributes);
+			}
+					$output .= '		</ul></dd>';
+			
+		}
+	}
+
+	$output .= '</dl>
+	</div>';
+	return $output;
+}
+
+
+
+/**
+* Generate HTML for the onthisdate block
+* @param op the operation from the URL
+* @param delta offset
+* @returns block HTML
+*/
+function mag_block_block($op='list', $delta=0) {
+
+  // set up the block 
+  $block = array();
+
+  if ($op == "list") {
+    // Generate listing of blocks from this module, for the admin/block page
+
+    $block[0]["info"] = t('Magazine Sidebar');
+  }
+  else if ($op == 'view') {
+
+    // Generate our block content
+
+    // content variable that will be returned for display
+    $dt = date('Y');
+    $block_content = build_sidebar(1954, $dt);
+
+
+
+
+    // Fill in the subject of our block which is the same whether or not
+    // the block has any real content
+    $block['subject'] = '';
+
+    // check to see if there was any content before returning
+    //  the block view
+    if ($block_content == '') {  
+       // no content from a week ago
+       $block['content'] = 'No Content available.';
+    }
+    else {
+      // set up the block
+      $block['content'] = $block_content;
+    }
+  }
+
+//---to display block only on contributor page on 30 jan2013----//
+/*$uid = arg(1);
+
+$usrdata = mysql_query("SELECT rid FROM users_roles WHERE uid=".$uid);
+while($row = mysql_fetch_array($usrdata)){
+    $rid = $row['rid'];
+}*/
+//---to display block only on contributor page on 30 jan2013----//		
+	
+	
+	
+	
+	$types = array('issue' => 1, 'article' => 2);
+  if (arg(0) == 'node' && is_numeric(arg(1))) {
+    $nid = arg(1);
+    $node = node_load(array('nid' => $nid));
+    $type = $node->type;
+    if (isset($types[$type])) {
+    $match = TRUE;
+  }
+  
+  
+
+	if (arg(0) == 'node' && is_numeric(arg(1))) {
+		if ($match) {
+				return $block;
+			}
+		else{
+			return FALSE;
+		}
+	}
+	else{
+				return $block;
+		}
+  }	
+  elseif(arg(0) == "user" && $rid == 4)
+				return $block;
+}
+
+
+
+
+/*
+
+	<div class="left_mag">
+<dl>
+
+	<dt><a href="#">2000 &mdash; 2009 </a></dt>
+	<dd>
+	<ul>
+		<li><a href="#">2009 &ndash; Vols 60-61</a></li>
+		<li><a href="#">2008 &ndash; Vols 59-60</a></li>
+		<li><a href="#">2007 &ndash; Vols 58-59</a></li>
+		<li><a href="#">2006 &ndash; Vols 57-58</a></li>
+		<li><a href="#">2005 &ndash; Vols 56-57</a></li>
+		<li><a href="#">2004 &ndash; Vols 55-56</a></li>
+		<li><a href="#">2003 &ndash; Vols 54-55</a></li>
+		<li><a href="#">2002 &ndash; Vols 53-54</a></li>
+		<li><a href="#">2001 &ndash; Vols 52-53</a></li>
+		<li><a href="#">2000 &ndash; Vols 51-52</a></li>
+	</ul>
+	</dd>
+
+</dl>
+</div>*/

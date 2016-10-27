@@ -1,0 +1,12 @@
+; $Id: views_gallery.info,v 1.2 2010/06/04 14:23:22 karens Exp $
+name = Split User Name
+description = Split the user name in to first middle and last.
+core = 6.x
+package = American Heritage
+
+; Information added by drupal.org packaging script on 2011-02-28
+version = ""
+core = "6.x"
+project = "split_user_name"
+datestamp = "1275671414"
+

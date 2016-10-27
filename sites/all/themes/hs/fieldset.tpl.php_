@@ -1,0 +1,16 @@
+<?php
+  //This override needed to avoid showing empty fieldsets...
+  // All we do is add an initial "if" to the core theme_fieldset function to check that it's not empty
+  if ($element['#children']) {
+      if ($element['#collapsible']) {
+        drupal_add_js('misc/collapse.js');
+   
+        $element['#attributes']['class'] .= ' collapsible';
+        if ($element['#collapsed']) {
+         $element['#attributes']['class'] .= ' collapsed';
+        }
+      }
+   
+      print '<fieldset' . drupal_attributes($element['#attributes']) .'>' . ($element['#title'] ? '<legend>'. $element['#title'] .'</legend>' : '') . ($element['#description'] ? '<div class="description">'. $element['#description'] .'</div>' : '') . $element['#children'] . $element['#value'] . "</fieldset>\n";
+  }
+?>

@@ -1,0 +1,11 @@
+name = Alphabetical User List
+description = Provides various user list views as pages and blocks.
+core = 6.x
+package = American Heritage
+
+; Information added by drupal.org packaging script on 2011-02-25
+version = ""
+core = "6.x"
+project = "alphabetical_user_list"
+datestamp = "1298620595"
+

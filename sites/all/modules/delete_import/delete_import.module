@@ -1,0 +1,130 @@
+<?php
+// $Id$
+function delete_import_perm()
+{
+	return array("Delete Imported Data");
+}
+function delete_import_menu()
+{
+	$items = array();
+	$items['admin/settings/delete_import'] = array(
+	'title' => 'Delete Artifacts',
+	'description' => 'Deletes Artifacts that are partially Imported',
+	'page callback' => 'help_text_testd',
+	'access arguments' => array('administer site configuration'),
+	);
+	$items['admin/settings/delete_import/help'] = array(
+	'title' => 'Help',
+	'description' => 'Deletes Artifacts that are partially imported',
+	'page callback' => 'help_text_testd',
+	'access callback' => user_access,
+	'access arguments' => array('administer site configuration'),
+	'type' => MENU_LOCAL_TASK,
+	);
+	$items['admin/settings/delete_import/list'] = array(
+	'title' => 'Delete partially Imported Artifacts',
+	'page callback' => 'delete_import_museum',
+	'access callback' => user_access,
+	'access arguments' => array('administer site configuration'),
+	'type' => MENU_LOCAL_TASK,
+	);
+	return $items;
+}
+
+function help_text_testd()
+{
+	return  (which_return_help_textd());
+}
+
+
+
+function which_return_help_textd()
+{
+	$message.= "<ul>";
+	$message.= "<li>Here is the standard format of the excel file in which we are excpecting data.<a href=\"/sites/default/files/records.xlsx\">Click Here For Standard Format.</a> </li>";
+	$message.= "<li>The upload form will only accept (.csv) files, Also there are some steps that need to be followed while saving the file as .csv file.</li>";
+	$message.= "<li>Below are the steps listed to save file as .csv file.</li>";
+	$message.= "<li>Before saving the excel file as .csv file make sure the excel does not contain blank rows.</li>";
+	$message.= "<li><b>In Excel, choose CSV (*.csv) as the file type and save as that type.</b> </li>";
+	$message.= "<li> <b>open the saved .csv file in Notepad</b>.</li>";
+	$message .= "<li><b>Then choose -> Save As..and at the bottom of the \"save as\" box, there is a select box labelled as \"Encoding\". Select UTF-8 . After selecting UTF-8, then save the file to a slightly different file name from the original.</b></li>";
+	$message.= "<li><b> Upload the newly saved file.</b></li>";
+
+	//$message.= "<li>Remove the first row which contains title of the columns</li>";
+	$message.= "<li>When the import is completed succesfully a directory is created on the server with the name of the site under which the collections are imported.</li>";
+	$message.= "<li>Upload the image folder onto the server in the respective site directory's Images folder.</li>";
+	$message.= "<li>Now, the import is completed successfully . </li>";
+	return $message;
+}
+
+
+function delete_import_museum()
+{
+	return drupal_get_form('delete_import_form');
+}
+function delete_import_form()
+{
+	$form = array();
+	$form['submit'] = array(
+	'#type' => "submit",
+	'#value' => t('Delete Partially imported Artifact Data'),
+	);
+	return $form;
+}
+
+function delete_import_form_submit(&$form,&$form_state)
+{
+	$function = 'delete_import_batch_1';
+	$batch = $function();
+	batch_set($batch);
+}
+
+
+function delete_import_batch_1() {
+	//$result = db_query("SELECT count(nid) FROM  `content_type_artifact` WHERE  `field_artifact_institution_nid` = 42187");
+	$result = db_query("SELECT count(nid) FROM content_type_collection WHERE field_site_id_nid = 125641");
+	$cnt = db_result($result);
+	$operations = array();
+	for ($i = 0; $i< 500; $i++) {
+		 $operations[] = array('logic_for_delete_import', array($i));
+	}
+	$batch = array(
+		'operations' => $operations,
+		'finished' => 'delete_import_finished',
+	
+	  );
+	  return $batch;
+}
+
+
+//function logic_for_delete_import()
+function logic_for_delete_import($i,&$context)
+{
+
+$sqlDetete = "SELECT * FROM content_type_collection WHERE field_site_id_nid = 125641 LIMIT ".$i.",1";
+$executeDeleteQuery = db_query($sqlDetete);
+$nid = db_fetch_array($executeDeleteQuery);
+
+node_delete($nid['nid']);
+
+$context['results'][] = $node->nid . ' : ' . check_plain($node->title) . ' Node Deleted ' . $nid['nid'];
+//$context['results'][] = "Sql" . ' : ' . $sql;
+$context['message'] = t('Loading @title', array('@title' => $nid['nid']));	
+}
+
+function delete_import_finished($success, $results, $operations) {
+  if ($success) {
+    // Here we do something meaningful with the results.
+    $message = count($results) .' processed.';
+    $message .= theme('item_list', $results);
+  }
+  else {
+    // An error occurred.
+    // $operations contains the operations that remained unprocessed.
+    //$error_operation = reset($operations);
+    $message = t('An error occurred while processing %error_operation with arguments: @arguments', array('%error_operation' => $error_operation[0], '@arguments' => print_r($error_operation[1], TRUE)));
+  $error_operation = reset($operations);
+  }
+  
+  drupal_set_message($message);
+}

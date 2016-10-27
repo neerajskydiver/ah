@@ -1,0 +1,8 @@
+; $Id$
+name = Generate Teasers  
+description = Import Collection keywords as Taxonomy terms.
+package = American Heritage
+version = VERSION
+core = 6.x
+
+;dependencies[] = taxonomy

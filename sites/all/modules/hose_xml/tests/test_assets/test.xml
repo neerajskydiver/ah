@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<node title="Node Title">
+  <title title="Node Title">Node Title</title>
+  <textfield1>Textfield 1 Value</textfield1>
+  <multitextfield>
+    <value>Multitextfield value delta 1</value>
+    <value>Multitextfield value delta 2</value>
+  </multitextfield>
+  <integerfield>1356789</integerfield>
+  <body>Node description</body>
+</node>
+

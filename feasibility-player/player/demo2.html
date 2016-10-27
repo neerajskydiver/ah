@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link href="ninja-slider.css" rel="stylesheet" type="text/css" />
+    <script src="ninjaVideoPlugin.js" type="text/javascript"></script>
+    <script src="ninja-slider.js" type="text/javascript"></script>
+    <style>
+        body {font: normal 0.9em Arial;margin:0;}
+        a {color:#1155CC;}
+        ul li {padding: 10px 0;}
+        
+        /* --- override the ninja-slider.css settings --- */
+        #ninja-slider {padding:0 0;}
+        
+        /* --- Show pause/play button --- */
+        #ninja-slider-pause-play
+        {
+            display:block;
+            position: absolute;    
+            top:auto;
+            bottom:0;    
+            width:64px;
+            height:64px;
+            display:inline-block;
+            background-image: url(img/navs.png);
+            left: 0;
+            background-position:0 -128px;
+        }
+
+        #ninja-slider-pause-play.paused {background-position:-64px -128px;}        
+    </style>
+    <script>
+        nsOptions.aspectRatio = "auto";
+        nsOptions.effect = "fade";
+        nslider.reload();
+    </script>
+</head>
+<body>
+    <div>     
+        <div id='ninja-slider'>
+            <ul>
+                <li><div data-image="img/md/jhuall_m_041614_20140415164517_acalltoworship3_050514.jpg"></div></li>
+                <li><div data-image="img/md/jhuall_m_050214_bz5599y_10311803_10202931551877257_659809800_n_050614.jpg"></div></li>
+                <li><div data-image="img/md/jhuall_s_041614_20140415164411_acalltoworship2_050514.jpg"></div></li>
+                <li><div data-image="img/md/jhuall_s_041714_20140417005336_crabfeastad_042414.jpg"></div></li>
+                <li><div data-image="img/md/jhus_m_041714_20140417142821_fotor0413155439_042114.jpg"></div></li>
+                <li><div data-image="img/md/masonall_m_050914_qe1954r_masonadminor_052614.png"></div></li>
+                <li><div data-image="img/md/masonall_m_050914_ry4989g_masonadmsm_052614.jpg"></div></li>
+                <li><div data-image="img/md/masonall_m_051214_nk1317q_haitiad3_061414.jpg"></div></li>
+                <li><div data-image="img/md/masonall_m_051214_xm8357j_haitiad2_061514.jpg"></div></li>
+                <li><div data-image="img/md/paceall_s_042914_hj9428s_paperless_flier_2014homer_103114.png"></div></li>
+                <li><div data-image="img/md/paceall_s_042914_yu3299h_osa2014summerhoursposterupdatehomer_073114.png"></div></li>
+                <li>
+                    <div data-image="img/md/5.jpg">
+                        <a data-autovideo="true" class="video" href="http://vimeo.com/82299487"></a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

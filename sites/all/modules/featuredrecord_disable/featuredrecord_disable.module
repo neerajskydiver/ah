@@ -1,0 +1,302 @@
+<?php
+
+function featuredrecord_disable_perm() {
+  return array(
+    'administer custom featuredrecord_disable',
+    'access testing pages'
+  );
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function featuredrecord_disable_menu() {
+
+$items = array();
+
+ $items['admin/settings/featuredrecord_disable'] = array(
+    'title' => '',
+    'description' => '',
+    'page callback' => 'featuredrecord_disable_help_text',
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+
+  $items['admin/settings/featuredrecord_disable/delete'] = array(
+    'title' => 'Delete Featured Record',
+    'description' => 'Featured Record Disable List.',
+    'page callback' => 'featuredrecord_disable_record',
+    'access arguments' => array('administer site configuration'),
+    'type' =>MENU_LOCAL_TASK,
+    'weight' => 2,
+   
+  );
+ $items['admin/settings/featuredrecord_disable/help'] = array(
+	'title' => 'Help',
+	'description' => 'Steps in which you add featured record ',
+	'page callback' => 'featuredrecord_disable_help_text',
+	'access arguments' => array('administer site configuration'),
+	'type' => MENU_LOCAL_TASK,
+	'weight' => 4,
+	);
+
+  $items['admin/settings/featuredrecord_disable/add'] = array(
+	'title' => 'Add Featured Record',
+	'description' => 'Steps in which you update featured record ',
+	'access arguments' => array('access content'),
+	'page callback' => 'featuredrecord_disable_custom_menu',
+	'access callback' => TRUE,
+	'type' => MENU_LOCAL_TASK,
+	'weight' => 1,
+	);
+ $items['admin/settings/featuredrecord_disable/description'] = array(
+	'title' => 'Description Length',
+	'description' => 'Steps in which you add featured record description length ',
+	'page callback' => 'featuredrecord_disable_length',
+	'access arguments' => array('administer site configuration'),
+	'type' => MENU_LOCAL_TASK,
+	'weight' => 3,
+	);
+
+  $items['featuredrecord_disable/js'] = array(
+    'page callback' => 'featuredrecord_disable_js',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+
+
+    return $items;
+}
+
+/* to call add module */
+function featuredrecord_disable_custom_menu(){
+
+drupal_goto('admin/settings/featuredrecord/add');
+}
+
+function featuredrecord_disable_help_text(){
+
+drupal_goto('admin/settings/featuredrecord/help');
+}
+
+function featuredrecord_disable_length(){
+
+drupal_goto('admin/settings/featuredrecord/description');
+}
+
+
+/**
+ * Show a configuration page for a custom testing block
+ */
+function featuredrecord_disable_record() {
+  // Include a nice Javascript which makes the settings easier
+   drupal_add_js(drupal_get_path('module', 'featuredrecord_disable') .'/helper.js');
+ 
+   $config['sites'] = featuredrecord_disable_get_site();
+   $config['collection'] = featuredrecord_disable_get_collection($config['sites']);
+
+  $output = drupal_get_form('featuredrecord_disable_form', $uid, $cid, $config);
+
+  return $output;
+}
+
+
+
+/**
+ * Return a new place selection box based on the country selection
+ */
+function featuredrecord_disable_js() {
+  // Get the current selected country for the new places
+  $form_state = array('values' => $_POST);
+  $new_places = featuredrecord_disable_get_collection($form_state['values']['site']);
+    
+  if (is_array($new_places)){$new_places=$new_places;}else{
+  $new_places[]=' '; 
+  drupal_set_message(t('No Collections exists.'));
+    }
+     // Get form from cache and store modified place selection
+
+  $form = form_get_cache($_POST['form_build_id'], $form_state);
+
+  $form['collection'] = array(
+    '#type' => 'select',
+    '#title' => t('Collections'),
+    '#description' => t('Select one or more collection.'),
+    '#options' => $new_places,
+    '#default_value' => $new_places,
+    '#multiple'=>TRUE,
+
+  );
+  form_set_cache($_POST['form_build_id'], $form, $form_state);
+  $form += array(
+    '#post' => $_POST,
+    '#programmed' => FALSE,
+  );
+
+  // Rebuild the form.
+  $form_state = array('submitted' => FALSE);
+  $form = form_builder('featuredrecord_disable_form', $form, $form_state);
+
+
+  // Render the new output.
+  $output = theme('status_messages') . drupal_render($form['collection']);
+
+  // Don't call drupal_json(). ahah.js uses an iframe and
+  // the header output by drupal_json() causes problems in some browsers.
+  print drupal_to_js(array('status' => TRUE, 'data' => $output));
+
+
+  
+ 
+  exit;
+}
+
+
+
+/**
+ * Construct the configuration form for a featuredrecord_disable
+ */
+function featuredrecord_disable_form($dummy, $uid, $cid, $config) {
+  // set up a selection box with all countries
+  drupal_add_js(drupal_get_path('module', 'featuredrecord_disable') . '/submit.js');
+
+  $form['site'] = array(
+    '#type' => 'select',
+    '#title' => t('Sites'),
+    '#description' => t('Select any site title .'),
+    '#options' => drupal_map_assoc($config['sites']),
+    '#default_value'=>'None',
+    '#ahah' => array(
+      'path' => 'featuredrecord_disable/js',
+      'wrapper' => 'edit-collection-wrapper',
+    ),
+  );
+  // set up a selection box with all place names of the selected country
+  $form['collection'] = array(
+    '#type' => 'select',
+    '#title' => t('Collections'),
+    '#description' => t('Select one or more collection.'),
+    '#multiple'=>TRUE,
+    '#options' => $config['collection'],
+    '#default_value' => end($config['collection']),
+  );
+
+ 
+  $form['submit'] = array(
+    '#type' => 'submit',
+
+    '#value' => t('Delete'),
+
+  );
+
+  return $form;
+}
+
+
+/**
+ * Handle the submission of the custom testing block
+ */
+function featuredrecord_disable_form_submit(&$form,&$form_state) {
+
+
+  $sites=$form_state['values']['site'];
+   $sites=addslashes($sites);
+  $sql = "SELECT n.nid,n.title FROM node n inner join content_type_bookmarks_sites cb on cb.nid=n.nid where n.title='$sites'";
+  $result = db_query($sql);
+  $row = db_fetch_array($result);
+  $site_nid = $row['nid'];
+  $site_title = $row['title'];
+
+  $sqlcol = "SELECT cc.nid, n.title FROM node n inner join content_type_collection cc ";
+  $sqlcol .= " on cc.nid=n.nid inner join content_type_bookmarks_sites cb on cc.field_site_id_nid=cb.nid WHERE cc.field_site_id_nid='$site_nid' and n.title!='' ORDER BY cc.nid ASC";
+  $resultcol = db_query($sqlcol);
+  $rowcol = db_result($resultcol);
+   
+  $collection=$form_state['values']['collection'];
+       
+ 	if($_POST['site']=='')
+ 	{
+	drupal_set_message(t('Please select site.'));
+	}
+	else if(count($collection)==0 && $rowcol=='' )
+	{
+	drupal_set_message(t('No collections for '.$site_title));
+       }
+       else if(count($collection)==0)
+	{
+
+       form_set_error('', t('Please select collection.'));
+
+       }
+ 	else{
+
+       $comma_value=implode(",",$collection);
+       foreach($collection as $key){
+        
+       $query = "SELECT count(collection_id) from ah_featuredrecord where collection_id='$key'";
+      	$result = db_query($query);
+       $countarray=db_result($result);
+	
+  		
+      $result=db_query("delete from ah_featuredrecord where site_id='$site_nid' &&  collection_id='$key'");
+      
+    
+    }
+       if ($result != 0 ) {
+       
+       drupal_set_message(t('Deleted successfully.'));
+       }
+	
+      }
+}
+
+
+function featuredrecord_disable_get_site() {
+
+
+
+$sql="SELECT n.title
+FROM node n
+INNER JOIN content_type_bookmarks_sites cb ON cb.nid = n.nid
+INNER JOIN ah_featuredrecord ah ON cb.nid = ah.site_id
+INNER JOIN content_type_collection cc ON cc.field_site_id_nid = cb.nid where ah.flag=1
+GROUP BY cb.nid
+ORDER BY n.title ASC" ;
+
+ $result = db_query($sql);
+ while ($row = db_fetch_array($result)) {
+  $sites[] = $row['title'];
+ }
+ 
+  return $sites;
+}
+function featuredrecord_disable_get_collection($site) {
+  $sqlSite = "SELECT n.nid FROM node n inner join content_type_bookmarks_sites cb on cb.nid=n.nid ";
+  $sqlSite .= " where n.title='%s'  and n.type='bookmarks_sites'";
+  $resultSite = db_query($sqlSite, $site);
+  $rowSite = db_fetch_array($resultSite);
+  $SiteData =  $rowSite['nid'];
+
+
+$selectcollection=db_query("SELECT DISTINCT(ah.collection_id) FROM ah_featuredrecord ah WHERE ah.flag ='1' AND ah.site_id = '$SiteData'");
+while($resultcollection=db_fetch_array($selectcollection)){
+$arraycollection[]=$resultcollection['collection_id'];
+}
+
+$commavalue=implode(',',$arraycollection);
+
+$sql = "SELECT cc.nid, n.title FROM node n inner join content_type_collection cc ";
+$sql .= " on cc.nid=n.nid  WHERE cc.field_site_id_nid='$SiteData' and n.title!='' and cc.nid in ($commavalue) and n.type='collection'  ORDER BY cc.nid ASC";
+
+  
+
+  $result = db_query($sql);
+  while ($row = db_fetch_array($result)) {
+   $collection[$row['nid']] = $row['title'];
+  }
+  return $collection;
+}
+
+

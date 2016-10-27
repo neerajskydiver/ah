@@ -1,0 +1,129 @@
+<?php
+
+/**
+ * @file
+ * Implementation of 'rating' tag type.
+ */
+
+/**
+ * @defgroup hose_xml_rating Rating
+ * @{
+ * Rating field type plug-in.
+ *
+ * Matches only specified (in setting) Ratings Board option
+ * and returns an export error on failure.
+ */
+
+/**
+ * Implementation of hook_hose_xml_field_name().
+ */
+function hose_xml_rating_hose_xml_field_name() {
+  return array('rating' => t('Rating'));
+} // hose_xml_rating_hose_xml_field_name
+
+/**
+ * Implementation of hook_hose_xml_field_icon().
+ */
+function hose_xml_rating_hose_xml_field_icon() {
+  return drupal_get_path('module', 'hose_xml_rating') .'/rating.png';
+} // hose_xml_rating_hose_xml_field_icon
+
+/**
+ * Implementation of hook_hose_xml_settings_information().
+ */
+function hose_xml_rating_hose_xml_settings_information() {
+  return array(
+    'default' => array(
+      'title' => t('Rating Code'),
+      'description' => t("Enter a valid Ratings board (e.g. uk-tv)."),
+    ),
+    'hint_rating' => array(
+      'title' => t('Validation Hint'),
+      'description' => t("(Optional) Enter a validation hint, specific to this export profile which will appear instead of the generic error message on export failure."),
+    ),
+  );
+} // hose_xml_rating_hose_xml_settings_information
+
+/**
+ * Implementation of hook_hose_xml_settings_validate().
+ */
+function hose_xml_rating_hose_xml_settings_validate($setting, $value) {
+  $check = array(
+    'nunet', 'au-tv', 'ca-tv', 'de-tv', 'fr-tv', 'uk-tv', 'us-tv', 'jp-tv', 'au-oflc', 'ca-chvrs', 'de-fsk', 'fr-cnc', 'jp-eirin', 'nz-oflc', 'bbfc', 'mpaa',
+  );
+  if (!empty($value) && !in_array($value, $check)) {
+    return t('Please enter a valid Ratings board.');
+  }
+} // hose_xml_rating_hose_xml_settings_validate
+
+/**
+ * Implementation of hook_hose_xml_validate().
+ */
+function hose_xml_rating_hose_xml_validate($data, $settings) {
+  $reason = '';
+  $ratings = _hose_xml_rating_ratings($settings['default']);
+  if (!empty($data) && !in_array($data, $ratings)) {
+    $reason = $settings['hint_rating'] ? $settings['hint_rating'] : t('Entry is not a valid ratings code for this region.');
+  }
+  return array(
+    'data' => $data,
+    'reason' => $reason,
+  );
+} // hose_xml_rating_hose_xml_validate
+
+/**
+ * Helper function which maps regions to their valid rating codes.
+ *
+ * @param $settings
+ *   String containing Ratings Board.
+ *
+ * @return
+ *   Array containing valid options for specified Ratings Board.
+ * 
+ * @see hose_xml_rating_hose_xml_validate()
+ */
+function _hose_xml_rating_ratings($settings) {
+  switch ($settings) {
+    // Nunet
+    case 'nunet':
+      return array('Suitable for audiences 18 and older', 'Suitable for audiences 13 and older');
+    // TV Series
+    case 'au-tv':
+      return array('P', 'C', 'G', 'PG', 'M', 'MA15+', 'AV15+');
+    case 'ca-tv':
+      return array('C', 'C8', 'G', 'PG', '14+', '18+');
+    case 'de-tv':
+      return array('ab 6 Jahren', 'ab 12 Jahren', 'ab 16 Jahren', 'ab 18 Jahren');
+    case 'fr-tv':
+      return array('-10', '-12', '-16', '-18');
+    case 'uk-tv':
+      return array('caution');
+    case 'us-tv':
+      return array('TV-Y', 'TV-Y7', 'TV-G', 'TV-PG', 'TV-14', 'TV-MA');
+    case 'jp-tv':
+      return array('explicit');
+    // Features
+    case 'au-oflc':
+      return array('Not Rated', 'G', 'PG', 'M', 'MA15+', 'R18+');
+    case 'ca-chvrs':
+      return array('Not Rated', 'G', 'PG', '14A', '18A', 'R', 'E', 'Unrated');
+    case 'de-fsk':
+      return array('ab 0 Jahren', 'ab 6 Jahren', 'ab 12 Jahren', 'ab 16 Jahren', 'ab 18 Jahren');
+    case 'fr-cnc':
+      return array('-10', '-12', '-16', '-18');
+    case 'jp-eirin':
+      return array('G', 'PG-12', 'R-15', 'R-18');
+    case 'nz-oflc':
+      return array('Not Rated', 'G', 'PG', 'M', 'R13', 'R15', 'R16', 'R18', 'R', 'RP16');
+    case 'bbfc':
+      return array('U', 'Uc', 'PG', '12', '12A', '15', '18', 'E', 'TBC');
+    case 'mpaa':
+      return array('G', 'GP', 'PG', 'PG-13', 'M', 'R', 'NC-17', 'X', 'UR', 'NR');
+    default:
+      return array();
+  }
+} // _hose_xml_rating_ratings
+
+/**
+ * @} End of "defgroup hose_xml_rating".
+ */

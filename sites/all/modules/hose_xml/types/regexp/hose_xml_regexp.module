@@ -1,0 +1,63 @@
+<?php
+
+/**
+ * @file
+ * Implementation of 'regexp' tag type.
+ */
+
+/**
+ * @defgroup hose_xml_regexp Regular Expression
+ * @{
+ * Regular Expression field type plug-in.
+ *
+ * Matches based on given field level regular expression
+ * and returns an export error on failure.
+ */
+
+/**
+ * Implementation of hook_hose_xml_field_name().
+ */
+function hose_xml_regexp_hose_xml_field_name() {
+  return array('regexp' => t('RegExp'));
+} // hose_xml_regexp_hose_xml_field_name
+
+/**
+ * Implementation of hook_hose_xml_field_icon().
+ */
+function hose_xml_regexp_hose_xml_field_icon() {
+  return drupal_get_path('module', 'hose_xml_regexp') .'/regexp.png';
+} // hose_xml_regexp_hose_xml_field_icon
+
+/**
+ * Implementation of hook_hose_xml_settings_information().
+ */
+function hose_xml_regexp_hose_xml_settings_information() {
+  return array(
+    'default' => array(
+      'title' => t('Custom Regular Expression'),
+      'description' => t("Enter your Regular Expression here, e.g. '/^[a-f0-9]{32}$/i' would match a checksum. For reference, please see the <a href=\"@link\">Regular Expression manual</a> on php.net.", array('@link' => 'http://www.php.net/manual/en/book.pcre.php')),
+    ),
+    'hint_regexp' => array(
+      'title' => t('Validation Hint'),
+      'description' => t("(Optional) Enter a validation hint, specific to this export profile which will appear instead of the generic error message on export failure."),
+    ),
+  );
+} // hose_xml_regexp_hose_xml_settings_information
+
+/**
+ * Implementation of hook_hose_xml_validate().
+ */
+function hose_xml_regexp_hose_xml_validate($data, $settings) {
+  $reason = '';
+  if (!empty($data) && !preg_match($settings['default'], $data)) {
+    $reason = $settings['hint_regexp'] ? $settings['hint_regexp'] : t('Entry does not match the pattern given.');
+  }
+  return array(
+    'data' => $data,
+    'reason' => $reason,
+  );
+} // hose_xml_regexp_hose_xml_validate
+
+/**
+ * @} End of "defgroup hose_xml_regexp".
+ */
